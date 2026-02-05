@@ -1,15 +1,25 @@
 'use client';
 
 import React, { createContext, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
-import { BasicInfoState, UserContextType, UserRoleType } from '../../types';
+import {
+  BasicInfoState,
+  User,
+  UserContextType,
+  UserRoleType,
+} from '../../types';
+import { auth } from '../../config/firebase-config';
+import { getUser } from '../../lib/users';
+import { onAuthStateChanged } from 'firebase/auth';
 
 export const UserContext = createContext<UserContextType>(
   {} as UserContextType,
 );
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
   const [basicInfo, setBasicInfo] = useState<BasicInfoState>({
     fullName: '',
     mobileNumber: '',
@@ -17,14 +27,63 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     password: '',
     confirmPassword: '',
   });
+
   const [selectedRole, setSelectedRole] = useState<UserRoleType>('CUSTOMER');
+  useEffect(() => {
+    const localUserInfo = localStorage.getItem('user');
+
+    if (localUserInfo) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSelectedRole(JSON.parse(localUserInfo).role || 'CUSTOMER');
+    }
+  }, []);
+
+  console.log('user', user, loading);
 
   useEffect(() => {
-    console.log(basicInfo);
-  }, [basicInfo]);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setLoading(true);
 
-  const [loading, setLoading] = useState(true);
-  const router = useRouter();
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (!firebaseUser) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const userInfo = await getUser(firebaseUser.uid);
+
+        localStorage.setItem('user', JSON.stringify(userInfo));
+        setUser(userInfo);
+
+        const { fullName, email, mobileNumber, password, role } = userInfo;
+
+        setBasicInfo({
+          fullName,
+          mobileNumber,
+          email,
+          password,
+          confirmPassword: password,
+        });
+
+        setSelectedRole(role || 'CUSTOMER');
+        setLoading(false);
+      } catch (error: any) {
+        if (error?.message === 'User not found') {
+          setUser(null);
+          setLoading(false);
+          console.log('Error while fetching user', error);
+          return;
+        }
+
+        toast.error('Error while fetching user');
+        console.error(error);
+        setLoading(false);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -35,22 +94,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const handleLogout = async () => {
-    setLoading(true);
-
-    try {
-      toast.success('Logout successfully!');
-      localStorage.clear();
-
-      setTimeout(() => {
-        router.push('/');
-      }, 500);
-    } catch (error) {
-      console.error('Error during logout:', error);
-      toast.error('Error during logout. Please try again.');
-      return;
-    } finally {
-      setLoading(false);
-    }
+    console.log('log out');
   };
 
   return (
@@ -62,6 +106,8 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         handleChange,
         selectedRole,
         setSelectedRole,
+        user,
+        setUser,
       }}
     >
       {children}

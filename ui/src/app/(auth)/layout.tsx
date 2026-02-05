@@ -1,6 +1,24 @@
-import { ReactNode } from 'react';
+'use client';
 
-const layout = ({ children }: { children: ReactNode }) => {
+import { ReactNode, useContext, useEffect } from 'react';
+import { UserContext } from '../context/user-context';
+import { useRouter } from 'next/navigation';
+import Loader from '../../components/loader';
+
+const Layout = ({ children }: { children: ReactNode }) => {
+  const { user, loading } = useContext(UserContext);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (user && !!user.onboarded && !loading) {
+      router.push('/');
+    }
+  }, [user, router, loading]);
+
+  if (loading) {
+    return <Loader variant='screen' />;
+  }
+
   return (
     <div className='flex min-h-screen flex-col lg:flex-row'>
       <div className='hidden lg:flex lg:w-1/2 relative overflow-hidden bg-primary/10'>
@@ -39,4 +57,4 @@ const layout = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export default layout;
+export default Layout;

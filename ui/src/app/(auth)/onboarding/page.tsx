@@ -3,10 +3,11 @@
 import UserRole from '../../../components/Auth/onboarding/user-role';
 import BasicInfo from '../../../components/Auth/onboarding/basic-info';
 import { Stepper } from '../../../components/Auth/stepper';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import OwnerConfiguration from '../../../components/Auth/onboarding/owner-configuration';
 import CustomerConfiguration from '../../../components/Auth/onboarding/customer-configuration';
 import { UserContext } from '../../../app/context/user-context';
+import { useRouter } from 'next/navigation';
 
 const steps = [
   { id: 1, title: 'Basic Info' },
@@ -15,8 +16,33 @@ const steps = [
 ];
 
 export default function OnboardingPage() {
-  const [currentStep, setCurrentStep] = useState(3);
-  const { selectedRole } = useContext(UserContext);
+  const [mounted, setMounted] = useState(false);
+  const router = useRouter();
+
+  const [currentStep, setCurrentStep] = useState(() => {
+    if (typeof window === 'undefined') return 1;
+
+    const localUserInfo = localStorage.getItem('user');
+    const onboardingStep = localUserInfo
+      ? JSON.parse(localUserInfo).onboardingStep
+      : 0;
+    return onboardingStep + 1;
+  });
+
+  const { selectedRole, user } = useContext(UserContext);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (user && !!user.onboarded) {
+      router.push('/');
+    }
+  }, [user, router]);
+
+  if (!mounted) return null;
 
   return (
     <div className='mx-auto p-6 pb-0 flex-1'>

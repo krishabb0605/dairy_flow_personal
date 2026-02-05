@@ -1,14 +1,38 @@
 import OnboardingLayout from './layout';
 import { OnboardingStepProps } from '../../../types';
 import { UserContext } from '../../../app/context/user-context';
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
+import { toast } from 'react-toastify';
+import { addRole } from '../../../lib/users';
 
 const UserRole = ({ currentStep, setCurrentStep }: OnboardingStepProps) => {
-  const { selectedRole, setSelectedRole } = useContext(UserContext);
-  const handleSubmit = (e: React.FormEvent) => {
+  const [saveLoading, setSaveLoading] = useState(false);
+
+  const { selectedRole, setSelectedRole, user, setUser } =
+    useContext(UserContext);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // You can add validation logic here before proceeding to the next step
-    setCurrentStep((prev) => prev + 1);
+
+    if (!user) {
+      toast.error('User not found !!');
+      return;
+    }
+
+    try {
+      setSaveLoading(true);
+
+      const userInfo = await addRole(user.id, selectedRole);
+      setUser(userInfo);
+
+      localStorage.setItem('user', JSON.stringify(userInfo));
+      toast.success('Role selected successfully');
+      setSaveLoading(false);
+      setCurrentStep((prev) => prev + 1);
+    } catch (error) {
+      toast.error('Error while adding role');
+      setSaveLoading(false);
+    }
   };
 
   return (
@@ -17,6 +41,7 @@ const UserRole = ({ currentStep, setCurrentStep }: OnboardingStepProps) => {
       setCurrentStep={setCurrentStep}
       handleSubmit={handleSubmit}
       title='Choose Your Role'
+      submitLoading={saveLoading}
     >
       <div className='grid grid-cols-1 md:grid-cols-2 gap-6 p-4'>
         {/* OWNER */}

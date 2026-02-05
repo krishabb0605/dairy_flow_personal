@@ -1,25 +1,28 @@
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import OnboardingLayout from './layout';
 import { toast } from 'react-toastify';
 import { OnboardingStepProps } from '../../../types';
 import { UserContext } from '../../../app/context/user-context';
+import { createUser } from '../../../lib/users';
+import { Mandatory } from '../../../app/page';
 
 const BasicInfo = ({ currentStep, setCurrentStep }: OnboardingStepProps) => {
-  const { basicInfo, handleChange } = useContext(UserContext);
+  const { basicInfo, handleChange, setUser, user } = useContext(UserContext);
+  const [saveLoading, setSaveLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const { fullName, mobileNumber, email, password, confirmPassword } =
       basicInfo;
 
-    if (!fullName || !mobileNumber || !email || !password || !confirmPassword) {
+    if (!fullName || !mobileNumber || !email) {
       toast.error('Please fill in all required fields.');
       return;
     }
 
-    const phoneRegex = /^[0-9+\-\s()]{8,15}$/;
+    const phoneRegex = /^\d{10}$/;
     if (!phoneRegex.test(mobileNumber)) {
-      toast.error('Enter a valid mobile number');
+      toast.error('Enter a valid 10 digit mobile number');
       return;
     }
 
@@ -31,18 +34,37 @@ const BasicInfo = ({ currentStep, setCurrentStep }: OnboardingStepProps) => {
       }
     }
 
-    if (password.length < 6) {
-      toast.error('Password must be at least 6 characters');
-      return;
+    if (!user?.firebaseUid) {
+      if (password.length < 6) {
+        toast.error('Password must be at least 6 characters');
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        toast.error('Passwords do not match.');
+        return;
+      }
     }
 
-    if (password !== confirmPassword) {
-      toast.error('Passwords do not match.');
-      return;
-    }
+    try {
+      setSaveLoading(true);
+      const userInfo = await createUser({
+        fullName,
+        email,
+        mobileNumber,
+        password,
+        existingFirebaseId: user?.firebaseUid,
+      });
 
-    toast.success('Basic Information saved successfully!');
-    setCurrentStep((prev) => prev + 1);
+      setUser(userInfo);
+      toast.success('Basic Information saved successfully!');
+      setCurrentStep((prev) => prev + 1);
+      setSaveLoading(false);
+    } catch (error: any) {
+      console.log(error.message);
+      toast.error(error.message || 'Error while creating user');
+      setSaveLoading(false);
+    }
   };
 
   return (
@@ -51,11 +73,12 @@ const BasicInfo = ({ currentStep, setCurrentStep }: OnboardingStepProps) => {
       setCurrentStep={setCurrentStep}
       handleSubmit={handleSubmit}
       title='Basic Information'
+      submitLoading={saveLoading}
     >
       <>
         <div className='flex flex-col gap-2'>
           <label className='text-[#0d141b]  text-sm font-medium leading-normal'>
-            Full Name <span className='text-red-500'>*</span>
+            Full Name <Mandatory />
           </label>
           <div className='relative'>
             <input
@@ -71,32 +94,35 @@ const BasicInfo = ({ currentStep, setCurrentStep }: OnboardingStepProps) => {
         {/* <!-- Mobile Number --> */}
         <div className='flex flex-col gap-2'>
           <label className='text-[#0d141b]  text-sm font-medium leading-normal'>
-            Mobile Number <span className='text-red-500'>*</span>
+            Mobile Number <Mandatory />
           </label>
           <div className='relative'>
             <input
               className='form-input flex w-full rounded-lg text-[#0d141b] border border-[#cfdbe7] bg-slate-50 h-12 placeholder:text-blue-placeholder px-4 text-sm font-normal focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none'
-              placeholder='+1 (555) 000-0000'
+              placeholder='78787 87878'
               type='tel'
               name='mobileNumber'
               value={basicInfo.mobileNumber}
               onChange={handleChange}
+              maxLength={10}
+              required
             />
           </div>
         </div>
 
         <div className='flex flex-col gap-2'>
           <label className='text-[#0d141b]  text-sm font-medium leading-normal'>
-            Email <span className='text-red-500'>*</span>
+            Email <Mandatory />
           </label>
           <div className='relative'>
             <input
-              className='form-input flex w-full rounded-lg text-[#0d141b border border-[#cfdbe7] bg-slate-50 h-12 placeholder:text-blue-placeholder px-4 text-sm font-normal focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none'
+              className={`form-input flex w-full rounded-lg text-[#0d141b border border-[#cfdbe7] bg-slate-50 h-12 placeholder:text-blue-placeholder px-4 text-sm font-normal focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none ${user?.email ? 'cursor-not-allowed' : ''}`}
               placeholder='john@example.com'
               type='email'
               name='email'
               value={basicInfo.email}
               onChange={handleChange}
+              disabled={!!user?.email}
             />
           </div>
         </div>
@@ -104,7 +130,7 @@ const BasicInfo = ({ currentStep, setCurrentStep }: OnboardingStepProps) => {
         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
           <div className='flex flex-col gap-2'>
             <label className='text-[#0d141b]  text-sm font-medium leading-normal'>
-              Password <span className='text-red-500'>*</span>
+              Password <Mandatory />
             </label>
             <input
               className='form-input flex w-full rounded-lg text-[#0d141b] border border-[#cfdbe7] bg-slate-50 h-12 placeholder:text-blue-placeholder px-4 text-sm font-normal focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none'
@@ -117,7 +143,7 @@ const BasicInfo = ({ currentStep, setCurrentStep }: OnboardingStepProps) => {
           </div>
           <div className='flex flex-col gap-2'>
             <label className='text-[#0d141b]  text-sm font-medium leading-normal'>
-              Confirm Password <span className='text-red-500'>*</span>
+              Confirm Password <Mandatory />
             </label>
             <input
               className='form-input flex w-full rounded-lg text-[#0d141b] border border-[#cfdbe7] bg-slate-50 h-12 placeholder:text-blue-placeholder px-4 text-sm font-normal focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none'

@@ -1,6 +1,11 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import OnboardingLayout from './layout';
 import { MilkConfig, OnboardingStepProps } from '../../../types';
+import { UserContext } from '../../../app/context/user-context';
+import { toast } from 'react-toastify';
+import { useRouter } from 'next/navigation';
+import { addOwnerConfigInfo } from '../../../lib/users';
+import { Mandatory } from '../../../app/page';
 
 const OwnerConfiguration = ({
   currentStep,
@@ -14,11 +19,44 @@ const OwnerConfiguration = ({
     cow: { enabled: true, price: 70 },
     buffalo: { enabled: true, price: 70 },
   });
+  const [saveLoading, setSaveLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const { user, setUser } = useContext(UserContext);
+  const router = useRouter();
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // You can add validation logic here before proceeding to the next step
-    setCurrentStep((prev) => prev + 1);
+    if (!dairyName) {
+      toast.error('Enter a valid Dairy name');
+      return;
+    }
+
+    const data = {
+      dairyName,
+      cowEnabled: milkConfig.cow.enabled,
+      cowPrice: milkConfig.cow.price,
+      buffaloEnabled: milkConfig.buffalo.enabled,
+      buffaloPrice: milkConfig.buffalo.price,
+    };
+
+    if (!user) {
+      toast.error('User not found !!');
+      return;
+    }
+
+    try {
+      setSaveLoading(true);
+
+      const userInfo = await addOwnerConfigInfo(user.id, data);
+
+      setUser(userInfo);
+      localStorage.setItem('user', JSON.stringify(userInfo));
+      router.push('/');
+      setSaveLoading(false);
+    } catch (error) {
+      toast.error('Error while adding owner configuran');
+      setSaveLoading(false);
+    }
   };
 
   return (
@@ -27,12 +65,13 @@ const OwnerConfiguration = ({
       setCurrentStep={setCurrentStep}
       handleSubmit={handleSubmit}
       title='Owner Configuration'
+      submitLoading={saveLoading}
     >
       <div className='space-y-6'>
         <div className='flex flex-col gap-2'>
           <label className='flex flex-col w-full'>
             <p className='text-sm font-semibold leading-normal pb-2'>
-              Dairy Name
+              Dairy Name <Mandatory />
             </p>
             <input
               className='form-input flex w-full rounded-lg text-slate-900 focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-slate-300 bg-white h-14 p-3.75 text-base font-normal transition-all'
@@ -50,7 +89,7 @@ const OwnerConfiguration = ({
             </p>
             <input
               className='form-input flex w-full rounded-lg text-slate-500 border border-slate-200 bg-slate-50 h-14 p-3.75 text-base font-normal cursor-not-allowed'
-              value='John Doe'
+              placeholder={user?.fullName}
               readOnly
               disabled
             />
@@ -62,7 +101,7 @@ const OwnerConfiguration = ({
             <input
               className='form-input flex w-full rounded-lg text-slate-500 border border-slate-200 bg-slate-50 h-14 p-3.75 text-base font-normal cursor-not-allowed'
               readOnly
-              value='+91 98765 43210'
+              placeholder={'+91 ' + user?.mobileNumber}
               disabled
             />
           </label>
@@ -74,7 +113,7 @@ const OwnerConfiguration = ({
           <span className='material-symbols-outlined text-primary'>
             water_drop
           </span>
-          Milk Configuration
+          Milk Configuration <Mandatory />
         </h2>
       </div>
       <div className='space-y-8'>

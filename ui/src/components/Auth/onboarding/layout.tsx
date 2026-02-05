@@ -1,5 +1,8 @@
+import Loader from '../../../components/loader';
 import { OnboardingLayoutProps } from './../../../types';
 import Link from 'next/link';
+import { useContext } from 'react';
+import { UserContext } from '../../../app/context/user-context';
 
 const OnboardingLayout = ({
   currentStep,
@@ -7,7 +10,14 @@ const OnboardingLayout = ({
   handleSubmit,
   title,
   children,
+  submitLoading,
 }: OnboardingLayoutProps) => {
+  const { loading } = useContext(UserContext);
+
+  if (loading) {
+    return <Loader variant='screen' />;
+  }
+
   return (
     <div className='layout-container flex grow flex-col'>
       <main className='flex flex-1 justify-center px-4'>
@@ -45,8 +55,16 @@ const OnboardingLayout = ({
                 className='flex items-center justify-center gap-2 rounded-xl h-12 bg-primary text-white text-base font-bold transition-all hover:bg-primary/90 hover:shadow-lg active:scale-[0.98] cursor-pointer'
                 onClick={handleSubmit}
               >
-                <span>{currentStep !== 3 ? 'Next' : 'Complete'}</span>
-                <span className='material-symbols-outlined'>arrow_forward</span>
+                {submitLoading ? (
+                  <Loader color='white' />
+                ) : (
+                  <>
+                    <span>{currentStep !== 3 ? 'Next' : 'Complete'}</span>
+                    <span className='material-symbols-outlined'>
+                      arrow_forward
+                    </span>
+                  </>
+                )}
               </button>
             </div>
 

@@ -1,4 +1,61 @@
-const page = () => {
+'use client';
+
+import { useContext, useEffect, useState } from 'react';
+import { Mandatory } from '../../../app/page';
+import Link from 'next/link';
+import { toast } from 'react-toastify';
+import { login } from '../../../lib/users';
+import { useRouter } from 'next/navigation';
+import { UserContext } from '../../../app/context/user-context';
+import Loader from '../../../components/loader';
+
+const LoginPage = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [submitLoading, setSubmitLoading] = useState(false);
+  const router = useRouter();
+  const { user, setUser, loading } = useContext(UserContext);
+
+  useEffect(() => {
+    if (!loading && user) {
+      if (!user.onboarded) {
+        router.push(`/onboarding`);
+      } else if (user.role === 'OWNER') {
+        // router.push('/owner/dashboard');
+        router.push('/');
+      } else {
+        // router.push('/customer/dashboard');
+        router.push('/');
+      }
+    }
+  }, [loading, router, user]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !password) {
+      toast.error('Please fill in all required fields.');
+      return;
+    }
+
+    try {
+      setSubmitLoading(true);
+      const user = await login(email, password);
+      setUser(user);
+      localStorage.setItem('user', JSON.stringify(user));
+      toast.success('User login successfully');
+      setSubmitLoading(false);
+    } catch (error: any) {
+      console.log('Error while sign up user', error);
+      toast.error(error.message || 'Error while sign up user');
+      setSubmitLoading(false);
+    }
+  };
+
+  if (loading) {
+    return <Loader variant='screen' />;
+  }
+
   return (
     <div className='flex-1 flex flex-col justify-center items-center px-6 py-12 sm:px-12 lg:px-24 bg-[#f6f7f8]'>
       <div className='w-full max-w-md space-y-8'>
@@ -13,116 +70,76 @@ const page = () => {
               </span>
             </div>
           </div>
+
           <h2 className='text-3xl font-bold tracking-tight text-slate-900'>
             Welcome back
           </h2>
+
           <p className='mt-2 text-slate-600'>
             Please enter your details to sign in.
           </p>
         </div>
-        <div className='mt-8'>
-          <div className='flex h-12 items-center justify-center rounded-xl bg-slate-200 p-1 mb-8'>
-            <label className='flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-lg px-2 has-checked:bg-white has-checked:shadow-sm has-checked:text-primary text-slate-600 text-sm font-semibold transition-all'>
-              <span className='truncate'>Customer</span>
-              <input
-                className='invisible w-0'
-                name='user-type'
-                type='radio'
-                value='Customer'
-                // checked
-              />
-            </label>
-            <label className='flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-lg px-2 has-checked:bg-white has-checked:shadow-sm has-checked:text-primary text-slate-600 text-sm font-semibold transition-all'>
-              <span className='truncate'>Owner</span>
-              <input
-                className='invisible w-0'
-                name='user-type'
-                type='radio'
-                value='Owner'
-              />
-            </label>
-          </div>
-          <form action='#' className='space-y-5' method='POST'>
+
+        <div className='flex flex-col w-full bg-white rounded-xl shadow-sm border border-[#cfdbe7] p-8'>
+          <form onSubmit={handleSubmit} className='space-y-5'>
+            {/* Email */}
             <div className='flex flex-col gap-2'>
               <label className='text-slate-700 text-sm font-semibold'>
-                Email or Phone Number
+                Email <Mandatory />
               </label>
+
               <input
-                className='form-input block w-full rounded-xl border-slate-300 bg-white text-slate-900 focus:border-primary focus:ring-primary h-14 px-4 placeholder:text-slate-400 transition-all'
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className='form-input flex w-full rounded-lg text-[#0d141b] border border-[#cfdbe7] bg-slate-50 h-12 placeholder:text-blue-placeholder px-4 text-sm font-normal focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none'
                 placeholder='name@example.com'
-                type='text'
+                type='email'
+                required
               />
             </div>
+
+            {/* Password */}
             <div className='flex flex-col gap-2'>
-              <label className='text-slate-700text-sm font-semibold'>
-                Password
+              <label className='text-slate-700 text-sm font-semibold'>
+                Password <Mandatory />
               </label>
               <div className='relative flex w-full items-stretch'>
                 <input
-                  className='form-input block w-full rounded-xl border-slate-300 bg-white text-slate-90 focus:border-primary focus:ring-primary h-14 pl-4 pr-12 placeholder:text-slate-400 transition-all'
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className='form-input flex w-full rounded-lg text-[#0d141b] border border-[#cfdbe7] bg-slate-50 h-12 placeholder:text-blue-placeholder px-4 text-sm font-normal focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none'
                   placeholder='••••••••'
-                  type='password'
+                  type={showPassword ? 'text' : 'password'}
+                  required
                 />
-                <div className='absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 cursor-pointer hover:text-primary'>
-                  <span className='material-symbols-outlined'>visibility</span>
-                </div>
+
+                <span
+                  onClick={() => setShowPassword(!showPassword)}
+                  className='material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-slate-400 hover:text-primary select-none'
+                >
+                  {showPassword ? 'visibility_off' : 'visibility'}
+                </span>
               </div>
             </div>
-            <div className='flex items-center justify-between'>
-              <div className='flex items-center'>
-                <input
-                  className='h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary'
-                  id='remember-me'
-                  name='remember-me'
-                  type='checkbox'
-                />
-                <label
-                  className='ml-2 block text-sm text-slate-700'
-                  htmlFor='remember-me'
-                >
-                  Remember me
-                </label>
-              </div>
-              <div className='text-sm'>
-                <a
-                  className='font-semibold text-primary hover:underline'
-                  href='#'
-                >
-                  Forgot password?
-                </a>
-              </div>
-            </div>
+
             <button
-              className='flex w-full items-center justify-center rounded-xl bg-primary h-14 px-4 text-white text-base font-bold shadow-lg shadow-primary/20 hover:bg-primary/90 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2'
               type='submit'
+              className='flex w-full items-center justify-center rounded-xl bg-primary h-14 text-white font-bold cursor-pointer'
             >
-              Sign In
+              {submitLoading ? <Loader color='white' /> : 'Sign In'}
             </button>
           </form>
 
           <p className='mt-10 text-center text-sm text-slate-600'>
-            {` Don't have an account?`}
-            <a className='font-bold text-primary hover:underline' href='#'>
+            Don&apos;t have an account?{' '}
+            <Link className='font-bold text-primary' href='/onboarding'>
               Sign up for free
-            </a>
+            </Link>
           </p>
         </div>
       </div>
-      <footer className='mt-6'>
-        <div className='flex gap-6 text-xs text-slate-400'>
-          <a className='hover:text-primary transition-colors' href='#'>
-            Terms of Service
-          </a>
-          <a className='hover:text-primary transition-colors' href='#'>
-            Privacy Policy
-          </a>
-          <a className='hover:text-primary transition-colors' href='#'>
-            Help Center
-          </a>
-        </div>
-      </footer>
     </div>
   );
 };
 
-export default page;
+export default LoginPage;

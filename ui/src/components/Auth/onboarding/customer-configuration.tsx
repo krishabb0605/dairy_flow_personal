@@ -1,21 +1,61 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import OnboardingLayout from './layout';
 import { OnboardingStepProps } from '../../../types';
+import { UserContext } from '../../../app/context/user-context';
+import { Mandatory } from '../../../app/page';
+import { addCustomerConfigInfo } from '@/lib/users';
+import { toast } from 'react-toastify';
+import { useRouter } from 'next/navigation';
 
 const CustomerConfiguration = ({
   currentStep,
   setCurrentStep,
 }: OnboardingStepProps) => {
-  const [customerId, setCustomerId] = useState('DAIRY-9921-X');
+  const [customerId, setCustomerId] = useState<string | null>(null);
   const [deliveryPreferences, setDeliveryPreferences] = useState({
     morning: { cow: 0, buffalo: 0 },
     evening: { cow: 0, buffalo: 0 },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [saveLoading, setSaveLoading] = useState(false);
+  const router = useRouter();
+
+  const { user, setUser } = useContext(UserContext);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // You can add validation logic here before proceeding to the next step
-    setCurrentStep((prev) => prev + 1);
+    if (!user) {
+      toast.error('User not found !!');
+      return;
+    }
+
+    if (!customerId) {
+      toast.error('Please enter valid customer Id');
+      return;
+    }
+
+    try {
+      setSaveLoading(true);
+
+      const userInfo = await addCustomerConfigInfo(user.id, {
+        customerCode: customerId,
+        morningCowQty: deliveryPreferences.morning.cow,
+        morningBuffaloQty: deliveryPreferences.morning.buffalo,
+        eveningCowQty: deliveryPreferences.morning.cow,
+        eveningBuffaloQty: deliveryPreferences.evening.buffalo,
+      });
+
+      setCurrentStep((prev) => prev + 1);
+
+      setUser(userInfo);
+      localStorage.setItem('user', JSON.stringify(userInfo));
+      router.push('/');
+      setSaveLoading(false);
+    } catch (error: any) {
+      toast.error(error.message || 'Error while adding customer config !');
+      console.log({ error });
+      setSaveLoading(false);
+    }
   };
 
   return (
@@ -24,6 +64,7 @@ const CustomerConfiguration = ({
       setCurrentStep={setCurrentStep}
       handleSubmit={handleSubmit}
       title='Customer Configuration'
+      submitLoading={saveLoading}
     >
       <div className='flex flex-col gap-2'>
         {/* <!-- Section: Step 1 --> */}
@@ -33,13 +74,12 @@ const CustomerConfiguration = ({
         <div className='flex max-w-150 flex-wrap items-end gap-4 px-4 py-3'>
           <label className='flex flex-col min-w-40 flex-1'>
             <p className='text-base font-medium leading-normal pb-2'>
-              Customer Unique ID <span className='text-red-500'>*</span>
+              Customer Unique ID <Mandatory />
             </p>
             <div className='flex w-full flex-1 items-stretch rounded-lg'>
               <input
                 className='form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#0d1b10] focus:outline-0 focus:shadow-none border border-blue-light bg-background-light h-14 placeholder:text-blue-300 p-3.75 rounded-r-none border-r-0 pr-2 text-base font-normal leading-normal'
                 placeholder='Enter the ID provided by your dairy owner'
-                value={customerId}
                 onChange={(e) => setCustomerId(e.target.value)}
               />
               <div className='text-primary flex border border-[#cfe7d3] bg-background-light items-center justify-center pr-3.75 rounded-r-lg border-l-0'>
@@ -57,7 +97,7 @@ const CustomerConfiguration = ({
             <input
               className='form-input rounded-lg border border-[#cfe7d3] bg-[#e7f3e9] h-12 px-4 text-base font-normal opacity-70 cursor-not-allowed'
               disabled
-              value='Rahul Sharma'
+              value={user?.fullName}
             />
           </label>
           <label className='flex flex-col'>
@@ -67,7 +107,7 @@ const CustomerConfiguration = ({
             <input
               className='form-input rounded-lg border border-[#cfe7d3] bg-[#e7f3e9] h-12 px-4 text-base font-normal opacity-70 cursor-not-allowed'
               disabled
-              value='+91 98765 43210'
+              value={'+91 ' + user?.mobileNumber}
             />
           </label>
         </div>
@@ -77,7 +117,7 @@ const CustomerConfiguration = ({
         </h2>
         <div className='px-4 pt-4'>
           <p className='text-base font-medium leading-normal'>
-            Select Milk Type <span className='text-red-500'>*</span>
+            Select Milk Type <Mandatory />
           </p>
         </div>
         {/* <!-- Dynamic Quantities Section (Case: Both Selected) --> */}
