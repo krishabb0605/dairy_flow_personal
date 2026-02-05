@@ -113,8 +113,9 @@ export const addCustomerConfigInfo = async (
 export const login = async (email: string, password: string) => {
   try {
     const cred = await signInWithEmailAndPassword(auth, email, password);
+    const userInfo = await getUser(cred.user.uid)
     
-    return cred;
+    return userInfo;
   } catch (error) {
     console.error('Error during login:', error);
     await signOut(auth);

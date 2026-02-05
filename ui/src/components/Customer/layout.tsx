@@ -20,7 +20,8 @@ const ContentLayout = ({
         style={{ scrollbarWidth: 'none' }}
       >
         {/* For now height is given */}
-        <div className='min-h-300 bg-red-100'>{children}</div>
+        <div>{children}</div>
+        {/* <div className='min-h-300 bg-red-100'>{children}</div> */}
       </div>
     </main>
   );

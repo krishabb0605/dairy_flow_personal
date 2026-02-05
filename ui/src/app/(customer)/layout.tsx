@@ -1,9 +1,14 @@
 'use client';
 
+import { usePathname } from 'next/navigation';
 import React, { useState } from 'react';
 
 const CustomerLayout = ({ children }: { children: React.ReactNode }) => {
   const [open, setOpen] = useState(false);
+  const pathName = usePathname();
+  console.log(pathName);
+
+  const active = 'bg-primary/10 text-primary';
 
   return (
     <div className='flex h-screen relative'>
@@ -42,32 +47,32 @@ const CustomerLayout = ({ children }: { children: React.ReactNode }) => {
 
         {/* <aside className='w-full lg:w-64 flex flex-col gap-2'> */}
         <a
-          className='flex items-center gap-3 px-3 py-3 rounded-xl text-slate-600 hover:bg-primary/10 hover:text-primary transition-colors'
+          className={`flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-primary/10 hover:text-primary transition-colors ${pathName === '/dashboard' ? active : 'text-slate-600'}`}
           href='#'
         >
           <span className='material-symbols-outlined'>dashboard</span>
-          <span className='font-bold'>Overview</span>
+          <span className='font-bold'>Dashboard</span>
         </a>
         <a
-          className='flex items-center gap-3 px-3 py-3 rounded-xl text-slate-600 hover:bg-primary/10 hover:text-primary transition-colors'
+          className={`flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-primary/10 hover:text-primary transition-colors ${pathName === '/deliveries' ? active : 'text-slate-600'}`}
           href='#'
         >
-          <span className='material-symbols-outlined'>calendar_month</span>
-          <span className='font-medium'>My Schedule</span>
+          <span className='material-symbols-outlined'>local_shipping</span>
+          <span className='font-bold'>Deliveries</span>
         </a>
         <a
-          className='flex items-center gap-3 px-3 py-3 rounded-xl text-slate-600 hover:bg-primary/10 hover:text-primary transition-colors'
+          className={`flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-primary/10 hover:text-primary transition-colors ${pathName === '/billing' ? active : 'text-slate-600'}`}
           href='#'
         >
           <span className='material-symbols-outlined'>receipt_long</span>
-          <span className='font-medium'>Billing History</span>
+          <span className='font-bold'>Monthly Billing</span>
         </a>
         <a
-          className='flex items-center gap-3 px-3 py-3 rounded-xl text-slate-600 hover:bg-primary/10 hover:text-primary transition-colors'
+          className={`flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-primary/10 hover:text-primary transition-colors ${pathName === '/settings' ? active : 'text-slate-600'}`}
           href='#'
         >
           <span className='material-symbols-outlined'>settings</span>
-          <span className='font-medium'>Preferences</span>
+          <span className='font-bold'>Settings</span>
         </a>
         <div className='mt-auto pt-8'>
           <div className='bg-primary/10 rounded-2xl p-5 border border-primary/20 flex flex-col gap-3'>
