@@ -7,7 +7,93 @@ datasource db {
   provider = "postgresql"
 }
 
-model Test {
-  id   Int    @id @default(autoincrement())
-  name String
+enum UserRole {
+  OWNER
+  CUSTOMER
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  firebaseUid String @unique
+
+  fullName     String
+  mobileNumber String
+  email        String
+
+  role      UserRole?
+  onboarded Boolean   @default(false)
+
+  onboardingStep Int @default(1)
+
+  ownerProfile    OwnerProfile?
+  customerProfile CustomerProfile?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OwnerProfile {
+  id     Int @id @default(autoincrement())
+  userId Int @unique
+
+  dairyName String
+
+  cowEnabled Boolean @default(true)
+  cowPrice   Decimal @db.Decimal(10, 2)
+
+  buffaloEnabled Boolean @default(true)
+  buffaloPrice   Decimal @db.Decimal(10, 2)
+
+  user User @relation(fields: [userId], references: [id])
+
+  customers           CustomerProfile[]
+  registeredCustomers RegisteredCustomer[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model RegisteredCustomer {
+  id Int @id @default(autoincrement())
+
+  ownerId Int
+
+  mobileNumber String
+  customerCode String @unique @db.Char(6)
+
+  customerProfile CustomerProfile?
+
+  owner OwnerProfile @relation(fields: [ownerId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([mobileNumber])
+  @@index([ownerId])
+}
+
+model CustomerProfile {
+  id Int @id @default(autoincrement())
+
+  userId  Int @unique
+  ownerId Int
+
+  customerCode String @unique
+
+  registeredCustomerId Int? @unique
+
+  morningCowQty     Decimal @default(0) @db.Decimal(10, 2)
+  morningBuffaloQty Decimal @default(0) @db.Decimal(10, 2)
+
+  eveningCowQty     Decimal @default(0) @db.Decimal(10, 2)
+  eveningBuffaloQty Decimal @default(0) @db.Decimal(10, 2)
+
+  user  User         @relation(fields: [userId], references: [id])
+  owner OwnerProfile @relation(fields: [ownerId], references: [id])
+
+  registeredCustomer RegisteredCustomer? @relation(fields: [registeredCustomerId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([ownerId])
 }

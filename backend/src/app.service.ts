@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from './prisma.service.js';
+import { PrismaService } from './prisma/prisma.service.js';
 
 @Injectable()
 export class AppService {
@@ -9,14 +9,8 @@ export class AppService {
   }
 
   async testDatabase(): Promise<string> {
-    const testData = await this.prisma.test.findMany();
+    const testData = await this.prisma.user.findMany();
 
-    console.log({ testData });
-
-    await this.prisma.test.createMany({
-      data: [{ name: 'Test 3' }, { name: 'Test 2' }],
-      skipDuplicates: true,
-    });
-    return 'Database test completed successfully!';
+    return `Database test completed successfully! ${JSON.stringify(testData)}`;
   }
 }
