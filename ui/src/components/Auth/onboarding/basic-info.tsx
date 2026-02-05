@@ -35,7 +35,7 @@ const BasicInfo = ({ currentStep, setCurrentStep }: OnboardingStepProps) => {
     }
 
     if (!user?.firebaseUid) {
-      if (password.length < 6) {
+      if (password?.length < 6) {
         toast.error('Password must be at least 6 characters');
         return;
       }
