@@ -21,10 +21,9 @@ const CustomerLayout = ({ children }: { children: React.ReactNode }) => {
       {/* Sidebar */}
       <aside
         className={`
-          fixed md:sticky top-0 left-0 h-screen w-64  p-4 z-30
-          transform transition-transform duration-300  flex flex-col gap-2 shadow-lg shadow-primary/40 rounded-3xl rounded-l-none
-          ${open ? 'translate-x-0' : '-translate-x-full'}
-          md:translate-x-0
+          fixed md:sticky inset-y-0 left-0 w-64 p-4 z-30 
+          transform transition-transform duration-300 flex flex-col gap-2 shadow-lg shadow-primary/40 bg-white rounded-3xl rounded-l-none
+          ${open ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 pt-4
         `}
       >
         <div className='text-2xl font-semibold mb-6 hidden md:block'>
@@ -98,7 +97,12 @@ const CustomerLayout = ({ children }: { children: React.ReactNode }) => {
         />
       )}
       {/* Main Content */}
-      {children}
+      <main
+        className='flex-1 overflow-y-auto md:pt-0'
+        style={{ scrollbarWidth: 'none' }}
+      >
+        {children}
+      </main>
     </div>
   );
 };
