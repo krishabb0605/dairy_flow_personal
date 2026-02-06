@@ -52,6 +52,7 @@ const CustomerLayout = ({ children }: { children: React.ReactNode }) => {
           <span className='material-symbols-outlined'>dashboard</span>
           <span className='font-bold'>Dashboard</span>
         </Link>
+
         <Link
           className={`flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-primary/10 hover:text-primary transition-colors ${pathName === '/deliveries' ? active : 'text-slate-600'}`}
           href='/deliveries'
@@ -59,6 +60,15 @@ const CustomerLayout = ({ children }: { children: React.ReactNode }) => {
           <span className='material-symbols-outlined'>local_shipping</span>
           <span className='font-bold'>Deliveries</span>
         </Link>
+
+        <Link
+          className={`flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-primary/10 hover:text-primary transition-colors ${pathName === '/deliveries-history' ? active : 'text-slate-600'}`}
+          href='/deliveries-history'
+        >
+          <span className='material-symbols-outlined'>history</span>
+          <span className='font-bold'>Delivery History</span>
+        </Link>
+
         <Link
           className={`flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-primary/10 hover:text-primary transition-colors ${pathName === '/billing' ? active : 'text-slate-600'}`}
           href='#'
@@ -66,6 +76,7 @@ const CustomerLayout = ({ children }: { children: React.ReactNode }) => {
           <span className='material-symbols-outlined'>receipt_long</span>
           <span className='font-bold'>Monthly Billing</span>
         </Link>
+
         <Link
           className={`flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-primary/10 hover:text-primary transition-colors ${pathName === '/settings' ? active : 'text-slate-600'}`}
           href='#'
@@ -73,6 +84,7 @@ const CustomerLayout = ({ children }: { children: React.ReactNode }) => {
           <span className='material-symbols-outlined'>settings</span>
           <span className='font-bold'>Settings</span>
         </Link>
+
         <div className='mt-auto pt-8'>
           <div className='bg-primary/10 rounded-2xl p-5 border border-primary/20 flex flex-col gap-3'>
             <div>
