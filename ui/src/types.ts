@@ -1,4 +1,6 @@
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+export type Slot = 'morning' | 'evening';
+export type MilkType = 'cow' | 'buffalo';
 
 export interface ApiOptions {
   method?: HttpMethod;

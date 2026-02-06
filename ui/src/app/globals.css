@@ -13,3 +13,7 @@
   --color-blue-light: var(--blue-light);
   --color-blue-placeholder: var(--blue-placeholder);
 }
+
+button {
+  cursor: pointer;
+}

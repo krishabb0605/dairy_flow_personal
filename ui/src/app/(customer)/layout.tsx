@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import React, { useState } from 'react';
 
@@ -22,7 +23,7 @@ const CustomerLayout = ({ children }: { children: React.ReactNode }) => {
       <aside
         className={`
           fixed md:sticky inset-y-0 left-0 w-64 p-4 z-30 
-          transform transition-transform duration-300 flex flex-col gap-2 shadow-lg shadow-primary/40 bg-white rounded-3xl rounded-l-none
+          transform transition-transform duration-300 flex flex-col gap-2 shadow-lg shadow-primary/20 bg-white rounded-3xl rounded-l-none
           ${open ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 pt-4
         `}
       >
@@ -44,35 +45,34 @@ const CustomerLayout = ({ children }: { children: React.ReactNode }) => {
           </div>
         </div>
 
-        {/* <aside className='w-full lg:w-64 flex flex-col gap-2'> */}
-        <a
+        <Link
           className={`flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-primary/10 hover:text-primary transition-colors ${pathName === '/dashboard' ? active : 'text-slate-600'}`}
-          href='#'
+          href='/dashboard'
         >
           <span className='material-symbols-outlined'>dashboard</span>
           <span className='font-bold'>Dashboard</span>
-        </a>
-        <a
+        </Link>
+        <Link
           className={`flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-primary/10 hover:text-primary transition-colors ${pathName === '/deliveries' ? active : 'text-slate-600'}`}
-          href='#'
+          href='/deliveries'
         >
           <span className='material-symbols-outlined'>local_shipping</span>
           <span className='font-bold'>Deliveries</span>
-        </a>
-        <a
+        </Link>
+        <Link
           className={`flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-primary/10 hover:text-primary transition-colors ${pathName === '/billing' ? active : 'text-slate-600'}`}
           href='#'
         >
           <span className='material-symbols-outlined'>receipt_long</span>
           <span className='font-bold'>Monthly Billing</span>
-        </a>
-        <a
+        </Link>
+        <Link
           className={`flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-primary/10 hover:text-primary transition-colors ${pathName === '/settings' ? active : 'text-slate-600'}`}
           href='#'
         >
           <span className='material-symbols-outlined'>settings</span>
           <span className='font-bold'>Settings</span>
-        </a>
+        </Link>
         <div className='mt-auto pt-8'>
           <div className='bg-primary/10 rounded-2xl p-5 border border-primary/20 flex flex-col gap-3'>
             <div>
