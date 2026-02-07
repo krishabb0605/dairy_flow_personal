@@ -3,7 +3,7 @@ import OnboardingLayout from './layout';
 import { OnboardingStepProps } from '../../../types';
 import { UserContext } from '../../../app/context/user-context';
 import { Mandatory } from '../../../app/page';
-import { addCustomerConfigInfo } from '@/lib/users';
+import { addCustomerConfigInfo } from '../../../lib/users';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
 

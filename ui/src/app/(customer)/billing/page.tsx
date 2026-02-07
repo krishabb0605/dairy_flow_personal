@@ -1,9 +1,9 @@
 'use client';
-import ContentLayout from '@/components/Customer/layout';
+import ContentLayout from '../../../components/Customer/layout';
 import Image from 'next/image';
 import { useState } from 'react';
 import pieChart from '../../../assets/images/pie-chart.png';
-import { billingHistory, dailyDeliveriesHistory } from '@/constants';
+import { billingHistory, dailyDeliveriesHistory } from '../../../constants';
 
 const ITEMS_PER_PAGE = 3;
 
@@ -26,7 +26,7 @@ const MonthlyBiling = () => {
   return (
     <ContentLayout title='Monthly Statements'>
       <main className='flex-1 flex flex-col overflow-y-auto'>
-        <div className='max-w-6xl mx-auto w-full flex flex-col gap-6'>
+        <div className='mx-auto w-full flex flex-col gap-6'>
           <p className='text-[#637588]  text-base'>
             Track your daily milk consumption history and manage recurring
             payments.

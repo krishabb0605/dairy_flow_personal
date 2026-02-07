@@ -1,7 +1,7 @@
 'use client';
-import CountdownTimer from '@/components/Customer/countDown';
-import ContentLayout from '@/components/Customer/layout';
-import { MilkType, Slot } from '@/types';
+import CountdownTimer from '../../../components/Customer/countDown';
+import ContentLayout from '../../../components/Customer/layout';
+import { MilkType, Slot } from '../../../types';
 import { useMemo, useState } from 'react';
 
 const quantities = [0, 0.5, 1, 1.5, 2, 2.5, 3];

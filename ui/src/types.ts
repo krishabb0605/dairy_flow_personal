@@ -61,7 +61,7 @@ export type UserContextType = {
   loading: boolean;
   handleLogout: () => Promise<void>;
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
-  user: UserInfo | null;
+  user: User | null;
 };
 
 export type UserInfo = {

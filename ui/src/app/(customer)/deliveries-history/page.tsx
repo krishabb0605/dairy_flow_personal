@@ -1,7 +1,7 @@
 'use client';
-import ContentLayout from '@/components/Customer/layout';
-import { deliveries, deliveryFilters } from '@/constants';
-import { deliveryFilter } from '@/types';
+import ContentLayout from '../../../components/Customer/layout';
+import { deliveries, deliveryFilters } from '../../../constants';
+import { deliveryFilter } from '../../../types';
 import { Fragment, useMemo, useState } from 'react';
 const PAGE_SIZE = 5;
 
@@ -146,7 +146,9 @@ const DeliveriesHistory = () => {
             <p className='text-[#111418]  text-2xl font-bold'>${totalBill}</p>
             <p className='text-[#637588] text-xs font-medium'>
               Current Total for{' '}
-              {deliveriesTotalShiftQty.morningShift + deliveriesTotalShiftQty.eveningShift} shifts
+              {deliveriesTotalShiftQty.morningShift +
+                deliveriesTotalShiftQty.eveningShift}{' '}
+              shifts
             </p>
           </div>
         </div>

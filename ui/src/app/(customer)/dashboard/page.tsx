@@ -1,5 +1,5 @@
-import ContentLayout from '@/components/Customer/layout';
-import DeliveryCalendar from '@/components/Customer/calender';
+import ContentLayout from '../../../components/Customer/layout';
+import DeliveryCalendar from '../../../components/Customer/calender';
 
 const Dashboard = () => {
   return (
