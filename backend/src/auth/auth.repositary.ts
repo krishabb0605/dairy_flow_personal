@@ -39,12 +39,14 @@ export class AuthRepository {
         update: {
           fullName: dto.fullName,
           mobileNumber: dto.mobileNumber,
+          address: dto.address,
           email: dto.email,
           onboardingStep: 1,
         },
         create: {
           fullName: dto.fullName,
           mobileNumber: dto.mobileNumber,
+          address: dto.address,
           email: dto.email,
           firebaseUid: dto.firebaseUid,
           onboardingStep: 1,

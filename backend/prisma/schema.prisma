@@ -13,12 +13,14 @@ enum UserRole {
 }
 
 model User {
-  id Int @id @default(autoincrement())
+  id          Int    @id @default(autoincrement())
   firebaseUid String @unique
 
   fullName     String
   mobileNumber String
   email        String
+
+  address String
 
   role      UserRole?
   onboarded Boolean   @default(false)

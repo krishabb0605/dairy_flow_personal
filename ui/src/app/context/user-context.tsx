@@ -23,6 +23,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [basicInfo, setBasicInfo] = useState<BasicInfoState>({
     fullName: '',
     mobileNumber: '',
+    address: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -56,7 +57,8 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         localStorage.setItem('user', JSON.stringify(userInfo));
         setUser(userInfo);
 
-        const { fullName, email, mobileNumber, password, role } = userInfo;
+        const { fullName, email, mobileNumber, password, role, address } =
+          userInfo;
 
         setBasicInfo({
           fullName,
@@ -64,6 +66,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
           email,
           password,
           confirmPassword: password,
+          address,
         });
 
         setSelectedRole(role || 'CUSTOMER');

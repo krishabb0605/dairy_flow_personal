@@ -19,6 +19,7 @@ export const getUser = async (firebaseUid: string) => {
 export const createUser = async (form: {
   fullName: string;
   mobileNumber: string;
+  address: string;
   email: string;
   password: string;
   existingFirebaseId?: string | null;
@@ -40,6 +41,7 @@ export const createUser = async (form: {
         fullName: form.fullName,
         mobileNumber: form.mobileNumber,
         email: form.email,
+        address: form.address,
         firebaseUid: firebaseUser?.uid || form.existingFirebaseId,
       },
     });
@@ -113,13 +115,13 @@ export const addCustomerConfigInfo = async (
 export const login = async (email: string, password: string) => {
   try {
     const cred = await signInWithEmailAndPassword(auth, email, password);
-    const userInfo = await getUser(cred.user.uid)
-    
+    const userInfo = await getUser(cred.user.uid);
+
     return userInfo;
   } catch (error) {
     console.error('Error during login:', error);
     await signOut(auth);
-    localStorage.removeItem('user')
+    localStorage.removeItem('user');
     throw error;
   }
 };

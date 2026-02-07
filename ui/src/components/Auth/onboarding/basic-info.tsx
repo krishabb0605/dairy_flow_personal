@@ -12,10 +12,10 @@ const BasicInfo = ({ currentStep, setCurrentStep }: OnboardingStepProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { fullName, mobileNumber, email, password, confirmPassword } =
+    const { fullName, mobileNumber, email, password, confirmPassword, address } =
       basicInfo;
 
-    if (!fullName || !mobileNumber || !email) {
+    if (!fullName || !mobileNumber || !email || !address) {
       toast.error('Please fill in all required fields.');
       return;
     }
@@ -51,6 +51,7 @@ const BasicInfo = ({ currentStep, setCurrentStep }: OnboardingStepProps) => {
       const userInfo = await createUser({
         fullName,
         email,
+        address,
         mobileNumber,
         password,
         existingFirebaseId: user?.firebaseUid,
@@ -108,6 +109,22 @@ const BasicInfo = ({ currentStep, setCurrentStep }: OnboardingStepProps) => {
               required
             />
           </div>
+        </div>
+
+        <div className='flex flex-col gap-2'>
+          <label className='text-[#0d141b]  text-sm font-medium leading-normal'>
+            Home Address <Mandatory />
+          </label>
+          <textarea
+            className='form-input flex w-full rounded-lg text-[#0d141b] border border-[#cfdbe7] bg-slate-50 h-12 placeholder:text-blue-placeholder px-4 text-sm font-normal focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none'
+            rows={4}
+            name='address'
+            value={basicInfo.address}
+            placeholder='4522 Oakwood Drive, Maple Heights, Apartment 4B, Seattle, WA 98101'
+            onChange={handleChange}
+          >
+            4522 Oakwood Drive, Maple Heights, Apartment 4B, Seattle, WA 98101
+          </textarea>
         </div>
 
         <div className='flex flex-col gap-2'>

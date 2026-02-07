@@ -20,6 +20,7 @@ export type BasicInfoState = {
   email: string;
   password: string;
   confirmPassword: string;
+  address: string;
 };
 
 export type Step = {
@@ -50,7 +51,11 @@ export type MilkConfig = {
 
 export type UserContextType = {
   basicInfo: BasicInfoState;
-  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleChange: (
+    e:
+      | React.ChangeEvent<HTMLInputElement>
+      | React.ChangeEvent<HTMLTextAreaElement, HTMLTextAreaElement>,
+  ) => void;
   selectedRole: UserRoleType;
   setSelectedRole: React.Dispatch<React.SetStateAction<UserRoleType>>;
   loading: boolean;
@@ -65,6 +70,7 @@ export type UserInfo = {
   fullName: string;
   mobileNumber: string;
   email: string;
+  address: string;
   role: UserRoleType | null;
   onboarded: boolean;
   onboardingStep: number;
