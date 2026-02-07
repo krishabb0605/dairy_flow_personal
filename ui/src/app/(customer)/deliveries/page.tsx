@@ -155,7 +155,7 @@ const Delivery = () => {
                     onClick={() => setMilkType('buffalo')}
                     className={`p-4 rounded-xl border-2 cursor-pointer ${
                       milkType === 'buffalo'
-                        ? 'border-primary bg-primary8'
+                        ? 'border-primary bg-primary/8'
                         : 'border-gray-200'
                     }`}
                   >

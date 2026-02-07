@@ -71,7 +71,7 @@ const CustomerLayout = ({ children }: { children: React.ReactNode }) => {
 
         <Link
           className={`flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-primary/10 hover:text-primary transition-colors ${pathName === '/billing' ? active : 'text-slate-600'}`}
-          href='#'
+          href='/billing'
         >
           <span className='material-symbols-outlined'>receipt_long</span>
           <span className='font-bold'>Monthly Billing</span>

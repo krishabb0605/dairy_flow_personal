@@ -195,3 +195,78 @@ export const deliveries: Delivery[] = [
     ],
   },
 ];
+
+export const dailyDeliveriesHistory = [
+  {
+    date: 'Sep 1, Fri',
+    status: 'Delivered',
+    morning: 'Cow 1L, Buffalo 0.5L',
+    evening: 'Buffalo 1L',
+  },
+  {
+    date: 'Sep 2, Sat',
+    status: 'Delivered',
+    morning: 'Cow 1L',
+    evening: 'Buffalo 1.5L',
+  },
+  {
+    date: 'Sep 3, Sun',
+    status: 'Delivered',
+    morning: 'Cow 2L',
+    evening: 'No delivery',
+  },
+
+  // ====== MORE DAYS ======
+
+  ...Array.from({ length: 27 }).map((_, i) => ({
+    date: `Sep ${i + 4}`,
+    status: 'Delivered',
+    morning: 'Cow 1L',
+    evening: 'Buffalo 1L',
+  })),
+];
+
+export const billingHistory = [
+  {
+    month: 'September 2023',
+    range: 'Sep 01 - Sep 30',
+    qty: '42.0 Liters',
+    amount: '₹2,180.00',
+    status: 'Paid',
+  },
+  {
+    month: 'August 2023',
+    range: 'Aug 01 - Aug 31',
+    qty: '45.5 Liters',
+    amount: '₹2,360.00',
+    status: 'Paid',
+  },
+  {
+    month: 'July 2023',
+    range: 'Jul 01 - Jul 31',
+    qty: '38.0 Liters',
+    amount: '₹1,950.00',
+    status: 'Overdue',
+  },
+  {
+    month: 'June 2023',
+    range: 'June 01 - June 30',
+    qty: '22.0 Liters',
+    amount: '₹2,580.00',
+    status: 'Paid',
+  },
+  {
+    month: 'May 2023',
+    range: 'May 01 - May 31',
+    qty: '15.5 Liters',
+    amount: '₹1,360.00',
+    status: 'Overdue',
+  },
+  {
+    month: 'April 2023',
+    range: 'April 01 - April 31',
+    qty: '48.0 Liters',
+    amount: '₹2,950.00',
+    status: 'Overdue',
+  },
+];

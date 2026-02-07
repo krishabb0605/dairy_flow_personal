@@ -5,6 +5,7 @@
   --danger: #ff4d4d;
   --blue-light: #c6d8f3;
   --blue-placeholder: #2d557c;
+  --background-light: #f6f7f8;
 }
 
 @theme inline {
@@ -12,6 +13,7 @@
   --color-danger: var(--danger);
   --color-blue-light: var(--blue-light);
   --color-blue-placeholder: var(--blue-placeholder);
+  --color-background-light: var(--background-light);
 }
 
 button {
