@@ -326,3 +326,47 @@ export const invitedCustomers = [
     status: 'Completed',
   },
 ];
+
+export const ownerDeliveries = [
+  {
+    id: 1,
+    initials: 'JS',
+    name: 'John Sharma',
+    customerId: '889-889',
+    milkColor: 'blue',
+    cowMilkQty: 2.0,
+    buffaloMilkQty: 2.0,
+    address: '452 Oak Avenue, Maplewood Heights',
+  },
+  {
+    id: 2,
+    initials: 'AM',
+    name: 'Aditi Mehra',
+    customerId: '886-899',
+    milkColor: 'green',
+    cowMilkQty: 1.5,
+    buffaloMilkQty: 1.5,
+    address: 'B-12, Green Park Residency, Sector 4',
+  },
+  {
+    id: 3,
+    initials: 'RK',
+    name: 'Rahul Kapoor',
+    customerId: '778-636',
+    milkColor: 'orange',
+    cowMilkQty: 1.0,
+    buffaloMilkQty: 1.0,
+    confirmed: true,
+    address: '77 Skyline Towers, Apartment 402',
+  },
+  {
+    id: 4,
+    initials: 'VP',
+    name: 'Vikram Patel',
+    customerId: '752-869',
+    milkColor: 'blue',
+    cowMilkQty: 3.0,
+    buffaloMilkQty: 3.0,
+    address: 'Flat 202, Sunshine Apts, Phase 2',
+  },
+];
