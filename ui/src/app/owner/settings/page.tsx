@@ -1,5 +1,5 @@
 'use client';
-import ContentLayout from '../../../components/Customer/layout';
+import ContentLayout from '../../../components/layout';
 
 const Settings = () => {
   return (

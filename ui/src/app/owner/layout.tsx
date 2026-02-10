@@ -16,6 +16,11 @@ const ownerMenu = [
     icon: 'dashboard',
   },
   {
+    label: 'Customer Setup',
+    href: '/owner/customer-setup',
+    icon: 'person_add',
+  },
+  {
     label: 'Settings',
     href: '/owner/settings',
     icon: 'settings',

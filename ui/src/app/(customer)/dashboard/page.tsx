@@ -1,5 +1,5 @@
 'use client';
-import ContentLayout from '../../../components/Customer/layout';
+import ContentLayout from '../../../components/layout';
 import DeliveryCalendar from '../../../components/Customer/calender';
 import { useContext, useState } from 'react';
 import AddExtraMilkModal from '../../../components/modal/customer/add-extra-milk';

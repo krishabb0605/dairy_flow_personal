@@ -1,7 +1,7 @@
 'use client';
 import { UserContext } from '../../../app/context/user-context';
 import { Mandatory } from '../../../app/page';
-import ContentLayout from '../../../components/Customer/layout';
+import ContentLayout from '../../../components/layout';
 import { useContext } from 'react';
 
 const Settings = () => {

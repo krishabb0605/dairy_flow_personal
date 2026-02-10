@@ -1,5 +1,5 @@
 'use client';
-import ContentLayout from '../../../components/Customer/layout';
+import ContentLayout from '../../../components/layout';
 import Image from 'next/image';
 import { useState } from 'react';
 import pieChart from '../../../assets/images/pie-chart.png';

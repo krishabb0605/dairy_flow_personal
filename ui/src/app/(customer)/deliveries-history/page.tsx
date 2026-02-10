@@ -1,5 +1,5 @@
 'use client';
-import ContentLayout from '../../../components/Customer/layout';
+import ContentLayout from '../../../components/layout';
 import { deliveries, deliveryFilters } from '../../../constants';
 import { deliveryFilter } from '../../../types';
 import { Fragment, useMemo, useState } from 'react';
