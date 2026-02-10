@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useState } from 'react';
 import pieChart from '../../../assets/images/pie-chart.png';
 import { billingHistory, dailyDeliveriesHistory } from '../../../constants';
+import Pagination from '../../../components/pagination';
 
 const ITEMS_PER_PAGE = 3;
 
@@ -380,35 +381,11 @@ const MonthlyBiling = () => {
                 </div>
               </aside>
 
-              <div className='px-6 py-4 bg-background-light/30 border-t border-[#f0f2f4]  flex items-center justify-between'>
-                <span className='text-sm text-[#637588] font-medium'>
-                  Showing {(page - 1) * ITEMS_PER_PAGE + 1} –{' '}
-                  {Math.min(page * ITEMS_PER_PAGE, billingHistory.length)} of{' '}
-                  {billingHistory.length} months
-                </span>
-
-                <div className='flex gap-2'>
-                  <button
-                    onClick={() => setPage((p) => Math.max(p - 1, 1))}
-                    disabled={page === 1}
-                    className='p-1.5 rounded border border-[#f0f2f4]  text-[#637588]  hover:bg-white  disabled:opacity-50'
-                  >
-                    <span className='material-symbols-outlined'>
-                      chevron_left
-                    </span>
-                  </button>
-
-                  <button
-                    onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
-                    disabled={page === totalPages}
-                    className='p-1.5 rounded border border-[#f0f2f4] text-[#637588]  hover:bg-white disabled:opacity-50'
-                  >
-                    <span className='material-symbols-outlined'>
-                      chevron_right
-                    </span>
-                  </button>
-                </div>
-              </div>
+              <Pagination
+                page={page}
+                totalPages={totalPages}
+                setPage={setPage}
+              />
             </div>
           </div>
         </div>

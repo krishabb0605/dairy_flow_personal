@@ -1,4 +1,5 @@
 'use client';
+import Pagination from '../../../components/pagination';
 import ContentLayout from '../../../components/layout';
 import { deliveries, deliveryFilters } from '../../../constants';
 import { deliveryFilter } from '../../../types';
@@ -329,43 +330,8 @@ const DeliveriesHistory = () => {
               </tbody>
             </table>
           </div>
-          <div className='flex items-center justify-between px-6 py-4 bg-gray-50 '>
-            <p className='text-sm text-[#637588]'>
-              Showing <span className='font-bold text-[#111418]'>{page}</span>{' '}
-              of <span className='font-bold text-[#111418]'>{totalPages}</span>
-            </p>
-            <div className='flex gap-2'>
-              <button
-                disabled={page === 1}
-                onClick={() => setPage((p) => p - 1)}
-                className={`px-3 py-1 text-sm font-bold border border-[#dce0e5]  rounded-lg bg-white hover:bg-gray-100 ${page === 1 ? 'text-[#637588] cursor-not-allowed' : 'text-[#111418]'}`}
-              >
-                Prev
-              </button>
 
-              {Array.from({ length: totalPages }).map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setPage(i + 1)}
-                  className={`px-3 py-1 text-sm font-bold rounded-lg ${
-                    page === i + 1
-                      ? 'bg-primary text-white'
-                      : 'text-[#111418] border border-[#dce0e5] bg-white hover:bg-gray-100'
-                  }`}
-                >
-                  {i + 1}
-                </button>
-              ))}
-
-              <button
-                disabled={page === totalPages}
-                onClick={() => setPage((p) => p + 1)}
-                className={`px-3 py-1 text-sm font-bold border border-[#dce0e5]  rounded-lg bg-white hover:bg-gray-100 ${page === totalPages ? 'text-[#637588] cursor-not-allowed' : 'text-[#111418]'}`}
-              >
-                Next
-              </button>
-            </div>
-          </div>
+          <Pagination page={page} totalPages={totalPages} setPage={setPage} />
         </div>
 
         <div className='bg-blue-50 border border-blue-200 rounded-xl p-4 flex gap-4 items-start'>

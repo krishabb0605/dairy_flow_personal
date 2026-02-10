@@ -129,3 +129,9 @@ export type ModalProps = {
 
   children: React.ReactNode;
 };
+
+export type PaginationProps = {
+  page: number;
+  totalPages: number;
+  setPage: (value: React.SetStateAction<number>) => void;
+};

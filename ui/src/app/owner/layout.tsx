@@ -37,14 +37,16 @@ const OwnerLayout = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (!loading && user) {
       if (!user.onboarded) {
-        router.push(`/onboarding`);
-      } else if (user.role === 'OWNER') {
-        router.push('/owner/dashboard');
-      } else {
+        router.push('/onboarding');
+        return;
+      }
+
+      if (user.role === 'CUSTOMER') {
         router.push('/dashboard');
+        return;
       }
     }
-  }, [loading, router, user]);
+  }, [loading, user, pathName, router]);
 
   const logout = async () => {
     try {
