@@ -1,6 +1,11 @@
 export const API_URL = process.env.BASE_URL || 'http://localhost:3001';
 export const deliveryFilters = ['All Deliveries', 'Confirmed', 'Pending'];
 
+export const milkPrices = {
+  cow: 62,
+  buffalo: 78,
+};
+
 export type DeliverySession = {
   type: 'Morning' | 'Evening';
   time: string;

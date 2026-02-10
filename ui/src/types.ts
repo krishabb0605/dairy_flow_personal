@@ -102,9 +102,30 @@ export type CustomerProfileConfig = {
   eveningBuffaloQty: number;
   createdAt: string;
   updatedAt: string;
+  ownerUser?: {
+    fullName: string;
+    mobileNumber: string;
+  };
 };
 
 export type User = UserInfo & {
   ownerProfile: OwnerProfileConfig | null;
   customerProfile: CustomerProfileConfig | null;
+};
+
+export type ModalProps = {
+  open: boolean;
+  title: string;
+  description?: string;
+
+  submitText?: string;
+  cancelText?: string;
+
+  loading?: boolean;
+
+  onSubmit?: () => void;
+  onClose: () => void;
+  onCancel?: () => void;
+
+  children: React.ReactNode;
 };

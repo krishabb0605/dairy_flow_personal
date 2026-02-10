@@ -43,7 +43,7 @@ export default function DeliveryCalendar() {
   }
 
   return (
-    <div className='bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden'>
+    <div className='bg-white rounded-2xl border border-slate-200 shadow-sm overflow-auto'>
       {/* HEADER */}
       <div className='px-6 py-5 border-b border-slate-200 flex justify-between items-center'>
         <div className='flex gap-4'>

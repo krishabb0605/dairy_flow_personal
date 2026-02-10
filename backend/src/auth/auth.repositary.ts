@@ -17,14 +17,43 @@ export class AuthRepository {
   async getUser(firebaseUid: string) {
     const user = await this.prisma.user.findUnique({
       where: { firebaseUid },
+
       include: {
         ownerProfile: true,
-        customerProfile: true,
+
+        customerProfile: {
+          include: {
+            owner: {
+              include: {
+                user: {
+                  select: {
+                    fullName: true,
+                    mobileNumber: true,
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     });
 
     if (!user) {
       throw new NotFoundException('User not found');
+    }
+
+    if (user.customerProfile?.owner?.user) {
+      const ownerUser = user.customerProfile.owner.user;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { owner, ...customerProfileWithoutOwner } = user.customerProfile;
+
+      return {
+        ...user,
+        customerProfile: {
+          ...customerProfileWithoutOwner,
+          ownerUser,
+        },
+      };
     }
 
     return user;
@@ -163,7 +192,7 @@ export class AuthRepository {
 
   async finishOnboarding(userId: number): Promise<any> {
     try {
-      return await this.prisma.user.update({
+      const user = await this.prisma.user.update({
         where: { id: userId },
         data: {
           onboarded: true,
@@ -171,9 +200,38 @@ export class AuthRepository {
         },
         include: {
           ownerProfile: true,
-          customerProfile: true,
+          customerProfile: {
+            include: {
+              owner: {
+                include: {
+                  user: {
+                    select: {
+                      fullName: true,
+                      mobileNumber: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
       });
+
+      if (user.customerProfile?.owner?.user) {
+        const ownerUser = user.customerProfile.owner.user;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { owner, ...customerProfileWithoutOwner } = user.customerProfile;
+
+        return {
+          ...user,
+          customerProfile: {
+            ...customerProfileWithoutOwner,
+            ownerUser,
+          },
+        };
+      }
+
+      return user;
     } catch (error: unknown) {
       if (error instanceof HttpException) throw error;
 

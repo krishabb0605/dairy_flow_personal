@@ -78,14 +78,6 @@ const CustomerLayout = ({ children }: { children: React.ReactNode }) => {
         </Link>
 
         <Link
-          className={`flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-primary/10 hover:text-primary transition-colors ${pathName === '/deliveries' ? active : 'text-slate-600'}`}
-          href='/deliveries'
-        >
-          <span className='material-symbols-outlined'>local_shipping</span>
-          <span className='font-bold'>Deliveries</span>
-        </Link>
-
-        <Link
           className={`flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-primary/10 hover:text-primary transition-colors ${pathName === '/deliveries-history' ? active : 'text-slate-600'}`}
           href='/deliveries-history'
         >
