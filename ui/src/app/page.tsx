@@ -23,11 +23,9 @@ export default function Home() {
       } else if (!user.onboarded) {
         router.push(`/onboarding`);
       } else if (user.role === 'OWNER') {
-        // router.push('/owner/dashboard');
-        router.push('/');
+        router.push('/owner/dashboard');
       } else {
-        // router.push('/customer/dashboard');
-        router.push('/');
+        router.push('/dashboard');
       }
     }
   }, [user, loading, router]);

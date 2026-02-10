@@ -9,30 +9,20 @@ import { UserContext } from '../context/user-context';
 import { toast } from 'react-toastify';
 import Loader from '../../components/loader';
 
-const customerMenu = [
+const ownerMenu = [
   {
     label: 'Dashboard',
-    href: '/dashboard',
+    href: '/owner/dashboard',
     icon: 'dashboard',
   },
   {
-    label: 'Delivery History',
-    href: '/deliveries-history',
-    icon: 'history',
-  },
-  {
-    label: 'Monthly Billing',
-    href: '/billing',
-    icon: 'receipt_long',
-  },
-  {
     label: 'Settings',
-    href: '/settings',
+    href: '/owner/settings',
     icon: 'settings',
   },
 ];
 
-const CustomerLayout = ({ children }: { children: React.ReactNode }) => {
+const OwnerLayout = ({ children }: { children: React.ReactNode }) => {
   const { user, loading, setUser } = useContext(UserContext);
   const router = useRouter();
 
@@ -97,14 +87,12 @@ const CustomerLayout = ({ children }: { children: React.ReactNode }) => {
               <h1 className='text-slate-900 text-base font-bold leading-none'>
                 DairyFlow
               </h1>
-              <p className='text-slate-500 text-xs font-medium'>
-                Customer Portal
-              </p>
+              <p className='text-slate-500 text-xs font-medium'>Owner Portal</p>
             </div>
           </div>
         </div>
 
-        {customerMenu.map((item) => (
+        {ownerMenu.map((item) => (
           <Link
             key={item.href}
             href={item.href}
@@ -170,4 +158,4 @@ const CustomerLayout = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-export default CustomerLayout;
+export default OwnerLayout;

@@ -60,10 +60,10 @@ const Settings = () => {
                   Customer ID <Mandatory />
                 </label>
                 <input
-                  className='form-input flex w-full rounded-lg text-[#0d141b] border border-[#cfdbe7] bg-slate-50 h-12 placeholder:text-blue-placeholder px-4 text-sm font-normal focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none cursor-not-allowed'
-                  readOnly
+                  className='form-input flex w-full rounded-lg text-slate-500 border border-[#cfdbe7] bg-slate-50 h-12 placeholder:text-blue-placeholder px-4 text-sm font-normal focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none cursor-not-allowed'
                   type='text'
                   value={user?.customerProfile?.customerCode}
+                  disabled
                 />
               </div>
 
@@ -75,6 +75,18 @@ const Settings = () => {
                   className='form-input flex w-full rounded-lg text-[#0d141b] border border-[#cfdbe7] bg-slate-50 h-12 placeholder:text-blue-placeholder px-4 text-sm font-normal focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none'
                   type='tel'
                   value={user?.mobileNumber}
+                />
+              </div>
+
+              <div className='space-y-2'>
+                <label className='text-sm font-medium text-[#637588]'>
+                  Email <Mandatory />
+                </label>
+                <input
+                  className='form-input flex w-full rounded-lg text-slate-500 border border-[#cfdbe7] bg-slate-50 h-12 placeholder:text-blue-placeholder px-4 text-sm font-normal focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none cursor-not-allowed'
+                  type='tel'
+                  value={user?.email}
+                  disabled
                 />
               </div>
             </div>
