@@ -1,66 +1,68 @@
 'use client';
 
-const CustomerDelivery = ({ row, onReport }: any) => {
+const getColor = (status: string) => {
+  if (status === 'cancelled') {
+    return 'bg-red-100 text-red-700';
+  }
+
+  if (status === 'skipped') {
+    return 'bg-amber-100 text-amber-700';
+  }
+
+  return 'bg-primary/20 text-slate-700';
+};
+
+const CustomerDelivery = ({ currentRow }: any) => {
   return (
     <>
-      <tr key={row.id} className='hover:bg-gray-50/50 transition-colors'>
-        <td className='px-6 py-4'>
+      <tr className='hover:bg-primary/5 transition-colors group'>
+        <td className='px-6 py-4 whitespace-nowrap text-sm text-slate-500 text-center'>
+          {currentRow.date}
+        </td>
+
+        <td className='px-6 py-4 whitespace-nowrap text-center'>
           <div className='flex items-center gap-3'>
-            <div className='w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center text-primary font-bold text-sm'>
-              {row.initials}
+            <div className='size-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold'>
+              {currentRow.initials}
             </div>
-
-            <div>
-              <p className='text-sm font-bold'>{row.name}</p>
-              <p className='text-[10px] text-[#637588]'>#{row.customerId}</p>
-            </div>
+            <span className='text-sm font-semibold text-slate-700'>
+              {currentRow.name}
+            </span>
           </div>
         </td>
 
-        <td className='px-6 py-4'>
-          <div className='text-sm text-slate-600 max-w-50 truncate'>
-            {row.address}
-          </div>
-        </td>
-
-        <td className='px-6 py-4'>
-          <p
-            className={`text-sm flex items-center justify-center ${row.confirmed ? 'font-bold bg-primary/10' : ''}`}
-          >
-            {row.cowMilkQty} L
-          </p>
-        </td>
-
-        <td className='px-6 py-4'>
-          <p
-            className={`text-sm flex items-center justify-center ${row.confirmed ? 'font-bold bg-primary/10' : ''}`}
-          >
-            {row.buffaloMilkQty} L
-          </p>
-        </td>
-
-        <td className='px-6 py-4 text-right'>
-          {row.confirmed ? (
-            <div className='text-primary font-bold text-xs flex justify-end gap-1 items-center'>
-              <span className='material-symbols-outlined text-lg'>
-                check_circle
+        <td className='px-6 py-4 whitespace-nowrap text-sm text-slate-500 text-center'>
+          {currentRow.shift === 'morning' ? (
+            <span className='inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-orange-100 text-orange-700 text-[11px] font-bold'>
+              <span className='material-symbols-outlined text-[14px]'>
+                wb_sunny
               </span>
-              Confirmed
-            </div>
+              Morning
+            </span>
           ) : (
-            <div className='flex justify-end gap-2'>
-              <button
-                className='h-8 w-8 rounded bg-[#f0f2f4] text-red-500 flex items-center justify-center'
-                onClick={onReport}
-              >
-                <span className='material-symbols-outlined text-lg'>flag</span>
-              </button>
-
-              <button className='h-8 px-4 rounded bg-primary text-white text-xs font-bold'>
-                Confirm
-              </button>
-            </div>
+            <span className='inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-700 text-[11px] font-bold'>
+              <span className='material-symbols-outlined text-[14px]'>
+                dark_mode
+              </span>
+              Evening
+            </span>
           )}
+        </td>
+
+        <td className='px-6 py-4 whitespace-nowrap text-sm font-medium text-center'>
+          {currentRow.cowMilkQty} L
+        </td>
+
+        <td className='px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-900 text-center'>
+          {currentRow.buffaloMilkQty} L
+        </td>
+
+        <td className='px-6 py-4 whitespace-nowrap text-center'>
+          <span
+            className={`px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider ${getColor(currentRow.status)}`}
+          >
+            {currentRow.status}
+          </span>
         </td>
       </tr>
     </>
