@@ -19,13 +19,12 @@ const CustomerSetup = () => {
   console.log({ mobileNumber });
 
   return (
-    <ContentLayout title='Quick Customer Setup'>
+    <ContentLayout
+      title='Quick Customer Setup'
+      description='Enter a mobile number to generate a unique customer ID and onboarding
+          link instantly.'
+    >
       <div className='flex flex-col gap-8'>
-        {/* <!-- Page Heading --> */}
-        <p className='text-[#637588] text-lg font-normal'>
-          Enter a mobile number to generate a unique customer ID and onboarding
-          link instantly.
-        </p>
         {/* <!-- Generation Section --> */}
         <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
           {/* <!-- Input Card --> */}

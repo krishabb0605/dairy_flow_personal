@@ -62,13 +62,13 @@ const Deliveries = () => {
   const currentRows = filteredDeliveries.slice(start, start + ITEMS_PER_PAGE);
 
   return (
-    <ContentLayout title='Delivery History'>
+    <ContentLayout
+      title='Delivery History'
+      description={`Manage and track past milk distribution records`}
+    >
       <div className='flex-1 flex flex-col gap-6'>
         {/* <!-- Page Heading --> */}
-        <div className='flex flex-wrap justify-between items-start gap-3'>
-          <p className='text-[#637588] text-base'>
-            {`Manage and track past milk distribution records`}
-          </p>
+        <div className='flex flex-wrap justify-end items-start gap-3'>
           <div className='flex gap-3'>
             <button
               className='px-4 bg-primary/20 text-slate-700 font-bold rounded-lg flex items-center gap-2 hover:bg-primary/30 transition-colors'

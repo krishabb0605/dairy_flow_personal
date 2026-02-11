@@ -25,14 +25,12 @@ const MonthlyBiling = () => {
     : dailyDeliveriesHistory.slice(0, 3);
 
   return (
-    <ContentLayout title='Monthly Statements'>
+    <ContentLayout
+      title='Monthly Statements'
+      description='Track your daily milk consumption history and manage recurring payments.'
+    >
       <main className='flex-1 flex flex-col overflow-y-auto'>
         <div className='mx-auto w-full flex flex-col gap-6'>
-          <p className='text-[#637588]  text-base'>
-            Track your daily milk consumption history and manage recurring
-            payments.
-          </p>
-
           <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
             <div className='flex flex-col gap-2 md:col-span-2'>
               <h3 className='text-primary font-bold text-xs uppercase tracking-widest mb-1'>
