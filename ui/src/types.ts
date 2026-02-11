@@ -135,3 +135,15 @@ export type PaginationProps = {
   totalPages: number;
   setPage: (value: React.SetStateAction<number>) => void;
 };
+
+export type DeliveryStatus = 'pending' | 'delivered' | 'skipped';
+
+export type OwnerDelivery = {
+  id: number;
+  name: string;
+  address: string;
+  cowQty: number;
+  buffaloQty: number;
+  slot: Slot;
+  status: DeliveryStatus;
+};

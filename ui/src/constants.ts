@@ -1,3 +1,5 @@
+import { OwnerDelivery } from './types';
+
 export const API_URL = process.env.BASE_URL || 'http://localhost:3001';
 export const deliveryFilters = ['All Deliveries', 'Confirmed', 'Pending'];
 
@@ -368,5 +370,80 @@ export const ownerDeliveries = [
     cowMilkQty: 3.0,
     buffaloMilkQty: 3.0,
     address: 'Flat 202, Sunshine Apts, Phase 2',
+  },
+];
+
+export const ownerDashboardDeliveriesData: OwnerDelivery[] = [
+  {
+    id: 1,
+    name: 'Rahul Sharma',
+    address: 'Sector 12, Flat 402',
+    cowQty: 2,
+    buffaloQty: 1,
+    slot: 'morning',
+    status: 'pending',
+  },
+  {
+    id: 2,
+    name: 'Priya Patel',
+    address: 'Green Avenue, Villa 12',
+    cowQty: 0,
+    buffaloQty: 2,
+    slot: 'morning',
+    status: 'delivered',
+  },
+  {
+    id: 3,
+    name: 'Amit Verma',
+    address: 'Sector 15, Block B',
+    cowQty: 1.5,
+    buffaloQty: 0.5,
+    slot: 'morning',
+    status: 'skipped',
+  },
+  {
+    id: 4,
+    name: 'Sanjay Gupta',
+    address: 'Tower C, Apt 1004',
+    cowQty: 1,
+    buffaloQty: 0,
+    slot: 'evening',
+    status: 'pending',
+  },
+  {
+    id: 5,
+    name: 'Rahul 123',
+    address: 'Sector 12, Flat 402',
+    cowQty: 2,
+    buffaloQty: 1,
+    slot: 'morning',
+    status: 'pending',
+  },
+  {
+    id: 6,
+    name: 'Priya 123',
+    address: 'Green Avenue, Villa 12',
+    cowQty: 0,
+    buffaloQty: 2,
+    slot: 'morning',
+    status: 'delivered',
+  },
+  {
+    id: 7,
+    name: 'Amit 123',
+    address: 'Sector 15, Block B',
+    cowQty: 1.5,
+    buffaloQty: 0.5,
+    slot: 'morning',
+    status: 'pending',
+  },
+  {
+    id: 8,
+    name: 'Sanjay 123',
+    address: 'Tower C, Apt 1004',
+    cowQty: 1,
+    buffaloQty: 0,
+    slot: 'evening',
+    status: 'pending',
   },
 ];
