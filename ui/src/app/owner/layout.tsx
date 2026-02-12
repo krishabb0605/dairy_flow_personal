@@ -36,6 +36,11 @@ const ownerMenu = [
     icon: 'receipt_long',
   },
   {
+    label: 'Generate bill',
+    href: '/owner/generate-bill',
+    icon: 'receipt_long',
+  },
+  {
     label: 'Settings',
     href: '/owner/settings',
     icon: 'settings',
