@@ -31,6 +31,11 @@ const ownerMenu = [
     icon: 'local_shipping',
   },
   {
+    label: 'Billing',
+    href: '/owner/billing',
+    icon: 'receipt_long',
+  },
+  {
     label: 'Settings',
     href: '/owner/settings',
     icon: 'settings',
