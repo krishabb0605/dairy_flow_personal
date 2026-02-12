@@ -21,6 +21,11 @@ const ownerMenu = [
     icon: 'person_add',
   },
   {
+    label: 'Customers',
+    href: '/owner/customers',
+    icon: 'group',
+  },
+  {
     label: 'Deliveries',
     href: '/owner/deliveries',
     icon: 'local_shipping',

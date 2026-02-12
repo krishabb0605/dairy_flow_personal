@@ -253,7 +253,7 @@ export const billingHistory = [
     range: 'Jul 01 - Jul 31',
     qty: '38.0 Liters',
     amount: '₹1,950.00',
-    status: 'Overdue',
+    status: 'pending',
   },
   {
     month: 'June 2023',
@@ -267,14 +267,21 @@ export const billingHistory = [
     range: 'May 01 - May 31',
     qty: '15.5 Liters',
     amount: '₹1,360.00',
-    status: 'Overdue',
+    status: 'pending',
   },
   {
     month: 'April 2023',
     range: 'April 01 - April 31',
     qty: '48.0 Liters',
     amount: '₹2,950.00',
-    status: 'Overdue',
+    status: 'pending',
+  },
+  {
+    month: 'January 2024',
+    range: 'Jan 01 - Jan 31',
+    qty: '25.0 Liters',
+    amount: '₹1,951.00',
+    status: 'Paid',
   },
 ];
 
@@ -454,5 +461,196 @@ export const ownerDashboardDeliveriesData: OwnerDelivery[] = [
     buffaloQty: 0,
     slot: 'evening',
     status: 'pending',
+  },
+];
+
+export type OwnerCustomer = {
+  id: number;
+  name: string;
+  phone: string;
+  morningCowQty: number;
+  morningBuffaloQty: number;
+  eveningCowQty: number;
+  eveningBuffaloQty: number;
+  status: 'active' | 'paused';
+  avatar: string;
+};
+
+export const ownerCustomers: OwnerCustomer[] = [
+  {
+    id: 1,
+    name: 'John Doe',
+    phone: '+91 98765 43210',
+    morningCowQty: 2,
+    morningBuffaloQty: 1.5,
+    eveningCowQty: 1,
+    eveningBuffaloQty: 1,
+    status: 'active',
+    avatar:
+      'https://lh3.googleusercontent.com/aida-public/AB6AXuA6ECmN8wypuyqJRlG8ZQbi3DUqH0eC0TLyEqFvn7DyGcI3anQZWg8_IFwUWCYZxCv_oaSAktc_NSizBe_muVz0pjFMtWuNJ5vD0p6jxQkNG23CAZp54zUXfNUuwahMSDqa-e5jpWpXeLvrJLHIUnqhb-Otzao7r8GW8rMr4rjYE33SOslA6h3_-X-R_idJ7yzwQJOdmK0l6-Sr91grxKWgg7H3ktV7fJ1x9szDsKayFNuWWAGswAeXAFdibrcv3FRN58ZBgXwxaM1w',
+  },
+  {
+    id: 2,
+    name: 'Sarah Smith',
+    phone: '+91 98765 43211',
+    morningCowQty: 1.5,
+    morningBuffaloQty: 0.5,
+    eveningCowQty: 0,
+    eveningBuffaloQty: 0.5,
+    status: 'active',
+    avatar:
+      'https://lh3.googleusercontent.com/aida-public/AB6AXuA4jwDtXnX6aMi2TiY2olrLeUrhLBuu2Wv9Cn8w1dNq6LPaZubyQTnYL7jPs8gcsHy_xdUGitcR7FhkO24z6loYxdc4i94j0vu8sUTb8xVMRiLRmlYN-SH4-TZ_FCXIj4f1NwJOUet0SIlM8AGeb1IjqvyrBDay9K7kNzdzNPFE2zAUs_56n6fhh0Xs1kLKi9T6RuEUSjfRlTR3D8PDJo25h51lpk9l3ckDt51IzE77l9JVFC89v7bZQTPyTzKh38HmpagrtkE8R-mW',
+  },
+  {
+    id: 3,
+    name: 'Mike Ross',
+    phone: '+91 98765 43212',
+    morningCowQty: 0.5,
+    morningBuffaloQty: 0.5,
+    eveningCowQty: 0.5,
+    eveningBuffaloQty: 0.5,
+    status: 'paused',
+    avatar:
+      'https://lh3.googleusercontent.com/aida-public/AB6AXuBj7Onrh0OGhUsq7syr0InQbP6fD5gR2q47cjisthXXAKksUjnyZsvGucqhE2rv_zac1XfwOARR9tu4_QDRwnWwewfLRSxqz4HOA8BsFwzrCwd1sKZigULrpsLWDyOIszPWqBZ7L8z4fmwceeprm3V_OIvmBkoCoLFEwHknWX9YwDVEVML8P9Ccrgu0rFLjOehSPYuK-mFtKlOM4bIbgnK0FJGuE8sdz0aQQxXcn2l9sy3eXWEmGjiMBTiHAPfEVE2RuS58M1kbeeex',
+  },
+  {
+    id: 4,
+    name: 'Emma Wilson',
+    phone: '+91 98765 43213',
+    morningCowQty: 3,
+    morningBuffaloQty: 1,
+    eveningCowQty: 1,
+    eveningBuffaloQty: 0.5,
+    status: 'active',
+    avatar:
+      'https://lh3.googleusercontent.com/aida-public/AB6AXuAvWegW4P7e34MrufXip3Wl9Ryy-ZThorQNIfYTP72z280fxSG8AoBlgGbztHprZ5_qaPnrZqilGatKRSwyGQp8p-Ay6xIK6djyAzGpLZlY_M_Wlu3v45IOnTBs23FjgxUJFjYeX2bTkSoCNFdeSR8ZnB68T0qw4tPylifRe1uKUcT2w50nekkST739rfRZ7LEbO2GXM1yFC8JIp-8nXcJ_b6jyDxfTXq3GPYI9ZcW5PDDnQdgxzfFFTVcDusn_JvteiWF_0ALSEtud',
+  },
+  {
+    id: 5,
+    name: 'Arjun Patel',
+    phone: '+91 98765 43214',
+    morningCowQty: 1,
+    morningBuffaloQty: 0.5,
+    eveningCowQty: 1,
+    eveningBuffaloQty: 0,
+    status: 'active',
+    avatar: 'https://i.pravatar.cc/120?img=12',
+  },
+  {
+    id: 6,
+    name: 'Neha Verma',
+    phone: '+91 98765 43215',
+    morningCowQty: 0,
+    morningBuffaloQty: 1,
+    eveningCowQty: 2,
+    eveningBuffaloQty: 0.5,
+    status: 'active',
+    avatar: 'https://i.pravatar.cc/120?img=25',
+  },
+  {
+    id: 7,
+    name: 'Ravi Kumar',
+    phone: '+91 98765 43216',
+    morningCowQty: 2.5,
+    morningBuffaloQty: 1.5,
+    eveningCowQty: 1.5,
+    eveningBuffaloQty: 0.5,
+    status: 'active',
+    avatar: 'https://i.pravatar.cc/120?img=31',
+  },
+  {
+    id: 8,
+    name: 'Priya Nair',
+    phone: '+91 98765 43217',
+    morningCowQty: 0.5,
+    morningBuffaloQty: 0.5,
+    eveningCowQty: 0,
+    eveningBuffaloQty: 0,
+    status: 'paused',
+    avatar: 'https://i.pravatar.cc/120?img=47',
+  },
+];
+
+export type OwnerCustomerDeliveryStatus =
+  | 'delivered'
+  | 'pending'
+  | 'skipped'
+  | 'cancelled';
+
+export type OwnerCustomerDeliveryShift = 'morning' | 'evening';
+
+export type OwnerCustomerDeliveryHistoryItem = {
+  id: number;
+  date: string; // YYYY-MM-DD
+  shift: OwnerCustomerDeliveryShift;
+  cowQty: number;
+  buffaloQty: number;
+  status: OwnerCustomerDeliveryStatus;
+};
+
+export const ownerCustomerDeliveryHistory: OwnerCustomerDeliveryHistoryItem[] = [
+  {
+    id: 1,
+    date: '2023-10-24',
+    shift: 'morning',
+    cowQty: 2,
+    buffaloQty: 0,
+    status: 'delivered',
+  },
+  {
+    id: 2,
+    date: '2023-10-23',
+    shift: 'evening',
+    cowQty: 0,
+    buffaloQty: 1.5,
+    status: 'skipped',
+  },
+  {
+    id: 3,
+    date: '2023-10-23',
+    shift: 'morning',
+    cowQty: 2,
+    buffaloQty: 0,
+    status: 'delivered',
+  },
+  {
+    id: 4,
+    date: '2023-10-22',
+    shift: 'evening',
+    cowQty: 0,
+    buffaloQty: 1.5,
+    status: 'cancelled',
+  },
+  {
+    id: 5,
+    date: '2023-10-21',
+    shift: 'morning',
+    cowQty: 1.5,
+    buffaloQty: 0.5,
+    status: 'pending',
+  },
+  {
+    id: 6,
+    date: '2023-10-20',
+    shift: 'evening',
+    cowQty: 1,
+    buffaloQty: 1,
+    status: 'delivered',
+  },
+  {
+    id: 7,
+    date: '2023-10-19',
+    shift: 'morning',
+    cowQty: 2.5,
+    buffaloQty: 0,
+    status: 'pending',
+  },
+  {
+    id: 8,
+    date: '2023-10-18',
+    shift: 'evening',
+    cowQty: 0.5,
+    buffaloQty: 1.5,
+    status: 'delivered',
   },
 ];
