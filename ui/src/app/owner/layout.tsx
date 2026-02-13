@@ -79,7 +79,6 @@ const OwnerLayout = ({ children }: { children: React.ReactNode }) => {
       toast.error('Error while log out !!');
     }
   };
-  console.log(pathName);
 
   if (loading) {
     return <Loader variant='screen' />;

@@ -54,7 +54,7 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <DeliveryCalendar />
+          <DeliveryCalendar customerProfile={user?.customerProfile} />
         </div>
 
         <aside className='w-full xl:w-90 flex flex-col gap-6 shrink-0'>

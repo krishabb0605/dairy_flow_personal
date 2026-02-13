@@ -16,7 +16,6 @@ const CustomerSetup = () => {
     (page - 1) * PER_PAGE,
     page * PER_PAGE,
   );
-  console.log({ mobileNumber });
 
   return (
     <ContentLayout

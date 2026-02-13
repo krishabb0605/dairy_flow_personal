@@ -1,11 +1,20 @@
 'use client';
 
 import { useState } from 'react';
+import Modal from '../modal';
+import { type CustomerProfileConfig } from '../../types';
 
 const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-export default function DeliveryCalendar() {
+type DeliveryCalendarProps = {
+  customerProfile?: CustomerProfileConfig | null;
+};
+
+export default function DeliveryCalendar({
+  customerProfile,
+}: DeliveryCalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -17,12 +26,39 @@ export default function DeliveryCalendar() {
   const today = new Date();
 
   const changeMonth = (dir: number) => {
-    setCurrentDate(new Date(year, month + dir, 1));
+    const nextDate = new Date(year, month + dir, 1);
+    const currentMonthStart = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      1,
+    );
+
+    if (nextDate > currentMonthStart) return;
+    setCurrentDate(nextDate);
   };
 
   const jumpTo = (y: number, m: number) => {
+    if (y > today.getFullYear()) return;
+    if (y === today.getFullYear() && m > today.getMonth()) return;
     setCurrentDate(new Date(y, m, 1));
   };
+
+  const endOfToday = new Date(today);
+  endOfToday.setHours(23, 59, 59, 999);
+
+  const todayMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+  const canGoNextMonth = new Date(year, month + 1, 1) <= todayMonthStart;
+
+  const deliveryData = {
+    morningCow: Number(customerProfile?.morningCowQty) ?? 0,
+    morningBuffalo: Number(customerProfile?.morningBuffaloQty) ?? 0,
+    eveningCow: Number(customerProfile?.eveningCowQty) ?? 0,
+    eveningBuffalo: Number(customerProfile?.eveningBuffaloQty) ?? 0,
+  };
+
+  const totalMorning = deliveryData.morningCow + deliveryData.morningBuffalo;
+  const totalEvening = deliveryData.eveningCow + deliveryData.eveningBuffalo;
+  const totalDay = totalMorning + totalEvening;
 
   const cells = [];
 
@@ -45,36 +81,56 @@ export default function DeliveryCalendar() {
   return (
     <div className='bg-white rounded-2xl border border-slate-200 shadow-sm overflow-auto'>
       {/* HEADER */}
-      <div className='px-6 py-5 border-b border-slate-200 flex justify-between items-center'>
-        <div className='flex gap-4'>
+      <div className='px-6 py-5 border-b border-slate-200 flex justify-between items-center gap-4'>
+        <div className='flex flex-wrap items-center gap-4'>
           <div>
             <h2 className='text-lg font-bold'>Delivery Calendar</h2>
             <p className='text-sm text-slate-500'>
               Track and manage your daily milk supply
             </p>
           </div>
-          <select
-            className='border rounded px-2 py-1 text-sm'
-            value={month}
-            onChange={(e) => jumpTo(year, Number(e.target.value))}
-          >
-            {Array.from({ length: 12 }).map((_, i) => (
-              <option key={i} value={i}>
-                {new Date(0, i).toLocaleString('default', { month: 'long' })}
-              </option>
-            ))}
-          </select>
+          <div className='flex items-center gap-2 p-2 rounded-xl border border-slate-200 bg-slate-50/80'>
+            <div className='relative'>
+              <select
+                className='appearance-none h-10 min-w-36 rounded-lg border border-slate-200 bg-white pl-3 pr-10 text-sm font-semibold text-slate-700 shadow-sm outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20'
+                value={month}
+                onChange={(e) => jumpTo(year, Number(e.target.value))}
+              >
+                {Array.from({ length: 12 }).map((_, i) => (
+                  <option
+                    key={i}
+                    value={i}
+                    disabled={
+                      year === today.getFullYear() && i > today.getMonth()
+                    }
+                  >
+                    {new Date(0, i).toLocaleString('default', {
+                      month: 'long',
+                    })}
+                  </option>
+                ))}
+              </select>
+              <span className='material-symbols-outlined pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[18px] text-primary'>
+                expand_more
+              </span>
+            </div>
 
-          <select
-            className='border rounded px-2 py-1 text-sm'
-            value={year}
-            onChange={(e) => jumpTo(Number(e.target.value), month)}
-          >
-            {Array.from({ length: 10 }).map((_, i) => {
-              const y = today.getFullYear() - 5 + i;
-              return <option key={y}>{y}</option>;
-            })}
-          </select>
+            <div className='relative'>
+              <select
+                className='appearance-none h-10 min-w-24 rounded-lg border border-slate-200 bg-white pl-3 pr-10 text-sm font-semibold text-slate-700 shadow-sm outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20'
+                value={year}
+                onChange={(e) => jumpTo(Number(e.target.value), month)}
+              >
+                {Array.from({ length: 10 }).map((_, i) => {
+                  const y = today.getFullYear() - 9 + i;
+                  return <option key={y}>{y}</option>;
+                })}
+              </select>
+              <span className='material-symbols-outlined pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[18px] text-primary'>
+                expand_more
+              </span>
+            </div>
+          </div>
         </div>
 
         <div className='flex items-center gap-2 bg-slate-100 p-1 rounded-xl'>
@@ -90,8 +146,13 @@ export default function DeliveryCalendar() {
           </span>
 
           <button
+            disabled={!canGoNextMonth}
             onClick={() => changeMonth(1)}
-            className='p-2 hover:bg-white rounded-lg'
+            className={`p-2 rounded-lg ${
+              canGoNextMonth
+                ? 'hover:bg-white'
+                : 'opacity-40 cursor-not-allowed pointer-events-none'
+            }`}
           >
             <span className='material-symbols-outlined'>chevron_right</span>
           </button>
@@ -119,23 +180,36 @@ export default function DeliveryCalendar() {
               d.day === today.getDate() &&
               month === today.getMonth() &&
               year === today.getFullYear();
+            const cellDate = new Date(year, month, d.day);
+            const isFuture = !d.disabled && cellDate > endOfToday;
+            const canOpenDay = !d.disabled && !isFuture;
 
             return (
               <div
                 key={i}
+                onClick={() => {
+                  if (!canOpenDay) return;
+                  setSelectedDate(cellDate);
+                }}
                 className={`aspect-square p-3 cursor-pointer transition
-                ${d.disabled ? 'bg-slate-50 opacity-40' : 'bg-white hover:bg-slate-100'}
+                ${
+                  d.disabled
+                    ? 'bg-slate-50 opacity-40'
+                    : isFuture
+                      ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                      : 'bg-white hover:bg-slate-100'
+                }
                 ${isToday && 'border-2 border-primary bg-primary/10'}`}
               >
                 <span className='text-sm font-bold'>{d.day}</span>
 
-                {!d.disabled && (
+                {!d.disabled && !isFuture && (
                   <div className='flex flex-col items-center justify-center h-full -mt-4'>
                     <div className='text-xs font-bold text-slate-400 uppercase'>
-                      1.5L
+                      {totalDay}L
                     </div>
 
-                    <div className='size-1.5 bg-primary rounded-full mt-1'></div>
+                    <div className='size-1.5 rounded-full mt-1 bg-primary'></div>
                   </div>
                 )}
 
@@ -149,6 +223,84 @@ export default function DeliveryCalendar() {
           })}
         </div>
       </div>
+
+      <Modal
+        open={Boolean(selectedDate)}
+        onClose={() => setSelectedDate(null)}
+        cancelText='Close'
+        title={
+          selectedDate
+            ? selectedDate.toLocaleDateString('default', {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+              })
+            : 'Day Details'
+        }
+        description='Delivery quantity breakdown'
+      >
+        <div className='space-y-4'>
+          <div className='rounded-xl border border-slate-200 bg-slate-50 p-4'>
+            <p className='text-xs font-bold uppercase tracking-wider text-primary mb-3'>
+              Morning
+            </p>
+            <div className='space-y-2 text-sm'>
+              <div className='flex justify-between'>
+                <span className='text-slate-600'>Cow Milk</span>
+                <span className='font-semibold'>
+                  {deliveryData.morningCow} L
+                </span>
+              </div>
+              <div className='flex justify-between'>
+                <span className='text-slate-600'>Buffalo Milk</span>
+                <span className='font-semibold'>
+                  {deliveryData.morningBuffalo} L
+                </span>
+              </div>
+              <div className='flex justify-between border-t border-slate-200 pt-2'>
+                <span className='text-slate-700 font-medium'>
+                  Morning Total
+                </span>
+                <span className='font-bold text-primary'>{totalMorning} L</span>
+              </div>
+            </div>
+          </div>
+
+          <div className='rounded-xl border border-slate-200 bg-slate-50 p-4'>
+            <p className='text-xs font-bold uppercase tracking-wider text-primary mb-3'>
+              Evening
+            </p>
+            <div className='space-y-2 text-sm'>
+              <div className='flex justify-between'>
+                <span className='text-slate-600'>Cow Milk</span>
+                <span className='font-semibold'>
+                  {deliveryData.eveningCow} L
+                </span>
+              </div>
+              <div className='flex justify-between'>
+                <span className='text-slate-600'>Buffalo Milk</span>
+                <span className='font-semibold'>
+                  {deliveryData.eveningBuffalo} L
+                </span>
+              </div>
+              <div className='flex justify-between border-t border-slate-200 pt-2'>
+                <span className='text-slate-700 font-medium'>
+                  Evening Total
+                </span>
+                <span className='font-bold text-primary'>{totalEvening} L</span>
+              </div>
+            </div>
+          </div>
+
+          <div className='rounded-xl border border-primary/20 bg-primary/5 p-4 flex justify-between items-center'>
+            <span className='text-sm font-semibold text-slate-700'>
+              Total for this day
+            </span>
+            <span className='text-lg font-bold text-primary'>{totalDay} L</span>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

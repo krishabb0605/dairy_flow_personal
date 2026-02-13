@@ -1,9 +1,10 @@
 'use client';
 
 import Modal from '../../../components/modal';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 type Slot = 'morning' | 'evening';
+const slotRank = { morning: 0, evening: 1 } as const;
 
 const ScheduleVacation = ({
   open,
@@ -15,66 +16,41 @@ const ScheduleVacation = ({
   const now = new Date();
   const today = now.toISOString().split('T')[0];
 
-  const isAfter6PM = now.getHours() >= 18;
+  const [startDate, setStartDate] = useState(today);
+  const [startSlot, setStartSlot] = useState<Slot>('evening');
 
-  const tomorrow = new Date(now);
-  tomorrow.setDate(now.getDate() + 1);
-  const tomorrowStr = tomorrow.toISOString().split('T')[0];
-
-  // START
-  const initialStartDate = isAfter6PM ? tomorrowStr : today;
-  const initialStartSlot: Slot = isAfter6PM ? 'morning' : 'evening';
-
-  // END (always next slot)
-  const initialEndDate =
-    initialStartSlot === 'evening' ? tomorrowStr : initialStartDate;
-
-  const initialEndSlot: Slot =
-    initialStartSlot === 'evening' ? 'morning' : 'evening';
-
-  const [startDate, setStartDate] = useState(initialStartDate);
-  const [startSlot, setStartSlot] = useState<Slot>(initialStartSlot);
-
-  const [endDate, setEndDate] = useState(initialEndDate);
-  const [endSlot, setEndSlot] = useState<Slot>(initialEndSlot);
+  const [endDate, setEndDate] = useState(today);
+  const [endSlot, setEndSlot] = useState<Slot>('evening');
   const [loading, setLoading] = useState<boolean>(false);
 
-  useEffect(() => {
-    // Same day logic
-    if (startDate === endDate) {
-      if (startSlot === 'evening') {
-        // evening → must end next day morning
-        const next = new Date(startDate);
-        next.setDate(next.getDate() + 1);
+  const isEndBeforeStart = useCallback(
+    (sDate: string, sSlot: Slot, eDate: string, eSlot: Slot) => {
+      if (eDate < sDate) return true;
+      if (eDate > sDate) return false;
+      return slotRank[eSlot] < slotRank[sSlot];
+    },
+    [],
+  );
 
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setEndDate(next.toISOString().split('T')[0]);
-        setEndSlot('morning');
-      } else {
-        // morning → evening same day
-        setEndSlot('evening');
-      }
-    }
-  }, [endDate, startDate, startSlot]);
-
-  // Auto adjust slot when start date changes
   useEffect(() => {
-    if (startDate === today && isAfter6PM) {
+    if (startDate === today && startSlot !== 'evening') {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setStartSlot('evening');
     }
-  }, [isAfter6PM, startDate, today]);
+  }, [startDate, startSlot, today]);
 
-  const handleRangeChange = (start: string, end: string) => {
-    // auto fix reversed ranges
-    if (end && start > end) {
-      setStartDate(end);
-      setEndDate(start);
-    } else {
-      setStartDate(start);
-      setEndDate(end);
+  useEffect(() => {
+    if (endDate === today && endSlot !== 'evening') {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setEndSlot('evening');
+      return;
     }
-  };
+
+    if (isEndBeforeStart(startDate, startSlot, endDate, endSlot)) {
+      setEndDate(startDate);
+      setEndSlot(startSlot);
+    }
+  }, [startDate, startSlot, endDate, endSlot, today, isEndBeforeStart]);
 
   const handleSubmit = async () => {
     console.log({
@@ -110,9 +86,9 @@ const ScheduleVacation = ({
         <div className='grid grid-cols-2 gap-3'>
           <input
             type='date'
-            min={initialStartDate}
+            min={today}
             value={startDate}
-            onChange={(e) => handleRangeChange(e.target.value, endDate)}
+            onChange={(e) => setStartDate(e.target.value)}
             className='border rounded-lg px-3 py-2'
           />
 
@@ -122,7 +98,9 @@ const ScheduleVacation = ({
             onChange={(e) => setStartSlot(e.target.value as Slot)}
             className={`border rounded-lg px-3 py-2 capitalize disabled:bg-gray-100 ${startDate === today ? 'cursor-not-allowed' : 'cursor-pointer'}`}
           >
-            <option value='morning'>Morning</option>
+            <option value='morning' disabled={startDate === today}>
+              Morning
+            </option>
             <option value='evening'>Evening</option>
           </select>
         </div>
@@ -143,7 +121,7 @@ const ScheduleVacation = ({
             type='date'
             min={startDate}
             value={endDate}
-            onChange={(e) => handleRangeChange(startDate, e.target.value)}
+            onChange={(e) => setEndDate(e.target.value)}
             className='border rounded-lg px-3 py-2'
           />
 
@@ -152,7 +130,9 @@ const ScheduleVacation = ({
             onChange={(e) => setEndSlot(e.target.value as Slot)}
             className='border rounded-lg px-3 py-2 capitalize cursor-pointer'
           >
-            <option value='morning'>Morning</option>
+            <option value='morning' disabled={endDate === today}>
+              Morning
+            </option>
             <option value='evening'>Evening</option>
           </select>
         </div>

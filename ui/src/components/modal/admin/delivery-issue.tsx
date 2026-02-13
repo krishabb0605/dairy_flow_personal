@@ -16,7 +16,7 @@ const DeliveryIssueModal = ({
   const handleSubmit = async () => {
     setLoading(true);
 
-    console.log('hello');
+    console.log('Delivery Issue Modal');
 
     setTimeout(() => {
       setLoading(false);
