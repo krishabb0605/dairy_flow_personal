@@ -134,6 +134,133 @@ const Settings = () => {
       description='Manage your business operations, pricing, and profile details.'
     >
       <form className='space-y-8 pb-24' onSubmit={handleSubmit}>
+        {/* <!-- Owner Profile Section --> */}
+        <section className='bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden'>
+          <div className='px-6 py-4 border-b border-slate-100 bg-slate-50/50'>
+            <h3 className='font-bold text-slate-800 flex items-center gap-2'>
+              <span className='material-symbols-outlined text-primary'>
+                person
+              </span>
+              Owner Profile
+            </h3>
+          </div>
+
+          <div className='flex items-center gap-6 px-6'>
+            <div className='relative'>
+              <div
+                className='size-24 rounded-full border-4 border-[#f0f2f4] bg-center bg-no-repeat bg-cover'
+                style={{
+                  backgroundImage:
+                    'url("https://lh3.googleusercontent.com/aida-public/AB6AXuDN2u-3mU6mmls0TZnnkiW-REP7B2vB0ub6z83m0yBUgaAGlPbhHoKSb7ujqng0kNBc1Tv87noGjx3jXL7BnE0_2n0PYE7lZNBphK0JPZ9mF2tamoOvLLyZ8yeibaRb-qbsJm8FKibgU89Lj-XfbdGEbX_2wn8ODNARm3rZQf_BZWQwnIW5vt3WvAM-vZPlwbOrIEPXsJBrWL6x8EGy5MnCnIs4PzPEs5hPBBG4_Td_bfd2vf0BuUC4FL8YIiJBGOZLAigyMSRyBVk")',
+                }}
+              ></div>
+              <button
+                type='button'
+                className='absolute bottom-0 right-0 size-8 bg-primary text-white rounded-full flex items-center justify-center shadow-lg hover:bg-blue-600'
+              >
+                <span className='material-symbols-outlined text-sm'>
+                  photo_camera
+                </span>
+              </button>
+            </div>
+            <div className='flex flex-col gap-1'>
+              <p className='text-sm font-bold'>Profile Picture</p>
+              <p className='text-xs text-[#637588]'>PNG or JPG up to 5MB</p>
+              <div className='flex gap-2 mt-2'>
+                <button
+                  type='button'
+                  className='text-xs font-bold text-primary hover:underline'
+                >
+                  Change
+                </button>
+                <button
+                  type='button'
+                  className='text-xs font-bold text-red-500 hover:underline'
+                >
+                  Remove
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className='p-6 space-y-4'>
+            <div>
+              <label className='block text-sm font-medium text-slate-700 mb-2'>
+                Full Name <Mandatory />
+              </label>
+              <input
+                className={`w-full px-4 py-3 bg-slate-50 border rounded-lg focus:ring-2 outline-none transition-all ${
+                  errors.fullName
+                    ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500'
+                    : 'border-slate-200 focus:ring-primary/20 focus:border-primary'
+                }`}
+                type='text'
+                value={formData.fullName}
+                onChange={(event) =>
+                  handleChange('fullName', event.target.value)
+                }
+              />
+              {errors.fullName && (
+                <p className='mt-1 text-xs text-red-600'>{errors.fullName}</p>
+              )}
+            </div>
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+              <div>
+                <label className='block text-sm font-medium text-slate-700 mb-2'>
+                  Phone Number <Mandatory />
+                </label>
+                <div className='relative'>
+                  <span className='absolute left-4 top-1/2 -translate-y-1/2 text-slate-700 font-medium'>
+                    +91
+                  </span>
+                  <input
+                    className={`w-full pl-12 pr-4 py-3 rounded-lg border bg-slate-50 focus:ring-2 outline-none transition-all ${
+                      errors.phoneNumber
+                        ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500'
+                        : 'border-slate-200 focus:ring-primary/20 focus:border-primary'
+                    }`}
+                    placeholder='98765 43210'
+                    type='tel'
+                    maxLength={10}
+                    value={formData.phoneNumber}
+                    onChange={(e) =>
+                      handleChange(
+                        'phoneNumber',
+                        e.target.value.replace(/\D/g, ''),
+                      )
+                    }
+                  />
+                </div>
+                {errors.phoneNumber && (
+                  <p className='mt-1 text-xs text-red-600'>
+                    {errors.phoneNumber}
+                  </p>
+                )}
+              </div>
+              <div>
+                <label className='block text-sm font-medium text-slate-700 mb-2'>
+                  Email Address <Mandatory />
+                </label>
+                <input
+                  className={`w-full px-4 py-3 bg-slate-50 border rounded-lg focus:ring-2 outline-none transition-all ${
+                    errors.email
+                      ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500'
+                      : 'border-slate-200 focus:ring-primary/20 focus:border-primary'
+                  }`}
+                  type='email'
+                  value={formData.email}
+                  onChange={(event) =>
+                    handleChange('email', event.target.value)
+                  }
+                />
+                {errors.email && (
+                  <p className='mt-1 text-xs text-red-600'>{errors.email}</p>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* <!-- Milk Prices Section --> */}
         <section className='bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden'>
           <div className='px-6 py-4 border-b border-slate-100 bg-slate-50/50'>
@@ -168,7 +295,9 @@ const Settings = () => {
                 />
               </div>
               {errors.cowMilkPrice && (
-                <p className='mt-1 text-xs text-red-600'>{errors.cowMilkPrice}</p>
+                <p className='mt-1 text-xs text-red-600'>
+                  {errors.cowMilkPrice}
+                </p>
               )}
             </div>
             <div>
@@ -235,7 +364,9 @@ const Settings = () => {
                     }
                   />
                   {errors.morningStartTime && (
-                    <p className='text-xs text-red-600'>{errors.morningStartTime}</p>
+                    <p className='text-xs text-red-600'>
+                      {errors.morningStartTime}
+                    </p>
                   )}
                 </label>
                 <label className='flex flex-col gap-2'>
@@ -255,7 +386,9 @@ const Settings = () => {
                     }
                   />
                   {errors.morningEndTime && (
-                    <p className='text-xs text-red-600'>{errors.morningEndTime}</p>
+                    <p className='text-xs text-red-600'>
+                      {errors.morningEndTime}
+                    </p>
                   )}
                 </label>
               </div>
@@ -282,7 +415,9 @@ const Settings = () => {
                     }
                   />
                   {errors.eveningStartTime && (
-                    <p className='text-xs text-red-600'>{errors.eveningStartTime}</p>
+                    <p className='text-xs text-red-600'>
+                      {errors.eveningStartTime}
+                    </p>
                   )}
                 </label>
                 <label className='flex flex-col gap-2'>
@@ -302,98 +437,16 @@ const Settings = () => {
                     }
                   />
                   {errors.eveningEndTime && (
-                    <p className='text-xs text-red-600'>{errors.eveningEndTime}</p>
+                    <p className='text-xs text-red-600'>
+                      {errors.eveningEndTime}
+                    </p>
                   )}
                 </label>
               </div>
             </div>
           </div>
         </section>
-        {/* <!-- Owner Profile Section --> */}
-        <section className='bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden'>
-          <div className='px-6 py-4 border-b border-slate-100 bg-slate-50/50'>
-            <h3 className='font-bold text-slate-800 flex items-center gap-2'>
-              <span className='material-symbols-outlined text-primary'>
-                person
-              </span>
-              Owner Profile
-            </h3>
-          </div>
-          <div className='p-6 space-y-4'>
-            <div>
-              <label className='block text-sm font-medium text-slate-700 mb-2'>
-                Full Name <Mandatory />
-              </label>
-              <input
-                className={`w-full px-4 py-3 bg-slate-50 border rounded-lg focus:ring-2 outline-none transition-all ${
-                  errors.fullName
-                    ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500'
-                    : 'border-slate-200 focus:ring-primary/20 focus:border-primary'
-                }`}
-                type='text'
-                value={formData.fullName}
-                onChange={(event) =>
-                  handleChange('fullName', event.target.value)
-                }
-              />
-              {errors.fullName && (
-                <p className='mt-1 text-xs text-red-600'>{errors.fullName}</p>
-              )}
-            </div>
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-              <div>
-                <label className='block text-sm font-medium text-slate-700 mb-2'>
-                  Phone Number <Mandatory />
-                </label>
-                <div className='relative'>
-                  <span className='absolute left-4 top-1/2 -translate-y-1/2 text-slate-700 font-medium'>
-                    +91
-                  </span>
-                  <input
-                    className={`w-full pl-12 pr-4 py-3 rounded-lg border bg-slate-50 focus:ring-2 outline-none transition-all ${
-                      errors.phoneNumber
-                        ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500'
-                        : 'border-slate-200 focus:ring-primary/20 focus:border-primary'
-                    }`}
-                    placeholder='98765 43210'
-                    type='tel'
-                    maxLength={10}
-                    value={formData.phoneNumber}
-                    onChange={(e) =>
-                      handleChange(
-                        'phoneNumber',
-                        e.target.value.replace(/\D/g, ''),
-                      )
-                    }
-                  />
-                </div>
-                {errors.phoneNumber && (
-                  <p className='mt-1 text-xs text-red-600'>{errors.phoneNumber}</p>
-                )}
-              </div>
-              <div>
-                <label className='block text-sm font-medium text-slate-700 mb-2'>
-                  Email Address <Mandatory />
-                </label>
-                <input
-                  className={`w-full px-4 py-3 bg-slate-50 border rounded-lg focus:ring-2 outline-none transition-all ${
-                    errors.email
-                      ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500'
-                      : 'border-slate-200 focus:ring-primary/20 focus:border-primary'
-                  }`}
-                  type='email'
-                  value={formData.email}
-                  onChange={(event) =>
-                    handleChange('email', event.target.value)
-                  }
-                />
-                {errors.email && (
-                  <p className='mt-1 text-xs text-red-600'>{errors.email}</p>
-                )}
-              </div>
-            </div>
-          </div>
-        </section>
+
         {/* <!-- Payment Info Section --> */}
         <section className='bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden'>
           <div className='px-6 py-4 border-b border-slate-100 bg-slate-50/50'>
