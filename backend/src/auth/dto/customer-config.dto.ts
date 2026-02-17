@@ -1,6 +1,4 @@
 export class CustomerConfigDto {
-  customerCode: string;
-
   morningCowQty: number;
   morningBuffaloQty: number;
 

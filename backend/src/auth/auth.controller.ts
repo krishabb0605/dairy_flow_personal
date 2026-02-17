@@ -5,7 +5,6 @@ import { CustomerConfigDto } from './dto/customer-config.dto.js';
 import { OwnerConfigDto } from './dto/owner-config.dto.js';
 import { RoleDto } from './dto/role.dto.js';
 import { ResponseHandler } from '../../src/common/response.handler.js';
-import { RegisterCustomer } from './dto/register-customer.dto.js';
 
 @Controller('auth')
 export class AuthController {
@@ -48,16 +47,6 @@ export class AuthController {
   ) {
     return this.responseHandler.sendResponse(
       this.authService.createCustomerProfile(Number(userId), dto),
-    );
-  }
-
-  @Post('register-customer/:ownerId')
-  createCustomerInvite(
-    @Param('ownerId') ownerId: string,
-    @Body() dto: RegisterCustomer,
-  ) {
-    return this.responseHandler.sendResponse(
-      this.authService.createCustomerInvite(Number(ownerId), dto.mobileNumber),
     );
   }
 }

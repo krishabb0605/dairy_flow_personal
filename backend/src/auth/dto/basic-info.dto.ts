@@ -4,4 +4,5 @@ export class BasicInfoDto {
   address: string;
   email: string;
   firebaseUid: string;
+  profileImageUrl?: string;
 }

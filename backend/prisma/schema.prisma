@@ -17,24 +17,27 @@ model User {
   firebaseUid String @unique
 
   fullName     String
-  mobileNumber String
-  email        String
+  mobileNumber String @unique
+  email        String @unique
+  address      String
 
-  address String
+  role           UserRole?
+  onboarded      Boolean   @default(false)
+  onboardingStep Int       @default(1)
 
-  role      UserRole?
-  onboarded Boolean   @default(false)
+  profileImageUrl String?
 
-  onboardingStep Int @default(1)
-
-  ownerProfile    OwnerProfile?
-  customerProfile CustomerProfile?
+  ownerSettings   OwnerSettings?
+  customerSetting CustomerSetting?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model OwnerProfile {
+//
+// OWNER SETTINGS = BUSINESS + DELIVERY + PAYMENT
+//
+model OwnerSettings {
   id     Int @id @default(autoincrement())
   userId Int @unique
 
@@ -46,42 +49,35 @@ model OwnerProfile {
   buffaloEnabled Boolean @default(true)
   buffaloPrice   Decimal @db.Decimal(10, 2)
 
+  // DELIVERY TIMES (TIME ONLY)
+  morningStart DateTime @default(dbgenerated("'06:00:00'")) @db.Time
+  morningEnd   DateTime @default(dbgenerated("'09:00:00'")) @db.Time
+
+  eveningStart DateTime @default(dbgenerated("'18:00:00'")) @db.Time
+  eveningEnd   DateTime @default(dbgenerated("'21:00:00'")) @db.Time
+
+  // PAYMENT INFO
+  upiId         String?
+  bankName      String?
+  accountNumber String?
+  ifscCode      String?
+
   user User @relation(fields: [userId], references: [id])
 
-  customers           CustomerProfile[]
-  registeredCustomers RegisteredCustomer[]
+  customerOwners CustomerOwner[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model RegisteredCustomer {
+//
+// CUSTOMER SETTINGS (ONLY MILK QTY)
+// ONE PER CUSTOMER
+//
+model CustomerSetting {
   id Int @id @default(autoincrement())
 
-  ownerId Int
-
-  mobileNumber String
-  customerCode String @unique @db.Char(6)
-
-  customerProfile CustomerProfile?
-
-  owner OwnerProfile @relation(fields: [ownerId], references: [id])
-
-  createdAt DateTime @default(now())
-
-  @@index([mobileNumber])
-  @@index([ownerId])
-}
-
-model CustomerProfile {
-  id Int @id @default(autoincrement())
-
-  userId  Int @unique
-  ownerId Int
-
-  customerCode String @unique
-
-  registeredCustomerId Int? @unique
+  userId Int @unique
 
   morningCowQty     Decimal @default(0) @db.Decimal(10, 2)
   morningBuffaloQty Decimal @default(0) @db.Decimal(10, 2)
@@ -89,13 +85,30 @@ model CustomerProfile {
   eveningCowQty     Decimal @default(0) @db.Decimal(10, 2)
   eveningBuffaloQty Decimal @default(0) @db.Decimal(10, 2)
 
-  user  User         @relation(fields: [userId], references: [id])
-  owner OwnerProfile @relation(fields: [ownerId], references: [id])
+  user           User            @relation(fields: [userId], references: [id])
+  customerOwners CustomerOwner[]
 
-  registeredCustomer RegisteredCustomer? @relation(fields: [registeredCustomerId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+//
+// CUSTOMER ↔ OWNER RELATION + ACTIVATION + HISTORY
+//
+model CustomerOwner {
+  id Int @id @default(autoincrement())
+
+  customerId Int
+  ownerId    Int
+
+  isActivated Boolean @default(true)
+
+  customer CustomerSetting @relation(fields: [customerId], references: [id])
+  owner    OwnerSettings   @relation(fields: [ownerId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([customerId])
   @@index([ownerId])
 }
