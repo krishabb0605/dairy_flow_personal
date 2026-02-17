@@ -14,9 +14,9 @@ const formatQtyPair = (cowQty: number, buffaloQty: number) =>
 const OwnerCustomersPage = () => {
   const [page, setPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | OwnerCustomer['status']>(
-    'all',
-  );
+  const [statusFilter, setStatusFilter] = useState<
+    'all' | OwnerCustomer['status']
+  >('all');
 
   const filteredCustomers = useMemo(() => {
     return ownerCustomers.filter((customer) => {
@@ -44,22 +44,50 @@ const OwnerCustomersPage = () => {
   const currentRows = filteredCustomers.slice(start, start + ITEMS_PER_PAGE);
 
   const totalMorningLiters = filteredCustomers.reduce(
-    (sum, customer) => sum + customer.morningCowQty + customer.morningBuffaloQty,
+    (sum, customer) =>
+      sum + customer.morningCowQty + customer.morningBuffaloQty,
     0,
   );
   const totalEveningLiters = filteredCustomers.reduce(
-    (sum, customer) => sum + customer.eveningCowQty + customer.eveningBuffaloQty,
+    (sum, customer) =>
+      sum + customer.eveningCowQty + customer.eveningBuffaloQty,
     0,
   );
 
   return (
-    <ContentLayout title='Customer management'>
+    <ContentLayout title='Quick Customer Add' description='Enter a mobile number to add a new customer instantly.'>
       <div className='flex-1 overflow-y-auto space-y-6'>
+        <div className='bg-white rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] border border-[#f0f2f4]'>
+          <h3 className='text-lg font-bold mb-4 flex items-center gap-2'>
+            Recently Added Customers
+          </h3>
+          <div className='flex gap-5 flex-row items-center'>
+            <div className='flex flex-col gap-2 flex-1'>
+              <div className='relative'>
+                <span className='absolute left-4 top-1/2 -translate-y-1/2 text-[#637588] font-medium'>
+                  +91
+                </span>
+                <input
+                  className='w-full pl-12 pr-4 py-3 rounded-lg border-[#f0f2f4] bg-background-light focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all'
+                  placeholder='Mobile Number (e.g. 98765 43210)'
+                  type='tel'
+                />
+              </div>
+            </div>
+            <button className='bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-lg flex items-center justify-center gap-2 transition-all shadow-lg shadow-primary/20 w-auto px-8'>
+              <span className='material-symbols-outlined'>person_add</span> Add
+              Customer
+            </button>
+          </div>
+        </div>
+
         <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
           <div className='bg-white/30 p-6 rounded-xl border border-primary/10 shadow-sm'>
             <p className='text-sm text-gray-500 font-medium'>Total Customers</p>
             <div className='flex items-end justify-between mt-1'>
-              <h3 className='text-3xl font-black'>{filteredCustomers.length}</h3>
+              <h3 className='text-3xl font-black'>
+                {filteredCustomers.length}
+              </h3>
               <span className='text-primary text-xs font-bold'>Filtered</span>
             </div>
           </div>
@@ -114,7 +142,9 @@ const OwnerCustomersPage = () => {
             <select
               value={statusFilter}
               onChange={(e) => {
-                setStatusFilter(e.target.value as 'all' | OwnerCustomer['status']);
+                setStatusFilter(
+                  e.target.value as 'all' | OwnerCustomer['status'],
+                );
                 setPage(1);
               }}
               className='px-3 py-2.5 bg-white border border-primary/20 rounded-xl text-sm font-medium focus:ring-2 focus:ring-primary/20 focus-visible:outline-primary/50'
@@ -132,7 +162,9 @@ const OwnerCustomersPage = () => {
                 setPage(1);
               }}
             >
-              <span className='material-symbols-outlined text-sm'>restart_alt</span>
+              <span className='material-symbols-outlined text-sm'>
+                restart_alt
+              </span>
               Reset
             </button>
           </div>
@@ -152,13 +184,17 @@ const OwnerCustomersPage = () => {
                   <th className='px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500 text-center'>
                     <div className='flex flex-col gap-0.5'>
                       <p>Morning Qty</p>
-                      <p className='font-semibold text-[9px]'>(Cow / Buffalo)</p>
+                      <p className='font-semibold text-[9px]'>
+                        (Cow / Buffalo)
+                      </p>
                     </div>
                   </th>
                   <th className='px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500 text-center'>
                     <div className='flex flex-col gap-0.5'>
                       <p>Evening Qty</p>
-                      <p className='font-semibold text-[9px]'>(Cow / Buffalo)</p>
+                      <p className='font-semibold text-[9px]'>
+                        (Cow / Buffalo)
+                      </p>
                     </div>
                   </th>
                   <th className='px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500'>
@@ -184,7 +220,9 @@ const OwnerCustomersPage = () => {
                             backgroundImage: `url("${customer.avatar}")`,
                           }}
                         />
-                        <span className='text-sm font-bold'>{customer.name}</span>
+                        <span className='text-sm font-bold'>
+                          {customer.name}
+                        </span>
                       </div>
                     </td>
                     <td className='px-6 py-4 text-sm font-medium text-gray-600'>

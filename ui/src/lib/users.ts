@@ -11,7 +11,14 @@ export const getUser = async (firebaseUid: string) => {
   try {
     return await api(`/auth/user/${firebaseUid}`);
   } catch (error) {
-    console.error('Error while fetching user:', error);
+    const isUserNotFoundError =
+      error instanceof Error &&
+      error.message.toLowerCase().includes('user not found');
+
+    if (!isUserNotFoundError) {
+      console.error('Error while fetching user:', error);
+    }
+
     throw error;
   }
 };
@@ -94,7 +101,6 @@ export const addOwnerConfigInfo = async (
 export const addCustomerConfigInfo = async (
   userId: number,
   data: {
-    customerCode: string;
     morningCowQty: number;
     morningBuffaloQty: number;
     eveningCowQty: number;

@@ -1,12 +1,9 @@
 'use client';
 
-import { auth } from '../../config/firebase-config';
-import { signOut } from 'firebase/auth';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../context/user-context';
-import { toast } from 'react-toastify';
 import Loader from '../../components/loader';
 
 const ownerMenu = [
@@ -48,39 +45,40 @@ const ownerMenu = [
 ];
 
 const OwnerLayout = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading, setUser } = useContext(UserContext);
+  const { user, loading, handleLogout } = useContext(UserContext);
   const router = useRouter();
 
   const [open, setOpen] = useState(false);
   const pathName = usePathname();
 
   useEffect(() => {
-    if (!loading && user) {
+    if (!loading) {
+      if (!user) {
+        router.replace('/login');
+        return;
+      }
+
       if (!user.onboarded) {
-        router.push('/onboarding');
+        router.replace('/onboarding');
+        return;
+      }
+
+      if (user.role === 'CUSTOMER' && !user.currentActiveOwner) {
+        router.replace('/customer-pending');
         return;
       }
 
       if (user.role === 'CUSTOMER') {
-        router.push('/dashboard');
+        router.replace('/dashboard');
         return;
       }
     }
   }, [loading, user, pathName, router]);
 
-  const logout = async () => {
-    try {
-      await signOut(auth);
-      setUser(null);
-      router.push('/login');
-      localStorage.removeItem('user');
-    } catch (error) {
-      console.error(error);
-      toast.error('Error while log out !!');
-    }
-  };
+  const canRenderOwnerContent =
+    !!user && user.onboarded && user.role === 'OWNER';
 
-  if (loading) {
+  if (loading || !canRenderOwnerContent) {
     return <Loader variant='screen' />;
   }
 
@@ -156,7 +154,7 @@ const OwnerLayout = ({ children }: { children: React.ReactNode }) => {
 
             <button
               className='w-full h-10 py-2 bg-primary text-white font-bold rounded-lg text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2 text-[16px]'
-              onClick={logout}
+              onClick={handleLogout}
             >
               <div>Sign out</div>
               <span className='material-symbols-outlined'>logout</span>

@@ -10,7 +10,8 @@ import {
 } from '../../types';
 import { auth } from '../../config/firebase-config';
 import { getUser } from '../../lib/users';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { useRouter } from 'next/navigation';
 
 export const UserContext = createContext<UserContextType>(
   {} as UserContextType,
@@ -19,6 +20,7 @@ export const UserContext = createContext<UserContextType>(
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   const [basicInfo, setBasicInfo] = useState<BasicInfoState>({
     fullName: '',
@@ -30,6 +32,34 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   });
 
   const [selectedRole, setSelectedRole] = useState<UserRoleType>('CUSTOMER');
+
+  const isUserNotFoundError = (error: unknown) =>
+    error instanceof Error &&
+    error.message.toLowerCase().includes('user not found');
+
+  const sleep = (ms: number) =>
+    new Promise<void>((resolve) => setTimeout(resolve, ms));
+
+  const getUserWithRetry = async (firebaseUid: string) => {
+    const maxAttempts = 3;
+    const retryDelayMs = 500;
+
+    for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+      try {
+        return await getUser(firebaseUid);
+      } catch (error) {
+        const shouldRetry = isUserNotFoundError(error) && attempt < maxAttempts;
+
+        if (!shouldRetry) {
+          throw error;
+        }
+
+        await sleep(retryDelayMs);
+      }
+    }
+
+    throw new Error('User not found');
+  };
   useEffect(() => {
     const localUserInfo = localStorage.getItem('user');
 
@@ -39,7 +69,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, []);
 
-  console.log('user', user, loading);
+  console.log('user', auth.currentUser?.uid, user, loading);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -47,12 +77,14 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (!firebaseUser) {
+        setUser(null);
+        localStorage.removeItem('user');
         setLoading(false);
         return;
       }
 
       try {
-        const userInfo = await getUser(firebaseUser.uid);
+        const userInfo = await getUserWithRetry(firebaseUser.uid);
 
         localStorage.setItem('user', JSON.stringify(userInfo));
         setUser(userInfo);
@@ -72,10 +104,9 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         setSelectedRole(role || 'CUSTOMER');
         setLoading(false);
       } catch (error: any) {
-        if (error?.message === 'User not found') {
+        if (isUserNotFoundError(error)) {
           setUser(null);
           setLoading(false);
-          console.log('Error while fetching user', error);
           return;
         }
 
@@ -88,7 +119,9 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     return () => unsubscribe();
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     const { name, value } = e.target;
     setBasicInfo((prev) => ({
       ...prev,
@@ -97,7 +130,16 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const handleLogout = async () => {
-    console.log('log out');
+    try {
+      await signOut(auth);
+      setUser(null);
+      router.push('/login');
+      localStorage.removeItem('user');
+      toast.success('User sign out successfully !!');
+    } catch (error) {
+      console.error(error);
+      toast.error('Error while log out !!');
+    }
   };
 
   return (

@@ -11,7 +11,6 @@ const CustomerConfiguration = ({
   currentStep,
   setCurrentStep,
 }: OnboardingStepProps) => {
-  const [customerId, setCustomerId] = useState<string | null>(null);
   const [deliveryPreferences, setDeliveryPreferences] = useState({
     morning: { cow: 0, buffalo: 0 },
     evening: { cow: 0, buffalo: 0 },
@@ -29,16 +28,10 @@ const CustomerConfiguration = ({
       return;
     }
 
-    if (!customerId) {
-      toast.error('Please enter valid customer Id');
-      return;
-    }
-
     try {
       setSaveLoading(true);
 
       const userInfo = await addCustomerConfigInfo(user.id, {
-        customerCode: customerId,
         morningCowQty: deliveryPreferences.morning.cow,
         morningBuffaloQty: deliveryPreferences.morning.buffalo,
         eveningCowQty: deliveryPreferences.morning.cow,
@@ -71,25 +64,9 @@ const CustomerConfiguration = ({
         <h2 className='text-[22px] font-bold leading-tight tracking-[-0.015em]'>
           1. Link to Dairy
         </h2>
-        <div className='flex max-w-150 flex-wrap items-end gap-4 px-4 py-3'>
-          <label className='flex flex-col min-w-40 flex-1'>
-            <p className='text-base font-medium leading-normal pb-2'>
-              Customer Unique ID <Mandatory />
-            </p>
-            <div className='flex w-full flex-1 items-stretch rounded-lg'>
-              <input
-                className='form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#0d1b10] focus:outline-0 focus:shadow-none border border-blue-light bg-background-light h-14 placeholder:text-blue-300 p-3.75 rounded-r-none border-r-0 pr-2 text-base font-normal leading-normal'
-                placeholder='Enter the ID provided by your dairy owner'
-                onChange={(e) => setCustomerId(e.target.value)}
-              />
-              <div className='text-primary flex border border-[#cfe7d3] bg-background-light items-center justify-center pr-3.75 rounded-r-lg border-l-0'>
-                <span className='material-symbols-outlined'>fingerprint</span>
-              </div>
-            </div>
-          </label>
-        </div>
+        
         {/* <!-- Section: Profile Info --> */}
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-4 px-4'>
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-4 px-4 pt-4'>
           <label className='flex flex-col'>
             <p className='text-base font-medium leading-normal pb-2'>
               Customer Name

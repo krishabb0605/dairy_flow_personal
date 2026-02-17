@@ -12,8 +12,14 @@ const BasicInfo = ({ currentStep, setCurrentStep }: OnboardingStepProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { fullName, mobileNumber, email, password, confirmPassword, address } =
-      basicInfo;
+    const {
+      fullName,
+      mobileNumber,
+      email,
+      password,
+      confirmPassword,
+      address,
+    } = basicInfo;
 
     if (!fullName || !mobileNumber || !email || !address) {
       toast.error('Please fill in all required fields.');
@@ -98,14 +104,17 @@ const BasicInfo = ({ currentStep, setCurrentStep }: OnboardingStepProps) => {
             Mobile Number <Mandatory />
           </label>
           <div className='relative'>
+            <span className='absolute left-4 top-1/2 -translate-y-1/2 text-[#0d141b] font-normal'>
+              +91
+            </span>
             <input
-              className='form-input flex w-full rounded-lg text-[#0d141b] border border-[#cfdbe7] bg-slate-50 h-12 placeholder:text-blue-placeholder px-4 text-sm font-normal focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none'
-              placeholder='78787 87878'
+              className='w-full pl-12 pr-4 py-3 rounded-lg text-[#0d141b] border border-[#cfdbe7] bg-slate-50 h-12 placeholder:text-blue-placeholder px-4 text-sm font-normal focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none'
+              placeholder='98765 43210'
               type='tel'
               name='mobileNumber'
-              value={basicInfo.mobileNumber}
-              onChange={handleChange}
               maxLength={10}
+              value={basicInfo.mobileNumber ?? ''}
+              onChange={handleChange}
               required
             />
           </div>
@@ -116,8 +125,8 @@ const BasicInfo = ({ currentStep, setCurrentStep }: OnboardingStepProps) => {
             Home Address <Mandatory />
           </label>
           <textarea
-            className='form-input flex w-full rounded-lg text-[#0d141b] border border-[#cfdbe7] bg-slate-50 h-12 placeholder:text-blue-placeholder px-4 text-sm font-normal focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none'
-            rows={4}
+            className='form-input flex w-full rounded-lg text-[#0d141b] border border-[#cfdbe7] bg-slate-50 placeholder:text-blue-placeholder p-4 text-sm font-normal focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none'
+            rows={1}
             name='address'
             value={basicInfo.address}
             placeholder='4522 Oakwood Drive, Maple Heights, Apartment 4B, Seattle, WA 98101'
@@ -133,7 +142,7 @@ const BasicInfo = ({ currentStep, setCurrentStep }: OnboardingStepProps) => {
           </label>
           <div className='relative'>
             <input
-              className={`form-input flex w-full rounded-lg text-[#0d141b border border-[#cfdbe7] bg-slate-50 h-12 placeholder:text-blue-placeholder px-4 text-sm font-normal focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none ${user?.email ? 'cursor-not-allowed' : ''}`}
+              className={`form-input flex w-full rounded-lg text-[#0d141b] border border-[#cfdbe7] bg-slate-50 h-12 placeholder:text-blue-placeholder px-4 text-sm font-normal focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none ${user?.email ? 'cursor-not-allowed' : ''}`}
               placeholder='john@example.com'
               type='email'
               name='email'

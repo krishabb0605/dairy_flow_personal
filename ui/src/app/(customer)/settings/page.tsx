@@ -7,7 +7,6 @@ import { type User } from '../../../types';
 
 type FormData = {
   fullName: string;
-  customerId: string;
   mobileNumber: string;
   email: string;
   address: string;
@@ -21,7 +20,6 @@ type FormErrors = Partial<Record<keyof FormData, string>>;
 
 const buildInitialFormData = (user: User | null): FormData => ({
   fullName: user?.fullName ?? '',
-  customerId: user?.customerProfile?.customerCode ?? '',
   mobileNumber: user?.mobileNumber ?? '',
   email: user?.email ?? '',
   address: user?.address ?? '',
@@ -38,10 +36,6 @@ const validateForm = (data: FormData): FormErrors => {
 
   if (!data.fullName.trim() || data.fullName.trim().length < 2) {
     errors.fullName = 'Full name must have at least 2 characters.';
-  }
-
-  if (!data.customerId.trim()) {
-    errors.customerId = 'Customer ID is required.';
   }
 
   if (!phoneRegex.test(data.mobileNumber)) {
@@ -190,21 +184,6 @@ const Settings = () => {
                 />
                 {errors.fullName && (
                   <p className='text-xs text-red-600'>{errors.fullName}</p>
-                )}
-              </div>
-
-              <div className='space-y-2'>
-                <label className='text-sm font-medium text-[#637588]'>
-                  Customer ID <Mandatory />
-                </label>
-                <input
-                  className='form-input flex w-full rounded-lg text-slate-500 border border-[#cfdbe7] bg-slate-50 h-12 placeholder:text-blue-placeholder px-4 text-sm font-normal focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none cursor-not-allowed'
-                  type='text'
-                  value={formData.customerId}
-                  disabled
-                />
-                {errors.customerId && (
-                  <p className='text-xs text-red-600'>{errors.customerId}</p>
                 )}
               </div>
 
@@ -450,7 +429,7 @@ const Settings = () => {
             </div>
           </div>
         </section>
-       
+
         <div className='fixed bottom-0 left-0 md:left-64 right-0 p-6 bg-white/80 backdrop-blur-md border-t border-slate-200 flex justify-end items-center gap-4 z-10'>
           <button
             type='button'

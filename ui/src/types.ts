@@ -76,6 +76,7 @@ export type UserInfo = {
   onboardingStep: number;
   createdAt: string;
   updatedAt: string;
+  profileImageUrl?: string;
 };
 
 export type OwnerProfileConfig = {
@@ -95,7 +96,6 @@ export type CustomerProfileConfig = {
   userId: number;
   ownerId: number;
   registeredCustomerId: string;
-  customerCode: string;
   morningCowQty: number;
   morningBuffaloQty: number;
   eveningCowQty: number;
@@ -108,9 +108,32 @@ export type CustomerProfileConfig = {
   };
 };
 
+export type CustomerOwner = {
+  id: number;
+  userId: number;
+  ownerFullName: string;
+  ownerMobileNumber: string;
+  ownerEmail: string;
+  ownerAddress: string;
+  dairyName: string;
+  cowEnabled: boolean;
+  cowPrice: string;
+  buffaloEnabled: boolean;
+  buffaloPrice: string;
+  morningStart: string;
+  morningEnd: string;
+  eveningStart: string;
+  eveningEnd: string;
+  upiId: string | null;
+  bankName: string | null;
+  accountNumber: string | null;
+  ifscCode: string | null;
+};
+
 export type User = UserInfo & {
   ownerProfile: OwnerProfileConfig | null;
   customerProfile: CustomerProfileConfig | null;
+  currentActiveOwner: CustomerOwner | null;
 };
 
 export type ModalProps = {

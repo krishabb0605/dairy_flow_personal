@@ -30,6 +30,11 @@ export default function Home() {
         return;
       }
 
+      if (user.role === 'CUSTOMER' && !user.currentActiveOwner) {
+        router.push('/customer-pending');
+        return;
+      }
+
       if (user.role === 'CUSTOMER') {
         router.push('/dashboard');
       }
