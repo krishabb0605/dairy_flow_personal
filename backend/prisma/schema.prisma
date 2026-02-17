@@ -27,8 +27,8 @@ model User {
 
   profileImageUrl String?
 
-  ownerSettings   OwnerSettings?
-  customerSetting CustomerSetting?
+  ownerSettings    OwnerSettings?
+  customerSettings CustomerSettings?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -74,7 +74,7 @@ model OwnerSettings {
 // CUSTOMER SETTINGS (ONLY MILK QTY)
 // ONE PER CUSTOMER
 //
-model CustomerSetting {
+model CustomerSettings {
   id Int @id @default(autoincrement())
 
   userId Int @unique
@@ -103,8 +103,8 @@ model CustomerOwner {
 
   isActivated Boolean @default(true)
 
-  customer CustomerSetting @relation(fields: [customerId], references: [id])
-  owner    OwnerSettings   @relation(fields: [ownerId], references: [id])
+  customer CustomerSettings @relation(fields: [customerId], references: [id])
+  owner    OwnerSettings    @relation(fields: [ownerId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

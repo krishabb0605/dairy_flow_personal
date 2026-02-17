@@ -4,6 +4,8 @@ import { BasicInfoDto } from './dto/basic-info.dto.js';
 import { CustomerConfigDto } from './dto/customer-config.dto.js';
 import { OwnerConfigDto } from './dto/owner-config.dto.js';
 import { RoleDto } from './dto/role.dto.js';
+import { UpdateCustomerSettingsDto } from './dto/update-customer-settings.dto.js';
+import { UpdateOwnerSettingsDto } from './dto/update-owner-settings.dto.js';
 import { ResponseHandler } from '../../src/common/response.handler.js';
 
 @Controller('auth')
@@ -47,6 +49,26 @@ export class AuthController {
   ) {
     return this.responseHandler.sendResponse(
       this.authService.createCustomerProfile(Number(userId), dto),
+    );
+  }
+
+  @Post('customer-settings/:userId')
+  updateCustomerSettings(
+    @Param('userId') userId: string,
+    @Body() dto: UpdateCustomerSettingsDto,
+  ) {
+    return this.responseHandler.sendResponse(
+      this.authService.updateCustomerSettings(Number(userId), dto),
+    );
+  }
+
+  @Post('owner-settings/:userId')
+  updateOwnerSettings(
+    @Param('userId') userId: string,
+    @Body() dto: UpdateOwnerSettingsDto,
+  ) {
+    return this.responseHandler.sendResponse(
+      this.authService.updateOwnerSettings(Number(userId), dto),
     );
   }
 }

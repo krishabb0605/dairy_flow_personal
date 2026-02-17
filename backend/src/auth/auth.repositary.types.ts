@@ -3,7 +3,7 @@ import type { Prisma } from '../../generated/prisma/client.js';
 export type UserWithSettings = Prisma.UserGetPayload<{
   include: {
     ownerSettings: true;
-    customerSetting: true;
+    customerSettings: true;
   };
 }>;
 

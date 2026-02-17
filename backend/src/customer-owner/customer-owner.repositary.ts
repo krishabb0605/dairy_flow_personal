@@ -14,10 +14,20 @@ export class CustomerOwnerRepository {
 
   async createCustomerOwner(dto: CreateCustomerOwnerDto): Promise<any> {
     try {
+      const ownerUser = await this.prisma.ownerSettings.findUnique({
+        where: { id: dto.ownerId },
+      });
+
+      if (!ownerUser) {
+        throw new NotFoundException(
+          `Owner not found with this ownerId : ${dto.ownerId} `,
+        );
+      }
+
       const customerUser = await this.prisma.user.findUnique({
         where: { mobileNumber: dto.mobileNumber, role: 'CUSTOMER' },
         include: {
-          customerSetting: true,
+          customerSettings: true,
         },
       });
 
@@ -27,16 +37,31 @@ export class CustomerOwnerRepository {
         );
       }
 
-      if (!customerUser.customerSetting) {
+      if (!customerUser.customerSettings) {
         throw new NotFoundException(
           'Customer setting not found for this mobile number',
         );
       }
 
+      const existingSameOwnerRelation =
+        await this.prisma.customerOwner.findFirst({
+          where: {
+            customerId: customerUser.customerSettings.id,
+            ownerId: dto.ownerId,
+          },
+          orderBy: {
+            id: 'desc',
+          },
+        });
+
+      if (existingSameOwnerRelation?.isActivated) {
+        throw new BadRequestException('You already added this customer');
+      }
+
       const activeRelationWithAnotherOwner =
         await this.prisma.customerOwner.findFirst({
           where: {
-            customerId: customerUser.customerSetting.id,
+            customerId: customerUser.customerSettings.id,
             isActivated: true,
             ownerId: {
               not: dto.ownerId,
@@ -52,11 +77,9 @@ export class CustomerOwnerRepository {
 
       return await this.prisma.customerOwner.create({
         data: {
-          customerId: customerUser.customerSetting.id,
+          customerId: customerUser.customerSettings.id,
           ownerId: dto.ownerId,
-          ...(dto.isActivated !== undefined && {
-            isActivated: dto.isActivated,
-          }),
+          isActivated: dto.isActivated || true,
         },
         include: {
           customer: true,

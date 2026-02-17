@@ -3,6 +3,8 @@ import { BasicInfoDto } from './dto/basic-info.dto.js';
 import { RoleDto } from './dto/role.dto.js';
 import { OwnerConfigDto } from './dto/owner-config.dto.js';
 import { CustomerConfigDto } from './dto/customer-config.dto.js';
+import { UpdateCustomerSettingsDto } from './dto/update-customer-settings.dto.js';
+import { UpdateOwnerSettingsDto } from './dto/update-owner-settings.dto.js';
 import { AuthRepository } from './auth.repositary.js';
 import { GetUserResponse } from './auth.repositary.types.js';
 import { User } from '../../generated/prisma/client.js';
@@ -35,5 +37,19 @@ export class AuthService {
     dto: CustomerConfigDto,
   ): Promise<GetUserResponse> {
     return await this.authRepositary.createCustomerProfile(userId, dto);
+  }
+
+  async updateCustomerSettings(
+    userId: number,
+    dto: UpdateCustomerSettingsDto,
+  ): Promise<GetUserResponse> {
+    return await this.authRepositary.updateCustomerSettings(userId, dto);
+  }
+
+  async updateOwnerSettings(
+    userId: number,
+    dto: UpdateOwnerSettingsDto,
+  ): Promise<GetUserResponse> {
+    return await this.authRepositary.updateOwnerSettings(userId, dto);
   }
 }

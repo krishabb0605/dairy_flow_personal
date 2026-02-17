@@ -14,6 +14,8 @@ import { PrismaService } from '../prisma/prisma.service.js';
 import { BasicInfoDto } from './dto/basic-info.dto.js';
 import { CustomerConfigDto } from './dto/customer-config.dto.js';
 import { OwnerConfigDto } from './dto/owner-config.dto.js';
+import { UpdateCustomerSettingsDto } from './dto/update-customer-settings.dto.js';
+import { UpdateOwnerSettingsDto } from './dto/update-owner-settings.dto.js';
 import type {
   CurrentActiveOwner,
   CustomerOwnerWithOwnerUser,
@@ -31,7 +33,7 @@ export class AuthRepository {
 
       include: {
         ownerSettings: true,
-        customerSetting: true,
+        customerSettings: true,
       },
     });
 
@@ -45,7 +47,7 @@ export class AuthRepository {
   private async buildUserResponse(
     user: UserWithSettings,
   ): Promise<GetUserResponse> {
-    if (!(user.role === 'CUSTOMER' && user.customerSetting)) {
+    if (!(user.role === 'CUSTOMER' && user.customerSettings)) {
       return {
         ...user,
         currentActiveOwner: null,
@@ -53,7 +55,7 @@ export class AuthRepository {
     }
 
     const currentActiveOwner = this.mapCurrentActiveOwner(
-      await this.fetchCurrentActiveOwner(user.customerSetting.id),
+      await this.fetchCurrentActiveOwner(user.customerSettings.id),
     );
 
     return {
@@ -114,29 +116,15 @@ export class AuthRepository {
     };
   }
 
-  async createUser(dto: BasicInfoDto): Promise<User> {
+  async createUser(userBasicInfo: BasicInfoDto): Promise<User> {
+    const { firebaseUid, ...userInfo } = userBasicInfo;
     try {
       return await this.prisma.user.upsert({
         where: {
-          firebaseUid: dto.firebaseUid,
+          firebaseUid,
         },
-        update: {
-          fullName: dto.fullName,
-          mobileNumber: dto.mobileNumber,
-          address: dto.address,
-          email: dto.email,
-          profileImageUrl: dto.profileImageUrl || null,
-          onboardingStep: 1,
-        },
-        create: {
-          fullName: dto.fullName,
-          mobileNumber: dto.mobileNumber,
-          address: dto.address,
-          email: dto.email,
-          firebaseUid: dto.firebaseUid,
-          profileImageUrl: dto.profileImageUrl || null,
-          onboardingStep: 1,
-        },
+        update: { ...userInfo },
+        create: { ...userBasicInfo },
       });
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -211,7 +199,7 @@ export class AuthRepository {
     dto: CustomerConfigDto,
   ): Promise<GetUserResponse> {
     try {
-      await this.prisma.customerSetting.create({
+      await this.prisma.customerSettings.create({
         data: {
           userId,
           morningCowQty: dto.morningCowQty,
@@ -236,6 +224,157 @@ export class AuthRepository {
     }
   }
 
+  async updateCustomerSettings(
+    userId: number,
+    dto: UpdateCustomerSettingsDto,
+  ): Promise<GetUserResponse> {
+    try {
+      const existingUser = await this.prisma.user.findUnique({
+        where: { id: userId },
+      });
+
+      if (!existingUser) {
+        throw new NotFoundException('User not found');
+      }
+
+      if (existingUser.role !== 'CUSTOMER') {
+        throw new BadRequestException(
+          'Only customer can update these settings',
+        );
+      }
+
+      await this.prisma.$transaction([
+        this.prisma.user.update({
+          where: { id: userId },
+          data: {
+            fullName: dto.fullName,
+            address: dto.address,
+            profileImageUrl: dto.profileImageUrl ?? null,
+          },
+        }),
+        this.prisma.customerSettings.update({
+          where: { userId },
+          data: {
+            morningCowQty: dto.morningCowQty,
+            morningBuffaloQty: dto.morningBuffaloQty,
+            eveningCowQty: dto.eveningCowQty,
+            eveningBuffaloQty: dto.eveningBuffaloQty,
+          },
+        }),
+      ]);
+
+      const updatedUser = await this.prisma.user.findUnique({
+        where: { id: userId },
+        include: {
+          ownerSettings: true,
+          customerSettings: true,
+        },
+      });
+
+      if (!updatedUser) {
+        throw new NotFoundException('User not found');
+      }
+
+      return this.buildUserResponse(updatedUser);
+    } catch (error: unknown) {
+      if (error instanceof HttpException) throw error;
+
+      throw new InternalServerErrorException({
+        success: false,
+        message: 'Error while updating customer settings',
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
+  }
+
+  async updateOwnerSettings(
+    userId: number,
+    dto: UpdateOwnerSettingsDto,
+  ): Promise<GetUserResponse> {
+    try {
+      const existingUser = await this.prisma.user.findUnique({
+        where: { id: userId },
+      });
+
+      if (!existingUser) {
+        throw new NotFoundException('User not found');
+      }
+
+      if (existingUser.role !== 'OWNER') {
+        throw new BadRequestException('Only owner can update these settings');
+      }
+
+      await this.prisma.$transaction([
+        this.prisma.user.update({
+          where: { id: userId },
+          data: {
+            fullName: dto.fullName,
+            address: dto.address,
+            profileImageUrl: dto.profileImageUrl ?? null,
+          },
+        }),
+        this.prisma.ownerSettings.update({
+          where: { userId },
+          data: {
+            cowEnabled: dto.cowEnabled,
+            cowPrice: dto.cowPrice,
+            buffaloEnabled: dto.buffaloEnabled,
+            buffaloPrice: dto.buffaloPrice,
+            morningStart: this.toTimeDate(dto.morningStart),
+            morningEnd: this.toTimeDate(dto.morningEnd),
+            eveningStart: this.toTimeDate(dto.eveningStart),
+            eveningEnd: this.toTimeDate(dto.eveningEnd),
+            upiId: dto.upiId ?? null,
+            bankName: dto.bankName ?? null,
+            accountNumber: dto.accountNumber ?? null,
+            ifscCode: dto.ifscCode ?? null,
+          },
+        }),
+      ]);
+
+      const updatedUser = await this.prisma.user.findUnique({
+        where: { id: userId },
+        include: {
+          ownerSettings: true,
+          customerSettings: true,
+        },
+      });
+
+      if (!updatedUser) {
+        throw new NotFoundException('User not found');
+      }
+
+      return this.buildUserResponse(updatedUser);
+    } catch (error: unknown) {
+      if (error instanceof HttpException) throw error;
+
+      throw new InternalServerErrorException({
+        success: false,
+        message: 'Error while updating owner settings',
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
+  }
+
+  private toTimeDate(time: string): Date {
+    const [hoursText, minutesText] = time.split(':');
+    const hours = Number(hoursText);
+    const minutes = Number(minutesText);
+
+    if (
+      Number.isNaN(hours) ||
+      Number.isNaN(minutes) ||
+      hours < 0 ||
+      hours > 23 ||
+      minutes < 0 ||
+      minutes > 59
+    ) {
+      throw new BadRequestException(`Invalid time format: ${time}`);
+    }
+
+    return new Date(Date.UTC(1970, 0, 1, hours, minutes, 0));
+  }
+
   async finishOnboarding(userId: number): Promise<UserWithSettings> {
     try {
       const user = await this.prisma.user.update({
@@ -246,7 +385,7 @@ export class AuthRepository {
         },
         include: {
           ownerSettings: true,
-          customerSetting: true,
+          customerSettings: true,
         },
       });
 
