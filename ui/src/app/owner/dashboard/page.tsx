@@ -59,7 +59,7 @@ const Dashboard = () => {
                 search
               </span>
               <input
-                className='pl-10 pr-4 py-2 border border-slate-200 rounded-lg w-64 focus:ring-2 focus:ring-primary focus:border-primary outline-none text-sm'
+                className='pl-10 pr-4 py-2 border bg-white border-slate-200 rounded-lg w-64 focus:ring-2 focus:ring-primary focus:border-primary outline-none text-sm'
                 placeholder='Search customer...'
                 type='text'
               />
@@ -124,7 +124,7 @@ const Dashboard = () => {
           </div>
         </div>
         {/* <!-- Delivery Sections --> */}
-        <div className='flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4'>
+        <div className='flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 bg-white pr-2'>
           <div className='flex border-b border-slate-200 w-full md:w-auto flex-1'>
             {(['morning', 'evening'] as Slot[]).map((shift, index) => (
               <button
@@ -146,11 +146,11 @@ const Dashboard = () => {
               </button>
             ))}
           </div>
-          <div className='flex gap-3'>
+          <div className='flex items-center justify-center gap-3'>
             <select
               value={bulkAction}
               onChange={(e) => setBulkAction(e.target.value)}
-              className='border rounded-lg px-3 py-2 text-sm'
+              className='border rounded-lg px-3 py-2 text-sm bg-white'
             >
               <option value=''>Bulk Action</option>
               <option value='delivered'>Mark Confirmed</option>
@@ -180,8 +180,8 @@ const Dashboard = () => {
           </div>
         </div>
         <div className='space-y-8'>
-          <section>
-            <div className='bg-white border border-slate-200 rounded-xl shadow-sm overflow-auto'>
+          <section className='bg-white border border-slate-200 rounded-xl  shadow-sm overflow-hidden'>
+            <div className='overflow-auto'>
               <table className='w-full text-left'>
                 <thead className='bg-slate-50 border-b border-slate-200'>
                   <tr>
@@ -228,12 +228,8 @@ const Dashboard = () => {
                   ))}
                 </tbody>
               </table>
-              <Pagination
-                page={page}
-                totalPages={totalPages}
-                setPage={setPage}
-              />
             </div>
+            <Pagination page={page} totalPages={totalPages} setPage={setPage} />
           </section>
         </div>
       </main>

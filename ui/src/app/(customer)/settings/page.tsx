@@ -476,13 +476,13 @@ const Settings = () => {
           </div>
         </section>
 
-        <div className='fixed bottom-0 left-0 md:left-64 right-0 p-6 bg-white/80 backdrop-blur-md border-t border-slate-200 flex justify-end items-center gap-4 z-10'>
+        <div className='fixed bottom-0 left-0 md:left-64 right-0 p-6 bg-blue-50 backdrop-blur-md flex justify-end items-center gap-4 z-10'>
           <div className='flex items-center gap-4 w-full md:w-[50%]'>
             <button
               type='button'
               onClick={handleCancel}
               disabled={isSaving || isUploadingImage}
-              className='px-6 py-3 border border-slate-200 rounded-lg text-sm font-semibold hover:bg-slate-50 transition-colors flex-1'
+              className='px-6 py-3 border border-slate-200 bg-white rounded-lg text-sm font-semibold hover:bg-slate-50 transition-colors flex-1'
             >
               Discard Changes
             </button>

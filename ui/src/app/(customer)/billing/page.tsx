@@ -181,7 +181,7 @@ const MonthlyBiling = () => {
                 Billing History
               </h2>
               <div className='flex items-center gap-2'>
-                <button className='flex items-center gap-1 text-sm text-[#637588]  border border-solid border-[#f0f2f4]  px-3 py-1.5 rounded-lg hover:bg-white '>
+                <button className='flex items-center gap-1 text-sm text-[#637588] bg-slate-100 border border-solid border-[#f0f2f4] px-3 py-1.5 rounded-lg hover:bg-white '>
                   <span
                     className='material-symbols-outlined text-lg'
                     data-icon='filter_list'

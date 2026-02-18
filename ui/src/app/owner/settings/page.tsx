@@ -757,7 +757,7 @@ const Settings = () => {
           </div>
         </section>
         {/* <!-- Sticky Footer Action --> */}
-        <div className='fixed bottom-0 left-0 md:left-64 right-0 p-6 bg-white/80 backdrop-blur-md border-t border-slate-200 flex justify-end items-center gap-4 z-10'>
+        <div className='fixed bottom-0 left-0 md:left-64 right-0 p-6 bg-blue-50 backdrop-blur-md border-t border-slate-200 flex justify-end items-center gap-4 z-10'>
           <div className='flex items-center gap-4 w-full md:w-[50%]'>
             <button
               type='button'

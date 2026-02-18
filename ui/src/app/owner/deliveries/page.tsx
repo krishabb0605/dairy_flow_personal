@@ -235,39 +235,40 @@ const Deliveries = () => {
         </div>
 
         {/* Table */}
-        <div className='bg-white rounded-xl border border-primary/10 shadow-sm overflow-auto'>
-          <table className='w-full text-left border-collapse'>
-            <thead>
-              <tr className='bg-slate-50 border-b border-primary/10'>
-                <th className='px-6 py-4 text-[11px] font-black text-slate-400 uppercase tracking-widest text-center'>
-                  Date
-                </th>
-                <th className='px-6 ps-17 py-4 text-[11px] font-black text-slate-400 uppercase tracking-widest'>
-                  Customer
-                </th>
-                <th className='px-6 py-4 text-[11px] font-black text-slate-400 uppercase tracking-widest text-center'>
-                  Shift
-                </th>
-                <th className='px-6 py-4 text-[11px] font-black text-slate-400 uppercase tracking-widest text-center'>
-                  Cow Qty
-                </th>
-                <th className='px-6 py-4 text-[11px] font-black text-slate-400 uppercase tracking-widest text-center'>
-                  Buffalo Qty
-                </th>
-                <th className='px-6 py-4 text-[11px] font-black text-slate-400 uppercase tracking-widest text-center'>
-                  Status
-                </th>
-              </tr>
-            </thead>
-            <tbody className='divide-y divide-primary/5'>
-              {currentRows.map((currentRow, index) => (
-                <CustomerDelivery currentRow={currentRow} key={index} />
-              ))}
-            </tbody>
-          </table>
+        <div className='bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden'>
+          <div className='overflow-x-auto'>
+            <table className='w-full text-left border-collapse'>
+              <thead>
+                <tr className='bg-slate-50 border-b border-primary/10'>
+                  <th className='px-6 py-4 text-[11px] font-black text-slate-400 uppercase tracking-widest text-center'>
+                    Date
+                  </th>
+                  <th className='px-6 ps-17 py-4 text-[11px] font-black text-slate-400 uppercase tracking-widest'>
+                    Customer
+                  </th>
+                  <th className='px-6 py-4 text-[11px] font-black text-slate-400 uppercase tracking-widest text-center'>
+                    Shift
+                  </th>
+                  <th className='px-6 py-4 text-[11px] font-black text-slate-400 uppercase tracking-widest text-center'>
+                    Cow Qty
+                  </th>
+                  <th className='px-6 py-4 text-[11px] font-black text-slate-400 uppercase tracking-widest text-center'>
+                    Buffalo Qty
+                  </th>
+                  <th className='px-6 py-4 text-[11px] font-black text-slate-400 uppercase tracking-widest text-center'>
+                    Status
+                  </th>
+                </tr>
+              </thead>
+              <tbody className='divide-y divide-primary/5'>
+                {currentRows.map((currentRow, index) => (
+                  <CustomerDelivery currentRow={currentRow} key={index} />
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <Pagination page={page} totalPages={totalPages} setPage={setPage} />
         </div>
-
-        <Pagination page={page} totalPages={totalPages} setPage={setPage} />
       </div>
     </ContentLayout>
   );

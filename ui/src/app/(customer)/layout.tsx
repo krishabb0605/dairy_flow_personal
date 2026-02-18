@@ -163,7 +163,7 @@ const CustomerLayout = ({ children }: { children: React.ReactNode }) => {
       )}
       {/* Main Content */}
       <main
-        className='flex-1 overflow-y-auto md:pt-0'
+        className='flex-1 overflow-y-auto md:pt-0 bg-blue-50/60'
         style={{ scrollbarWidth: 'none' }}
       >
         {children}

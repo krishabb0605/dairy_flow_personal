@@ -58,7 +58,7 @@ const OwnerCustomersPage = () => {
   return (
     <ContentLayout title='Quick Customer Add' description='Enter a mobile number to add a new customer instantly.'>
       <div className='flex-1 overflow-y-auto space-y-6'>
-        <div className='bg-white rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] border border-[#f0f2f4]'>
+        <div className='rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] border border-[#f0f2f4] p-2'>
           <h3 className='text-lg font-bold mb-4 flex items-center gap-2'>
             Recently Added Customers
           </h3>
@@ -75,7 +75,7 @@ const OwnerCustomersPage = () => {
                 />
               </div>
             </div>
-            <button className='bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-lg flex items-center justify-center gap-2 transition-all shadow-lg shadow-primary/20 w-auto px-8'>
+            <button className='bg-primary hover:bg-primary/90 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 transition-all shadow-lg shadow-primary/20 w-auto px-8'>
               <span className='material-symbols-outlined'>person_add</span> Add
               Customer
             </button>
@@ -83,7 +83,7 @@ const OwnerCustomersPage = () => {
         </div>
 
         <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
-          <div className='bg-white/30 p-6 rounded-xl border border-primary/10 shadow-sm'>
+          <div className='bg-white p-6 rounded-xl border border-primary/10 shadow-sm'>
             <p className='text-sm text-gray-500 font-medium'>Total Customers</p>
             <div className='flex items-end justify-between mt-1'>
               <h3 className='text-3xl font-black'>
@@ -92,7 +92,7 @@ const OwnerCustomersPage = () => {
               <span className='text-primary text-xs font-bold'>Filtered</span>
             </div>
           </div>
-          <div className='bg-white/30 p-6 rounded-xl border border-primary/10 shadow-sm'>
+          <div className='bg-white p-6 rounded-xl border border-primary/10 shadow-sm'>
             <p className='text-sm text-gray-500 font-medium'>
               Total Morning Liters
             </p>
@@ -106,7 +106,7 @@ const OwnerCustomersPage = () => {
               </span>
             </div>
           </div>
-          <div className='bg-white/30 p-6 rounded-xl border border-primary/10 shadow-sm'>
+          <div className='bg-white p-6 rounded-xl border border-primary/10 shadow-sm'>
             <p className='text-sm text-gray-500 font-medium'>
               Total Evening Liters
             </p>
@@ -171,7 +171,7 @@ const OwnerCustomersPage = () => {
           </div>
         </div>
 
-        <div className='bg-white/30 rounded-xl border border-primary/10 shadow-sm overflow-hidden'>
+        <div className='bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden'>
           <div className='overflow-x-auto'>
             <table className='w-full text-left border-collapse'>
               <thead>

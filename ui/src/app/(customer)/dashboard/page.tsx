@@ -138,7 +138,7 @@ const Dashboard = () => {
               </div>
             </div>
           </div>
-          <div className='bg-primary/5 rounded-2xl p-6 border border-primary/20'>
+          <div className='bg-white rounded-2xl p-6 border border-primary/20'>
             <div className='flex items-center gap-3 mb-4'>
               <div className='size-10 rounded-full bg-primary/20 flex items-center justify-center text-primary'>
                 <span className='material-symbols-outlined'>support_agent</span>
@@ -148,7 +148,7 @@ const Dashboard = () => {
                 <p className='text-xs text-slate-500'>Available 24/7</p>
               </div>
             </div>
-            <button className='w-full py-3 bg-primary text-background-dark font-bold rounded-xl text-sm hover:opacity-90 transition-opacity'>
+            <button className='w-full py-3 bg-primary text-white font-bold rounded-xl text-sm hover:opacity-90 transition-opacity'>
               Get Support
             </button>
           </div>
