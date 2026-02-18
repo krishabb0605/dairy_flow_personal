@@ -417,3 +417,11 @@ export type CreateExtraMilkOrderParams = {
   cowQty: number;
   buffaloQty: number;
 };
+
+export type CreateVacationScheduleParams = {
+  customerOwnerId: number;
+  startDate: string;
+  startSlot: Slot;
+  endDate: string;
+  endSlot: Slot;
+};

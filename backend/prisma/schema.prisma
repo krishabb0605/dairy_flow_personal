@@ -106,6 +106,7 @@ model CustomerOwner {
   customer CustomerSettings @relation(fields: [customerId], references: [id])
   owner    OwnerSettings    @relation(fields: [ownerId], references: [id])
   extraMilkOrders ExtraMilkOrder[]
+  vacationSchedules VacationSchedule[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -136,4 +137,23 @@ model ExtraMilkOrder {
   @@index([customerOwnerId])
   @@index([deliveryDate])
   @@unique([customerOwnerId, deliveryDate, slot])
+}
+
+model VacationSchedule {
+  id Int @id @default(autoincrement())
+
+  customerOwnerId Int
+  customerOwner   CustomerOwner @relation(fields: [customerOwnerId], references: [id])
+
+  startDate DateTime @db.Date
+  startSlot ExtraMilkSlot
+
+  endDate DateTime @db.Date
+  endSlot ExtraMilkSlot
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([customerOwnerId])
+  @@index([startDate])
 }

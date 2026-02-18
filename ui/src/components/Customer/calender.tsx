@@ -168,7 +168,7 @@ export default function DeliveryCalendar({
       </div>
 
       {/* DAYS */}
-      <div className='p-6'>
+      <div className='p-6 pt-0'>
         <div className='grid grid-cols-7 gap-px bg-slate-200 border border-slate-200 rounded-xl overflow-hidden'>
           {cells.map((d, i) => {
             const isToday =
@@ -187,7 +187,7 @@ export default function DeliveryCalendar({
                   if (!canOpenDay) return;
                   setSelectedDate(cellDate);
                 }}
-                className={`aspect-square p-3 cursor-pointer transition
+                className={`aspect-square p-3 cursor-pointer transition relative
                 ${
                   d.disabled
                     ? 'bg-slate-50 opacity-40'
