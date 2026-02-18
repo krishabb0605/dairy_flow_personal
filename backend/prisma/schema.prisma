@@ -105,10 +105,35 @@ model CustomerOwner {
 
   customer CustomerSettings @relation(fields: [customerId], references: [id])
   owner    OwnerSettings    @relation(fields: [ownerId], references: [id])
+  extraMilkOrders ExtraMilkOrder[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([customerId])
   @@index([ownerId])
+}
+
+enum ExtraMilkSlot {
+  MORNING
+  EVENING
+}
+
+model ExtraMilkOrder {
+  id Int @id @default(autoincrement())
+
+  customerOwnerId Int
+  customerOwner   CustomerOwner @relation(fields: [customerOwnerId], references: [id])
+
+  deliveryDate DateTime @db.Date
+  slot         ExtraMilkSlot
+  cowQty       Decimal @default(0) @db.Decimal(10, 2)
+  buffaloQty   Decimal @default(0) @db.Decimal(10, 2)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([customerOwnerId])
+  @@index([deliveryDate])
+  @@unique([customerOwnerId, deliveryDate, slot])
 }
