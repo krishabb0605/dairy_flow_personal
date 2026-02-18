@@ -9,4 +9,10 @@ export class CustomerOwnerService {
   async createCustomerOwner(dto: CreateCustomerOwnerDto): Promise<any> {
     return this.customerOwnerRepository.createCustomerOwner(dto);
   }
+
+  async deactivateCustomerOwner(customerOwnerId: number): Promise<any> {
+    return this.customerOwnerRepository.deactivateCustomerOwner(
+      customerOwnerId,
+    );
+  }
 }

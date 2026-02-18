@@ -94,8 +94,9 @@ export class AuthRepository {
     const ownerUser = owner.user;
 
     return {
-      id: owner.id,
-      userId: owner.userId,
+      id: currentActiveOwner.id,
+      ownerId: owner.id,
+      ownerUserId: owner.userId,
       ownerFullName: ownerUser?.fullName ?? null,
       ownerMobileNumber: ownerUser?.mobileNumber ?? null,
       ownerEmail: ownerUser?.email ?? null,

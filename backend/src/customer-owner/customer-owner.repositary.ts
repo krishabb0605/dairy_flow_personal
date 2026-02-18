@@ -100,4 +100,42 @@ export class CustomerOwnerRepository {
       throw new InternalServerErrorException('Unexpected error');
     }
   }
+
+  async deactivateCustomerOwner(customerOwnerId: number): Promise<any> {
+    try {
+      const customerOwner = await this.prisma.customerOwner.findUnique({
+        where: { id: customerOwnerId },
+      });
+
+      if (!customerOwner) {
+        throw new NotFoundException(
+          `Customer-owner relation not found with id: ${customerOwnerId}`,
+        );
+      }
+
+      if (!customerOwner.isActivated) {
+        return {
+          message: 'Customer-owner relation is already deactivated',
+          customerOwner,
+        };
+      }
+
+      return await this.prisma.customerOwner.update({
+        where: { id: customerOwnerId },
+        data: { isActivated: false },
+      });
+    } catch (error: unknown) {
+      if (error instanceof HttpException) throw error;
+
+      if (error instanceof Error) {
+        throw new InternalServerErrorException({
+          success: false,
+          message: 'Error while deactivating customer-owner relation',
+          error: error.message,
+        });
+      }
+
+      throw new InternalServerErrorException('Unexpected error');
+    }
+  }
 }

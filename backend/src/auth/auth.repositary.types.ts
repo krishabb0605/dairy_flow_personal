@@ -18,8 +18,9 @@ export type CustomerOwnerWithOwnerUser = Prisma.CustomerOwnerGetPayload<{
 }>;
 
 export type CurrentActiveOwner = {
-  id: CustomerOwnerWithOwnerUser['owner']['id'];
-  userId: CustomerOwnerWithOwnerUser['owner']['userId'];
+  id: CustomerOwnerWithOwnerUser['id'];
+  ownerId: CustomerOwnerWithOwnerUser['owner']['id'];
+  ownerUserId: CustomerOwnerWithOwnerUser['owner']['userId'];
   ownerFullName: CustomerOwnerWithOwnerUser['owner']['user']['fullName'] | null;
   ownerMobileNumber:
     | CustomerOwnerWithOwnerUser['owner']['user']['mobileNumber']
