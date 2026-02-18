@@ -1,10 +1,19 @@
 'use client';
 import Modal from '../../../components/modal';
 import { milkPrices } from '../../../constants';
-import { MilkType, Slot } from '../../../types';
-import React, { useMemo, useState } from 'react';
+import {
+  type AddExtraMilkDeliveryState,
+  type AddExtraMilkModalProps,
+  type CustomerOwner,
+  type MilkType,
+  type Slot,
+} from '../../../types';
+import { useContext, useMemo, useState } from 'react';
+import { createExtraMilkOrder } from '../../../lib/extra-milk-order';
+import { UserContext } from '../../../app/context/user-context';
+import { toast } from 'react-toastify';
 
-const defaultState = {
+const defaultState: AddExtraMilkDeliveryState = {
   morning: {
     cow: 0,
     buffalo: 0,
@@ -15,30 +24,55 @@ const defaultState = {
   },
 };
 
-const AddExtraMilkModal = ({
-  open,
-  onClose,
-}: {
-  open: boolean;
-  onClose: () => void;
-}) => {
-  const now = new Date();
-  const isAfter6PM = now.getHours() >= 18;
+const getLocalDateInputValue = (date: Date): string => {
+  const timezoneOffsetMs = date.getTimezoneOffset() * 60_000;
+  return new Date(date.getTime() - timezoneOffsetMs)
+    .toISOString()
+    .split('T')[0];
+};
 
-  const formatDate = (d: Date) => d.toISOString().split('T')[0];
+const extractTimeFromOwnerSetting = (value?: string | null): string | null => {
+  if (!value) return null;
+  const plainMatch = value.match(/^(\d{2}:\d{2})/);
+  if (plainMatch) return plainMatch[1];
+  const isoMatch = value.match(/T(\d{2}:\d{2})/);
+  if (isoMatch) return isoMatch[1];
+  return null;
+};
 
-  const today = formatDate(now);
+const getCutoffTime = (time: string): Date | null => {
+  const [hours, minutes] = time.split(':').map(Number);
+  if (Number.isNaN(hours) || Number.isNaN(minutes)) return null;
 
-  const tomorrow = formatDate(new Date(now.setDate(now.getDate() + 1)));
+  const cutoff = new Date();
+  cutoff.setHours(hours, minutes, 0, 0);
+  cutoff.setMinutes(cutoff.getMinutes() - 30);
+  return cutoff;
+};
 
-  const defaultDate = isAfter6PM ? tomorrow : today;
-  const defaultSlot: Slot = isAfter6PM ? 'morning' : 'evening';
+const getTodaySlotAvailability = (
+  owner: CustomerOwner | null | undefined,
+  now: Date,
+) => {
+  const morningStart = extractTimeFromOwnerSetting(owner?.morningStart);
+  const eveningStart = extractTimeFromOwnerSetting(owner?.eveningStart);
+  const morningCutoff = morningStart ? getCutoffTime(morningStart) : null;
+  const eveningCutoff = eveningStart ? getCutoffTime(eveningStart) : null;
 
-  const [date, setDate] = useState(defaultDate);
-  const [selectedSlot, setSelectedSlot] = useState<Slot>(defaultSlot);
+  return {
+    morning: morningCutoff ? now < morningCutoff : false,
+    evening: eveningCutoff ? now < eveningCutoff : false,
+  };
+};
+
+const AddExtraMilkModal = ({ open, onClose }: AddExtraMilkModalProps) => {
+  const { user } = useContext(UserContext);
+  const [date, setDate] = useState<string>('');
+  const [selectedSlot, setSelectedSlot] = useState<Slot>('morning');
 
   const [loading, setLoading] = useState<boolean>(false);
-  const [delivery, setDelivery] = useState(defaultState);
+  const [delivery, setDelivery] =
+    useState<AddExtraMilkDeliveryState>(defaultState);
 
   const updateQty = (milk: MilkType, delta: number) => {
     setDelivery((prev) => {
@@ -62,26 +96,75 @@ const AddExtraMilkModal = ({
     return cowPrice + buffaloPrice;
   }, [delivery, selectedSlot]);
 
-  const handleSubmit = async () => {
-    setLoading(true);
+  const now = new Date();
+  const today = getLocalDateInputValue(now);
+  const tomorrowDate = new Date(now);
+  tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+  const tomorrow = getLocalDateInputValue(tomorrowDate);
 
-    console.log({
-      date,
-      selectedSlot,
-      delivery,
-      total,
-    });
+  const todaySlotAvailability = getTodaySlotAvailability(
+    user?.currentActiveOwner,
+    now,
+  );
 
-    setTimeout(() => {
-      setLoading(false);
-      onClose();
-    }, 1000);
-  };
+  const isTodaySelectable =
+    todaySlotAvailability.morning || todaySlotAvailability.evening;
+
+  const minDate = isTodaySelectable ? today : tomorrow;
 
   const isTodaySelected = date === today;
 
-  // if today + before 6pm → morning disabled
-  const disableMorning = isTodaySelected && !isAfter6PM;
+  const isSlotDisabled = (slot: Slot) =>
+    isTodaySelected ? !todaySlotAvailability[slot] : false;
+
+  const handleSubmit = async () => {
+    const cowQty = delivery[selectedSlot].cow;
+    const buffaloQty = delivery[selectedSlot].buffalo;
+
+    if (!user?.currentActiveOwner) {
+      toast.error('No active owner found for this customer.');
+      return;
+    }
+
+    if (!date) {
+      toast.error('Please select a delivery date.');
+      return;
+    }
+
+    if (isSlotDisabled(selectedSlot)) {
+      return;
+    }
+
+    if (cowQty <= 0 && buffaloQty <= 0) {
+      toast.error('Please add at least one milk quantity.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await createExtraMilkOrder({
+        customerOwnerId: user.currentActiveOwner.id,
+        deliveryDate: date,
+        slot: selectedSlot,
+        cowQty,
+        buffaloQty,
+      });
+      toast.success('Extra milk request submitted successfully');
+      setDate('');
+      setSelectedSlot('morning');
+      setDelivery(defaultState);
+      onClose();
+      setLoading(false);
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Failed to submit extra milk request';
+      toast.error(message);
+      setLoading(false);
+    }
+  };
+
   return (
     <Modal
       open={open}
@@ -105,14 +188,17 @@ const AddExtraMilkModal = ({
           <input
             className='w-full border border-[#e7f3e9] rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none appearance-none'
             type='date'
-            min={today}
+            min={minDate}
             value={date}
             onChange={(e) => {
               const selected = e.target.value;
               setDate(selected);
-
-              if (selected === today) {
-                setSelectedSlot('evening');
+              const selectedSlotInvalidForToday =
+                selected === today && !todaySlotAvailability[selectedSlot];
+              if (selectedSlotInvalidForToday) {
+                setSelectedSlot(
+                  todaySlotAvailability.morning ? 'morning' : 'evening',
+                );
               }
             }}
           />
@@ -123,12 +209,10 @@ const AddExtraMilkModal = ({
       <div className='space-y-4'>
         <div className='flex gap-2 p-1 rounded-xl'>
           {(['morning', 'evening'] as Slot[]).map((slot) => {
-            const disabled = slot === 'morning' && disableMorning;
-
             return (
               <button
                 key={slot}
-                disabled={disabled}
+                disabled={isSlotDisabled(slot)}
                 onClick={() => setSelectedSlot(slot)}
                 className={`flex-1 py-3 font-medium capitalize transition
                 ${
@@ -136,7 +220,7 @@ const AddExtraMilkModal = ({
                     ? 'border-b-2 border-primary bg-primary/5'
                     : 'border-b border-[#e7f3e9] text-gray-500'
                 }
-                ${disabled ? 'opacity-40 cursor-not-allowed pointer-events-none' : ''}
+                ${isSlotDisabled(slot) ? 'opacity-40 cursor-not-allowed' : ''}
               `}
               >
                 {slot}

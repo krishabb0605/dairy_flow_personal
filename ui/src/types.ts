@@ -402,3 +402,18 @@ export type ScheduleVacationProps = {
   open: boolean;
   onClose: () => void;
 };
+
+export type AddExtraMilkModalProps = {
+  open: boolean;
+  onClose: () => void;
+};
+
+export type AddExtraMilkDeliveryState = Record<Slot, Record<MilkType, number>>;
+
+export type CreateExtraMilkOrderParams = {
+  customerOwnerId: number;
+  deliveryDate: string;
+  slot: Slot;
+  cowQty: number;
+  buffaloQty: number;
+};
