@@ -1,20 +1,9 @@
 'use client';
 
-import ContentLayout from '@/components/layout';
-import Pagination from '@/components/pagination';
+import ContentLayout from '../../../components/layout';
+import Pagination from '../../../components/pagination';
 import { useMemo, useState } from 'react';
-
-type BillStatus = 'paid' | 'pending';
-
-type OwnerBillingRecord = {
-  id: string;
-  customerName: string;
-  mobile: string;
-  month: string;
-  qty: number;
-  amount: number;
-  status: BillStatus;
-};
+import type { OwnerBillingRecord, OwnerBillingStatus } from '../../../types';
 
 const OWNER_BILLING_DATA: OwnerBillingRecord[] = [
   {
@@ -102,7 +91,7 @@ const OwnerBillingPage = () => {
   const [page, setPage] = useState(1);
   const [rows, setRows] = useState<OwnerBillingRecord[]>(OWNER_BILLING_DATA);
   const [search, setSearch] = useState('');
-  const [status, setStatus] = useState<'all' | BillStatus>('all');
+  const [status, setStatus] = useState<'all' | OwnerBillingStatus>('all');
   const [year, setYear] = useState('all');
 
   const years = useMemo(() => {
@@ -208,7 +197,7 @@ const OwnerBillingPage = () => {
               <select
                 value={status}
                 onChange={(e) => {
-                  setStatus(e.target.value as 'all' | BillStatus);
+                  setStatus(e.target.value as 'all' | OwnerBillingStatus);
                   setPage(1);
                 }}
                 className='w-full h-10 bg-background-light border-slate-200 rounded-lg text-sm font-medium px-3 focus:ring-primary focus:border-primary focus-visible:outline-primary/50'

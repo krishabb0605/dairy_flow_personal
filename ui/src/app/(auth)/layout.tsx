@@ -4,6 +4,7 @@ import { ReactNode, useContext, useEffect } from 'react';
 import { UserContext } from '../context/user-context';
 import { useRouter } from 'next/navigation';
 import Loader from '../../components/loader';
+import background from '../../assets/images/background.png';
 
 const Layout = ({ children }: { children: ReactNode }) => {
   const { user, loading } = useContext(UserContext);
@@ -26,8 +27,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
           className='absolute inset-0 bg-cover bg-center'
           data-alt='Fresh glass milk bottles on a wooden table'
           style={{
-            backgroundImage:
-              'url("https://lh3.googleusercontent.com/aida-public/AB6AXuDgR2CMqARhuMzH1juZKVwem3Dji0fq4FZGwUh2u-rZnokYpVSfIUOIQqY20grHi-wI5_LIPSB5-r9TSYrYPRXWYi0hfMtcxdaMLdDmc_aoRVF17q8po1CIPyRKFNzGOXFtANYR73B-89JtNlaEf1kNB8XQIHAQAoks-Ko990_uuqC7ktuHTRukKOIEWSzAe0YFjmL54oj_bbByx4Oc78UwPJka1dCFjU28xzdLndpewBYjgYdzSegbeBE-THx7csDg19gH1DWpIvWh")',
+            backgroundImage: `url(${background.src})`,
           }}
         >
           <div className='absolute inset-0 bg-linear-to-t from-black/60 to-transparent'></div>

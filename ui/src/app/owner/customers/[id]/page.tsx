@@ -1,22 +1,21 @@
 'use client';
 
-import CustomerBillingHistory from '@/components/admin/customer-tab/billing-history';
-import CustomerDeliveryHistory from '@/components/admin/customer-tab/delivery-history';
-import CustomerOverView from '@/components/admin/customer-tab/overview';
-import ContentLayout from '@/components/layout';
-import { ownerCustomers } from '@/constants';
+import CustomerBillingHistory from '../../../../components/admin/customer-tab/billing-history';
+import CustomerDeliveryHistory from '../../../../components/admin/customer-tab/delivery-history';
+import CustomerOverView from '../../../../components/admin/customer-tab/overview';
+import ContentLayout from '../../../../components/layout';
+import { ownerCustomers } from '../../../../constants';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
-
-type CustomerTab = 'overview' | 'delivery-history' | 'billing-history';
+import type { OwnerCustomerTab } from '../../../../types';
 
 const OwnerCustomerProfilePage = () => {
   const params = useParams<{ id: string }>();
   const customerId = Number(params.id);
   const customer = ownerCustomers.find((item) => item.id === customerId);
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<CustomerTab>('overview');
+  const [activeTab, setActiveTab] = useState<OwnerCustomerTab>('overview');
 
   if (!customer) {
     return (
@@ -38,7 +37,10 @@ const OwnerCustomerProfilePage = () => {
   }
 
   return (
-    <ContentLayout title='Customer Profile' description={`Customers > ${customer.name} > ${activeTab}`}>
+    <ContentLayout
+      title='Customer Profile'
+      description={`Customers > ${customer.name} > ${activeTab}`}
+    >
       <div className='space-y-4'>
         <main className='flex-1 flex flex-col overflow-y-auto'>
           {/* <!-- Header Profile Section --> */}

@@ -4,6 +4,8 @@ import { UserContext } from '../../../app/context/user-context';
 import { useContext, useState } from 'react';
 import { toast } from 'react-toastify';
 import { addRole } from '../../../lib/users';
+import ownerOnboarding from '../../../assets/images/owner-onboarding.png';
+import customerOnboarding from '../../../assets/images/customer-onboarding.png';
 
 const UserRole = ({ currentStep, setCurrentStep }: OnboardingStepProps) => {
   const [saveLoading, setSaveLoading] = useState(false);
@@ -58,8 +60,7 @@ const UserRole = ({ currentStep, setCurrentStep }: OnboardingStepProps) => {
           <div
             className='w-full h-48 bg-center bg-no-repeat bg-cover rounded-lg mb-2 relative'
             style={{
-              backgroundImage:
-                'url("https://lh3.googleusercontent.com/aida-public/AB6AXuCegAp3W-99JwrKXCFes5mQgUMeDjBeZy5wd1qoaB19QxGGJKDz8BC1Z5MeJ8TxMng0j0Y30-y04m6Do4S7U2qOa6h8GvxY7ULLO-JvwEg7caDGRpy_TA1xYf5yA-vGYxMWHIuWgQMtu_W2-ctyWHXt4K7VWoInrKRbb0q4xUyMl4Q-A74xkERsa-ffoe5NgSgJG97c8LgHsEnPsaixbywi68wtxXuafHpn6A3EkZ1y_Pfb1LXEcNyJAavvU1Vcog0oB1caQk0zYu8")',
+              backgroundImage: `url(${ownerOnboarding.src})`,
             }}
           >
             {selectedRole === 'OWNER' && (
@@ -105,8 +106,7 @@ const UserRole = ({ currentStep, setCurrentStep }: OnboardingStepProps) => {
           <div
             className='w-full h-48 bg-center bg-no-repeat bg-cover rounded-lg mb-2 relative'
             style={{
-              backgroundImage:
-                'url("https://lh3.googleusercontent.com/aida-public/AB6AXuBzqZqh0kSuCTlNsUTuMyfg3qqK5O5Ka9xRqnkt2dVs2rfSVsR_QFAr35UfiTRuDfVd6ChPi4FOhFtuSB2KHXv11VS-JChaYeqI53x-YpcnqzB31tN-cKbQNxJGyGCol4XBuIQMM22s_q9PvLb7-0S3FKPrYpTFQdo2ZTP5TLTKyJHVNJjyioMzOpKHa0EbOcbvS0512QFle648zfwSQ5P9aU5dmATQ7nBLzea7_3DxkjH2t0s5EU27IgqdtKjUj0nYl2Ere1d7iIA")',
+              backgroundImage: `url(${customerOnboarding.src})`,
             }}
           >
             {selectedRole === 'CUSTOMER' && (

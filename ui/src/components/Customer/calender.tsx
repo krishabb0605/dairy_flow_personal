@@ -2,16 +2,12 @@
 
 import { useState } from 'react';
 import Modal from '../modal';
-import { type CustomerProfileConfig } from '../../types';
+import { type DeliveryCalendarProps } from '../../types';
 
 const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-type DeliveryCalendarProps = {
-  customerProfile?: CustomerProfileConfig | null;
-};
-
 export default function DeliveryCalendar({
-  customerProfile,
+  customerSetting,
 }: DeliveryCalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -50,10 +46,10 @@ export default function DeliveryCalendar({
   const canGoNextMonth = new Date(year, month + 1, 1) <= todayMonthStart;
 
   const deliveryData = {
-    morningCow: Number(customerProfile?.morningCowQty) ?? 0,
-    morningBuffalo: Number(customerProfile?.morningBuffaloQty) ?? 0,
-    eveningCow: Number(customerProfile?.eveningCowQty) ?? 0,
-    eveningBuffalo: Number(customerProfile?.eveningBuffaloQty) ?? 0,
+    morningCow: Number(customerSetting?.morningCowQty) ?? 0,
+    morningBuffalo: Number(customerSetting?.morningBuffaloQty) ?? 0,
+    eveningCow: Number(customerSetting?.eveningCowQty) ?? 0,
+    eveningBuffalo: Number(customerSetting?.eveningBuffaloQty) ?? 0,
   };
 
   const totalMorning = deliveryData.morningCow + deliveryData.morningBuffalo;

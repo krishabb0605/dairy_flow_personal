@@ -3,7 +3,7 @@ import { useState } from 'react';
 import ContentLayout from '../../../components/layout';
 import { ownerDeliveries } from '../../../constants';
 import Pagination from '../../../components/pagination';
-import CustomerDelivery from '@/components/admin/customer-delivery';
+import CustomerDelivery from '../../../components/admin/customer-delivery';
 const ITEMS_PER_PAGE = 3;
 
 const Deliveries = () => {

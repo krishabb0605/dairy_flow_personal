@@ -54,7 +54,7 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <DeliveryCalendar customerProfile={user?.customerProfile} />
+          <DeliveryCalendar customerSetting={user?.customerSettings} />
         </div>
 
         <aside className='w-full xl:w-90 flex flex-col gap-6 shrink-0'>
@@ -122,14 +122,14 @@ const Dashboard = () => {
                     </div>
                     <div>
                       <p className='text-sm font-bold'>
-                        {user?.customerProfile?.ownerUser?.fullName}
+                        {user?.currentActiveOwner?.ownerFullName}
                       </p>
                       <p className='text-[10px] text-slate-500'>
-                        Verified Partner
+                        +91 {user?.currentActiveOwner?.ownerMobileNumber}
                       </p>
                     </div>
                   </div>
-                  <button className='p-2 bg-primary/10 text-primary rounded-full hover:bg-primary/20 transition-colors'>
+                  <button className='p-2 bg-primary/10 text-primary rounded-full hover:bg-primary/20 transition-colors h-10 w-10'>
                     <span className='material-symbols-outlined text-xl'>
                       call
                     </span>

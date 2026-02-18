@@ -6,6 +6,15 @@ import {
 } from 'firebase/auth';
 import { api } from '../lib/api';
 import { auth } from '../config/firebase-config';
+import type {
+  AddCustomerConfigInfoParams,
+  AddOwnerConfigInfoParams,
+  CreateUserParams,
+  LoginParams,
+  UpdateCustomerSettingsParams,
+  UpdateOwnerSettingsParams,
+  UserRoleType,
+} from '../types';
 
 export const getUser = async (firebaseUid: string) => {
   try {
@@ -23,14 +32,7 @@ export const getUser = async (firebaseUid: string) => {
   }
 };
 
-export const createUser = async (form: {
-  fullName: string;
-  mobileNumber: string;
-  address: string;
-  email: string;
-  password: string;
-  existingFirebaseId?: string | null;
-}) => {
+export const createUser = async (form: CreateUserParams) => {
   let firebaseUser;
   try {
     if (!form.existingFirebaseId) {
@@ -50,6 +52,7 @@ export const createUser = async (form: {
         email: form.email,
         address: form.address,
         firebaseUid: firebaseUser?.uid || form.existingFirebaseId,
+        onboardingStep: 1,
       },
     });
 
@@ -65,7 +68,7 @@ export const createUser = async (form: {
   }
 };
 
-export const addRole = async (userId: number, role: 'OWNER' | 'CUSTOMER') => {
+export const addRole = async (userId: number, role: UserRoleType) => {
   try {
     return await api(`/auth/role/${userId}`, {
       method: 'POST',
@@ -79,13 +82,7 @@ export const addRole = async (userId: number, role: 'OWNER' | 'CUSTOMER') => {
 
 export const addOwnerConfigInfo = async (
   userId: number,
-  data: {
-    dairyName: string;
-    cowEnabled: boolean;
-    cowPrice: number;
-    buffaloEnabled: boolean;
-    buffaloPrice: number;
-  },
+  data: AddOwnerConfigInfoParams,
 ) => {
   try {
     return await api(`/auth/owner-config/${userId}`, {
@@ -100,12 +97,7 @@ export const addOwnerConfigInfo = async (
 
 export const addCustomerConfigInfo = async (
   userId: number,
-  data: {
-    morningCowQty: number;
-    morningBuffaloQty: number;
-    eveningCowQty: number;
-    eveningBuffaloQty: number;
-  },
+  data: AddCustomerConfigInfoParams,
 ) => {
   try {
     return await api(`/auth/customer-config/${userId}`, {
@@ -118,7 +110,40 @@ export const addCustomerConfigInfo = async (
   }
 };
 
-export const login = async (email: string, password: string) => {
+export const updateCustomerSettings = async (
+  userId: number,
+  data: UpdateCustomerSettingsParams,
+) => {
+  try {
+    return await api(`/auth/customer-settings/${userId}`, {
+      method: 'POST',
+      body: data,
+    });
+  } catch (error) {
+    console.error('Error while updating customer settings:', error);
+    throw error;
+  }
+};
+
+export const updateOwnerSettings = async (
+  userId: number,
+  data: UpdateOwnerSettingsParams,
+) => {
+  try {
+    return await api(`/auth/owner-settings/${userId}`, {
+      method: 'POST',
+      body: data,
+    });
+  } catch (error) {
+    console.error('Error while updating owner settings:', error);
+    throw error;
+  }
+};
+
+export const login = async (
+  email: LoginParams['email'],
+  password: LoginParams['password'],
+) => {
   try {
     const cred = await signInWithEmailAndPassword(auth, email, password);
     const userInfo = await getUser(cred.user.uid);

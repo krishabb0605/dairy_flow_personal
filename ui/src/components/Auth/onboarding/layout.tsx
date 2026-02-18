@@ -1,8 +1,9 @@
+'use client';
 import Loader from '../../../components/loader';
 import { OnboardingLayoutProps } from './../../../types';
-import Link from 'next/link';
 import { useContext } from 'react';
 import { UserContext } from '../../../app/context/user-context';
+import { useRouter } from 'next/navigation';
 
 const OnboardingLayout = ({
   currentStep,
@@ -12,7 +13,8 @@ const OnboardingLayout = ({
   children,
   submitLoading,
 }: OnboardingLayoutProps) => {
-  const { loading } = useContext(UserContext);
+  const { loading, handleLogout } = useContext(UserContext);
+  const router = useRouter();
 
   if (loading) {
     return <Loader variant='screen' />;
@@ -71,12 +73,15 @@ const OnboardingLayout = ({
             {/* <!-- Login Redirect --> */}
             <p className='text-center text-blue-placeholder text-sm mt-4'>
               Already have an account?{' '}
-              <Link
+              <button
                 className='text-primary font-bold hover:underline'
-                href='/login'
+                onClick={() => {
+                  handleLogout();
+                  router.replace('/login');
+                }}
               >
                 Log in
-              </Link>
+              </button>
             </p>
           </div>
         </div>

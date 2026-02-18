@@ -1,29 +1,24 @@
-import { OwnerDelivery } from './types';
+import type {
+  Delivery,
+  OwnerCustomer,
+  OwnerCustomerDeliveryHistoryItem,
+  OwnerDelivery,
+} from './types';
 
-export const API_URL = process.env.BASE_URL || 'http://localhost:3001';
+export const API_URL =
+  process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001';
+
+export const FALLBACK_CUSTOMER_PROFILE_IMAGE =
+  'https://www.shareicon.net/data/512x512/2016/09/15/829466_man_512x512.png';
+
+export const FALLBACK_OWNER_PROFILE_IMAGE =
+  'https://media.istockphoto.com/id/954805524/vector/gear-icon-vector-male-user-person-profile-avatar-symbol-on-cog-wheel-for-settings-and.jpg?s=612x612&w=0&k=20&c=-3RDhk49KIK3XUwbjB9P6UkQ0NLWRgBdnB7hrieR-pA=';
+
 export const deliveryFilters = ['All Deliveries', 'Confirmed', 'Pending'];
 
 export const milkPrices = {
   cow: 62,
   buffalo: 78,
-};
-
-export type DeliverySession = {
-  type: 'Morning' | 'Evening';
-  time: string;
-  cow: number;
-  buffalo: number;
-  subtotal: number;
-};
-
-export type Delivery = {
-  id: number;
-  date: string;
-  day: string;
-  totalQty: number;
-  totalPrice: number;
-  status: 'Confirmed' | 'Pending';
-  sessions: DeliverySession[];
 };
 
 export const deliveries: Delivery[] = [
@@ -464,18 +459,6 @@ export const ownerDashboardDeliveriesData: OwnerDelivery[] = [
   },
 ];
 
-export type OwnerCustomer = {
-  id: number;
-  name: string;
-  phone: string;
-  morningCowQty: number;
-  morningBuffaloQty: number;
-  eveningCowQty: number;
-  eveningBuffaloQty: number;
-  status: 'active' | 'paused';
-  avatar: string;
-};
-
 export const ownerCustomers: OwnerCustomer[] = [
   {
     id: 1,
@@ -486,8 +469,7 @@ export const ownerCustomers: OwnerCustomer[] = [
     eveningCowQty: 1,
     eveningBuffaloQty: 1,
     status: 'active',
-    avatar:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuA6ECmN8wypuyqJRlG8ZQbi3DUqH0eC0TLyEqFvn7DyGcI3anQZWg8_IFwUWCYZxCv_oaSAktc_NSizBe_muVz0pjFMtWuNJ5vD0p6jxQkNG23CAZp54zUXfNUuwahMSDqa-e5jpWpXeLvrJLHIUnqhb-Otzao7r8GW8rMr4rjYE33SOslA6h3_-X-R_idJ7yzwQJOdmK0l6-Sr91grxKWgg7H3ktV7fJ1x9szDsKayFNuWWAGswAeXAFdibrcv3FRN58ZBgXwxaM1w',
+    avatar: 'https://i.pravatar.cc/150',
   },
   {
     id: 2,
@@ -498,8 +480,7 @@ export const ownerCustomers: OwnerCustomer[] = [
     eveningCowQty: 0,
     eveningBuffaloQty: 0.5,
     status: 'active',
-    avatar:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuA4jwDtXnX6aMi2TiY2olrLeUrhLBuu2Wv9Cn8w1dNq6LPaZubyQTnYL7jPs8gcsHy_xdUGitcR7FhkO24z6loYxdc4i94j0vu8sUTb8xVMRiLRmlYN-SH4-TZ_FCXIj4f1NwJOUet0SIlM8AGeb1IjqvyrBDay9K7kNzdzNPFE2zAUs_56n6fhh0Xs1kLKi9T6RuEUSjfRlTR3D8PDJo25h51lpk9l3ckDt51IzE77l9JVFC89v7bZQTPyTzKh38HmpagrtkE8R-mW',
+    avatar: 'https://i.pravatar.cc/151',
   },
   {
     id: 3,
@@ -510,8 +491,7 @@ export const ownerCustomers: OwnerCustomer[] = [
     eveningCowQty: 0.5,
     eveningBuffaloQty: 0.5,
     status: 'paused',
-    avatar:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuBj7Onrh0OGhUsq7syr0InQbP6fD5gR2q47cjisthXXAKksUjnyZsvGucqhE2rv_zac1XfwOARR9tu4_QDRwnWwewfLRSxqz4HOA8BsFwzrCwd1sKZigULrpsLWDyOIszPWqBZ7L8z4fmwceeprm3V_OIvmBkoCoLFEwHknWX9YwDVEVML8P9Ccrgu0rFLjOehSPYuK-mFtKlOM4bIbgnK0FJGuE8sdz0aQQxXcn2l9sy3eXWEmGjiMBTiHAPfEVE2RuS58M1kbeeex',
+    avatar: 'https://i.pravatar.cc/152',
   },
   {
     id: 4,
@@ -522,8 +502,7 @@ export const ownerCustomers: OwnerCustomer[] = [
     eveningCowQty: 1,
     eveningBuffaloQty: 0.5,
     status: 'active',
-    avatar:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuAvWegW4P7e34MrufXip3Wl9Ryy-ZThorQNIfYTP72z280fxSG8AoBlgGbztHprZ5_qaPnrZqilGatKRSwyGQp8p-Ay6xIK6djyAzGpLZlY_M_Wlu3v45IOnTBs23FjgxUJFjYeX2bTkSoCNFdeSR8ZnB68T0qw4tPylifRe1uKUcT2w50nekkST739rfRZ7LEbO2GXM1yFC8JIp-8nXcJ_b6jyDxfTXq3GPYI9ZcW5PDDnQdgxzfFFTVcDusn_JvteiWF_0ALSEtud',
+    avatar: 'https://i.pravatar.cc/153',
   },
   {
     id: 5,
@@ -571,86 +550,70 @@ export const ownerCustomers: OwnerCustomer[] = [
   },
 ];
 
-export type OwnerCustomerDeliveryStatus =
-  | 'delivered'
-  | 'pending'
-  | 'skipped'
-  | 'cancelled';
-
-export type OwnerCustomerDeliveryShift = 'morning' | 'evening';
-
-export type OwnerCustomerDeliveryHistoryItem = {
-  id: number;
-  date: string; // YYYY-MM-DD
-  shift: OwnerCustomerDeliveryShift;
-  cowQty: number;
-  buffaloQty: number;
-  status: OwnerCustomerDeliveryStatus;
-};
-
-export const ownerCustomerDeliveryHistory: OwnerCustomerDeliveryHistoryItem[] = [
-  {
-    id: 1,
-    date: '2023-10-24',
-    shift: 'morning',
-    cowQty: 2,
-    buffaloQty: 0,
-    status: 'delivered',
-  },
-  {
-    id: 2,
-    date: '2023-10-23',
-    shift: 'evening',
-    cowQty: 0,
-    buffaloQty: 1.5,
-    status: 'skipped',
-  },
-  {
-    id: 3,
-    date: '2023-10-23',
-    shift: 'morning',
-    cowQty: 2,
-    buffaloQty: 0,
-    status: 'delivered',
-  },
-  {
-    id: 4,
-    date: '2023-10-22',
-    shift: 'evening',
-    cowQty: 0,
-    buffaloQty: 1.5,
-    status: 'cancelled',
-  },
-  {
-    id: 5,
-    date: '2023-10-21',
-    shift: 'morning',
-    cowQty: 1.5,
-    buffaloQty: 0.5,
-    status: 'pending',
-  },
-  {
-    id: 6,
-    date: '2023-10-20',
-    shift: 'evening',
-    cowQty: 1,
-    buffaloQty: 1,
-    status: 'delivered',
-  },
-  {
-    id: 7,
-    date: '2023-10-19',
-    shift: 'morning',
-    cowQty: 2.5,
-    buffaloQty: 0,
-    status: 'pending',
-  },
-  {
-    id: 8,
-    date: '2023-10-18',
-    shift: 'evening',
-    cowQty: 0.5,
-    buffaloQty: 1.5,
-    status: 'delivered',
-  },
-];
+export const ownerCustomerDeliveryHistory: OwnerCustomerDeliveryHistoryItem[] =
+  [
+    {
+      id: 1,
+      date: '2023-10-24',
+      shift: 'morning',
+      cowQty: 2,
+      buffaloQty: 0,
+      status: 'delivered',
+    },
+    {
+      id: 2,
+      date: '2023-10-23',
+      shift: 'evening',
+      cowQty: 0,
+      buffaloQty: 1.5,
+      status: 'skipped',
+    },
+    {
+      id: 3,
+      date: '2023-10-23',
+      shift: 'morning',
+      cowQty: 2,
+      buffaloQty: 0,
+      status: 'delivered',
+    },
+    {
+      id: 4,
+      date: '2023-10-22',
+      shift: 'evening',
+      cowQty: 0,
+      buffaloQty: 1.5,
+      status: 'cancelled',
+    },
+    {
+      id: 5,
+      date: '2023-10-21',
+      shift: 'morning',
+      cowQty: 1.5,
+      buffaloQty: 0.5,
+      status: 'pending',
+    },
+    {
+      id: 6,
+      date: '2023-10-20',
+      shift: 'evening',
+      cowQty: 1,
+      buffaloQty: 1,
+      status: 'delivered',
+    },
+    {
+      id: 7,
+      date: '2023-10-19',
+      shift: 'morning',
+      cowQty: 2.5,
+      buffaloQty: 0,
+      status: 'pending',
+    },
+    {
+      id: 8,
+      date: '2023-10-18',
+      shift: 'evening',
+      cowQty: 0.5,
+      buffaloQty: 1.5,
+      status: 'delivered',
+    },
+  ];

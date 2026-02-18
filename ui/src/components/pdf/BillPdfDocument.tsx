@@ -5,29 +5,7 @@ import {
   Text,
   View,
 } from '@react-pdf/renderer';
-
-export type BillPdfDailyRecord = {
-  day: number;
-  morningCow: number;
-  morningBuffalo: number;
-  eveningCow: number;
-  eveningBuffalo: number;
-};
-
-export type BillPdfProps = {
-  customerName: string;
-  customerPhone: string;
-  customerId: string;
-  monthYear: string;
-  records: BillPdfDailyRecord[];
-  cowRate: number;
-  buffaloRate: number;
-  totalMorningCow: number;
-  totalMorningBuffalo: number;
-  totalEveningCow: number;
-  totalEveningBuffalo: number;
-  grandTotal: number;
-};
+import type { BillPdfProps } from '../../types';
 
 const pdfStyles = StyleSheet.create({
   page: {

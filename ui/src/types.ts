@@ -5,7 +5,7 @@ export type deliveryFilter = 'All Deliveries' | 'Confirmed' | 'Pending';
 
 export interface ApiOptions {
   method?: HttpMethod;
-  body?: any;
+  body?: unknown;
   token?: string;
 }
 
@@ -79,7 +79,7 @@ export type UserInfo = {
   profileImageUrl?: string;
 };
 
-export type OwnerProfileConfig = {
+export type OwnerSettingConfig = {
   id: number;
   userId: number;
   dairyName: string;
@@ -89,9 +89,17 @@ export type OwnerProfileConfig = {
   buffaloPrice: string;
   createdAt: string;
   updatedAt: string;
+  morningStart: string;
+  morningEnd: string;
+  eveningStart: string;
+  eveningEnd: string;
+  upiId: string | null;
+  bankName: string | null;
+  accountNumber: string | null;
+  ifscCode: string | null;
 };
 
-export type CustomerProfileConfig = {
+export type CustomerSettingConfig = {
   id: number;
   userId: number;
   ownerId: number;
@@ -131,8 +139,8 @@ export type CustomerOwner = {
 };
 
 export type User = UserInfo & {
-  ownerProfile: OwnerProfileConfig | null;
-  customerProfile: CustomerProfileConfig | null;
+  ownerSettings: OwnerSettingConfig | null;
+  customerSettings: CustomerSettingConfig | null;
   currentActiveOwner: CustomerOwner | null;
 };
 
@@ -169,4 +177,222 @@ export type OwnerDelivery = {
   buffaloQty: number;
   slot: Slot;
   status: DeliveryStatus;
+};
+
+export type CreateUserParams = {
+  fullName: string;
+  mobileNumber: string;
+  address: string;
+  email: string;
+  password: string;
+  existingFirebaseId?: string | null;
+};
+
+export type AddOwnerConfigInfoParams = {
+  dairyName: string;
+  cowEnabled: boolean;
+  cowPrice: number;
+  buffaloEnabled: boolean;
+  buffaloPrice: number;
+};
+
+export type AddCustomerConfigInfoParams = {
+  morningCowQty: number;
+  morningBuffaloQty: number;
+  eveningCowQty: number;
+  eveningBuffaloQty: number;
+};
+
+export type UpdateCustomerSettingsParams = {
+  fullName: string;
+  address: string;
+  profileImageUrl?: string | null;
+  morningCowQty: number;
+  morningBuffaloQty: number;
+  eveningCowQty: number;
+  eveningBuffaloQty: number;
+};
+
+export type UpdateOwnerSettingsParams = {
+  fullName: string;
+  address: string;
+  profileImageUrl?: string | null;
+  dairyName: string;
+  cowEnabled: boolean;
+  cowPrice: number;
+  buffaloEnabled: boolean;
+  buffaloPrice: number;
+  morningStart: string;
+  morningEnd: string;
+  eveningStart: string;
+  eveningEnd: string;
+  upiId?: string | null;
+  bankName?: string | null;
+  accountNumber?: string | null;
+  ifscCode?: string | null;
+};
+
+export type LoginParams = {
+  email: string;
+  password: string;
+};
+
+export type UploadImageConfig = {
+  cloudName?: string;
+  folder?: string;
+  uploadPreset?: string;
+};
+
+export type ValidateImageFileOptions = {
+  maxSize?: number;
+  allowedTypes?: string[];
+};
+
+export type UseCloudinaryImageUploadOptions = {
+  initialImageUrl: string;
+  fallbackImageUrl: string;
+};
+
+export type DeliverySession = {
+  type: 'Morning' | 'Evening';
+  time: string;
+  cow: number;
+  buffalo: number;
+  subtotal: number;
+};
+
+export type Delivery = {
+  id: number;
+  date: string;
+  day: string;
+  totalQty: number;
+  totalPrice: number;
+  status: 'Confirmed' | 'Pending';
+  sessions: DeliverySession[];
+};
+
+export type OwnerCustomer = {
+  id: number;
+  name: string;
+  phone: string;
+  morningCowQty: number;
+  morningBuffaloQty: number;
+  eveningCowQty: number;
+  eveningBuffaloQty: number;
+  status: 'active' | 'paused';
+  avatar: string;
+};
+
+export type OwnerCustomerDeliveryStatus =
+  | 'delivered'
+  | 'pending'
+  | 'skipped'
+  | 'cancelled';
+
+export type OwnerCustomerDeliveryShift = 'morning' | 'evening';
+
+export type OwnerCustomerDeliveryHistoryItem = {
+  id: number;
+  date: string;
+  shift: OwnerCustomerDeliveryShift;
+  cowQty: number;
+  buffaloQty: number;
+  status: OwnerCustomerDeliveryStatus;
+};
+
+export type OwnerCustomerTab = 'overview' | 'delivery-history' | 'billing-history';
+
+export type OwnerGenerateBillDailyRecord = {
+  day: number;
+  morningCow: number;
+  morningBuffalo: number;
+  eveningCow: number;
+  eveningBuffalo: number;
+};
+
+export type OwnerBillingStatus = 'paid' | 'pending';
+
+export type OwnerBillingRecord = {
+  id: string;
+  customerName: string;
+  mobile: string;
+  month: string;
+  qty: number;
+  amount: number;
+  status: OwnerBillingStatus;
+};
+
+export type OwnerSettingsFormData = {
+  fullName: string;
+  email: string;
+  mobileNumber: string;
+  address: string;
+  morningStartTime: string;
+  morningEndTime: string;
+  eveningStartTime: string;
+  eveningEndTime: string;
+  upiId: string;
+  bankName: string;
+  accountNumber: string;
+  ifscCode: string;
+};
+
+export type OwnerSettingsFormErrors = Partial<
+  Record<keyof OwnerSettingsFormData, string>
+>;
+
+export type OwnerSettingsMilkConfigState = {
+  cow: MilkConfig;
+  buffalo: MilkConfig;
+};
+
+export type CustomerSettingsFormData = {
+  fullName: string;
+  mobileNumber: string;
+  email: string;
+  address: string;
+  morningCowQty: string;
+  morningBuffaloQty: string;
+  eveningCowQty: string;
+  eveningBuffaloQty: string;
+};
+
+export type CustomerSettingsFormErrors = Partial<
+  Record<keyof CustomerSettingsFormData, string>
+>;
+
+export type DeliveryShiftFilter = 'all' | 'morning' | 'evening';
+export type DeliveryStatusFilter = 'all' | OwnerCustomerDeliveryStatus;
+export type BillingStatusFilter = 'all' | 'paid' | 'pending';
+
+export type DeliveryCalendarProps = {
+  customerSetting?: CustomerSettingConfig | null;
+};
+
+export type BillPdfDailyRecord = {
+  day: number;
+  morningCow: number;
+  morningBuffalo: number;
+  eveningCow: number;
+  eveningBuffalo: number;
+};
+
+export type BillPdfProps = {
+  customerName: string;
+  customerPhone: string;
+  customerId: string;
+  monthYear: string;
+  records: BillPdfDailyRecord[];
+  cowRate: number;
+  buffaloRate: number;
+  totalMorningCow: number;
+  totalMorningBuffalo: number;
+  totalEveningCow: number;
+  totalEveningBuffalo: number;
+  grandTotal: number;
+};
+
+export type ScheduleVacationProps = {
+  open: boolean;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };

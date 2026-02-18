@@ -1,10 +1,9 @@
 'use client';
 
-import Pagination from '@/components/pagination';
-import { billingHistory } from '@/constants';
+import Pagination from '../../../components/pagination';
+import { billingHistory } from '../../../constants';
 import { useMemo, useState } from 'react';
-
-type BillingStatusFilter = 'all' | 'paid' | 'pending';
+import type { BillingStatusFilter } from '../../../types';
 
 const ITEMS_PER_PAGE = 4;
 

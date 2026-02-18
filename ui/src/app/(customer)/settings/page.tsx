@@ -3,54 +3,46 @@ import { UserContext } from '../../../app/context/user-context';
 import { Mandatory } from '../../../app/page';
 import ContentLayout from '../../../components/layout';
 import { type FormEvent, useContext, useEffect, useState } from 'react';
-import { type User } from '../../../types';
+import {
+  type CustomerSettingsFormData,
+  type CustomerSettingsFormErrors,
+  type User,
+} from '../../../types';
+import { useCloudinaryImageUpload } from '../../../hooks/use-cloudinary-image-upload';
+import { FALLBACK_CUSTOMER_PROFILE_IMAGE } from '../../../constants';
+import { updateCustomerSettings } from '../../../lib/users';
+import { toast } from 'react-toastify';
+import Loader from '../../../components/loader';
 
-type FormData = {
-  fullName: string;
-  mobileNumber: string;
-  email: string;
-  address: string;
-  morningCowQty: string;
-  morningBuffaloQty: string;
-  eveningCowQty: string;
-  eveningBuffaloQty: string;
-};
-
-type FormErrors = Partial<Record<keyof FormData, string>>;
-
-const buildInitialFormData = (user: User | null): FormData => ({
+const buildInitialFormData = (user: User | null): CustomerSettingsFormData => ({
   fullName: user?.fullName ?? '',
   mobileNumber: user?.mobileNumber ?? '',
   email: user?.email ?? '',
   address: user?.address ?? '',
-  morningCowQty: String(user?.customerProfile?.morningCowQty ?? '0'),
-  morningBuffaloQty: String(user?.customerProfile?.morningBuffaloQty ?? '0'),
-  eveningCowQty: String(user?.customerProfile?.eveningCowQty ?? '0'),
-  eveningBuffaloQty: String(user?.customerProfile?.eveningBuffaloQty ?? '0'),
+  morningCowQty: String(user?.customerSettings?.morningCowQty ?? '0'),
+  morningBuffaloQty: String(user?.customerSettings?.morningBuffaloQty ?? '0'),
+  eveningCowQty: String(user?.customerSettings?.eveningCowQty ?? '0'),
+  eveningBuffaloQty: String(user?.customerSettings?.eveningBuffaloQty ?? '0'),
 });
 
-const validateForm = (data: FormData): FormErrors => {
-  const errors: FormErrors = {};
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const phoneRegex = /^\d{10}$/;
+const buildInitialProfileImage = (user: User | null): string => {
+  return user?.profileImageUrl ?? FALLBACK_CUSTOMER_PROFILE_IMAGE;
+};
+
+const validateForm = (
+  data: CustomerSettingsFormData,
+): CustomerSettingsFormErrors => {
+  const errors: CustomerSettingsFormErrors = {};
 
   if (!data.fullName.trim() || data.fullName.trim().length < 2) {
     errors.fullName = 'Full name must have at least 2 characters.';
-  }
-
-  if (!phoneRegex.test(data.mobileNumber)) {
-    errors.mobileNumber = 'Mobile number must be exactly 10 digits.';
-  }
-
-  if (!emailRegex.test(data.email.trim())) {
-    errors.email = 'Enter a valid email address.';
   }
 
   if (!data.address.trim() || data.address.trim().length < 5) {
     errors.address = 'Address must have at least 5 characters.';
   }
 
-  const quantityFields: Array<keyof FormData> = [
+  const quantityFields: Array<keyof CustomerSettingsFormData> = [
     'morningCowQty',
     'morningBuffaloQty',
     'eveningCowQty',
@@ -79,24 +71,40 @@ const validateForm = (data: FormData): FormErrors => {
 };
 
 const Settings = () => {
-  const { user } = useContext(UserContext);
-  const [formData, setFormData] = useState<FormData>(
+  const { user, setUser } = useContext(UserContext);
+  const [formData, setFormData] = useState<CustomerSettingsFormData>(
     buildInitialFormData(user),
   );
-  const [errors, setErrors] = useState<FormErrors>({});
+  const [errors, setErrors] = useState<CustomerSettingsFormErrors>({});
+  const [isSaving, setIsSaving] = useState(false);
+  const {
+    fileInputRef,
+    imageUrl: profileImageUrl,
+    uploadError,
+    isUploading: isUploadingImage,
+    openFilePicker: triggerImagePicker,
+    onFileInputChange: handleProfileImageSelect,
+    uploadPendingImage,
+    removeImage: handleRemoveImage,
+    resetImage,
+  } = useCloudinaryImageUpload({
+    initialImageUrl: buildInitialProfileImage(user),
+    fallbackImageUrl: FALLBACK_CUSTOMER_PROFILE_IMAGE,
+  });
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setFormData(buildInitialFormData(user));
+    resetImage(buildInitialProfileImage(user));
     setErrors({});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
-  const handleChange = (field: keyof FormData, value: string) => {
+  const handleChange = (field: keyof CustomerSettingsFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => ({ ...prev, [field]: undefined }));
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const validationErrors = validateForm(formData);
 
@@ -106,15 +114,53 @@ const Settings = () => {
       return;
     }
 
-    console.log('Customer settings form data:', formData);
+    const finalProfileImageUrl = await uploadPendingImage();
+    if (!finalProfileImageUrl) {
+      return;
+    }
+
+    if (!user) {
+      toast.error('User data not found');
+      return;
+    }
+
+    try {
+      setIsSaving(true);
+      const updatedUser = await updateCustomerSettings(user.id, {
+        fullName: formData.fullName.trim(),
+        address: formData.address.trim(),
+        profileImageUrl: finalProfileImageUrl,
+        morningCowQty: Number(formData.morningCowQty || 0),
+        morningBuffaloQty: Number(formData.morningBuffaloQty || 0),
+        eveningCowQty: Number(formData.eveningCowQty || 0),
+        eveningBuffaloQty: Number(formData.eveningBuffaloQty || 0),
+      });
+
+      setUser(updatedUser);
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      toast.success('Settings updated successfully');
+    } catch (error) {
+      console.error('Failed to update customer settings:', error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : 'Failed to update customer settings',
+      );
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleCancel = () => {
     setFormData(buildInitialFormData(user));
+    resetImage(buildInitialProfileImage(user));
     setErrors({});
   };
 
-  const handleQuantityChange = (field: keyof FormData, value: string) => {
+  const handleQuantityChange = (
+    field: keyof CustomerSettingsFormData,
+    value: string,
+  ) => {
     if (value === '' || /^\d*\.?\d*$/.test(value)) {
       handleChange(field, value);
     }
@@ -129,35 +175,50 @@ const Settings = () => {
           </div>
           <div className='p-6 space-y-6'>
             <div className='flex items-center gap-6'>
+              <input
+                ref={fileInputRef}
+                type='file'
+                accept='image/png,image/jpeg,image/jpg'
+                className='hidden'
+                onChange={handleProfileImageSelect}
+              />
               <div className='relative'>
                 <div
                   className='size-24 rounded-full border-4 border-[#f0f2f4] bg-center bg-no-repeat bg-cover'
                   style={{
-                    backgroundImage:
-                      'url("https://lh3.googleusercontent.com/aida-public/AB6AXuDN2u-3mU6mmls0TZnnkiW-REP7B2vB0ub6z83m0yBUgaAGlPbhHoKSb7ujqng0kNBc1Tv87noGjx3jXL7BnE0_2n0PYE7lZNBphK0JPZ9mF2tamoOvLLyZ8yeibaRb-qbsJm8FKibgU89Lj-XfbdGEbX_2wn8ODNARm3rZQf_BZWQwnIW5vt3WvAM-vZPlwbOrIEPXsJBrWL6x8EGy5MnCnIs4PzPEs5hPBBG4_Td_bfd2vf0BuUC4FL8YIiJBGOZLAigyMSRyBVk")',
+                    backgroundImage: `url("${profileImageUrl}")`,
                   }}
                 ></div>
                 <button
                   type='button'
+                  onClick={triggerImagePicker}
+                  disabled={isUploadingImage}
                   className='absolute bottom-0 right-0 size-8 bg-primary text-white rounded-full flex items-center justify-center shadow-lg hover:bg-blue-600'
                 >
                   <span className='material-symbols-outlined text-sm'>
-                    photo_camera
+                    {isUploadingImage ? 'progress_activity' : 'photo_camera'}
                   </span>
                 </button>
               </div>
               <div className='flex flex-col gap-1'>
                 <p className='text-sm font-bold'>Profile Picture</p>
                 <p className='text-xs text-[#637588]'>PNG or JPG up to 5MB</p>
+                {uploadError && (
+                  <p className='text-xs text-red-600'>{uploadError}</p>
+                )}
                 <div className='flex gap-2 mt-2'>
                   <button
                     type='button'
+                    onClick={triggerImagePicker}
+                    disabled={isUploadingImage}
                     className='text-xs font-bold text-primary hover:underline'
                   >
-                    Change
+                    {isUploadingImage ? 'Uploading...' : 'Change'}
                   </button>
                   <button
                     type='button'
+                    onClick={handleRemoveImage}
+                    disabled={isUploadingImage}
                     className='text-xs font-bold text-red-500 hover:underline'
                   >
                     Remove
@@ -165,8 +226,9 @@ const Settings = () => {
                 </div>
               </div>
             </div>
+
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-              <div className='space-y-2'>
+              <div className='space-y-2 col-span-1 md:col-span-2'>
                 <label className='text-sm font-medium text-[#637588]'>
                   Full Name <Mandatory />
                 </label>
@@ -192,24 +254,11 @@ const Settings = () => {
                   Mobile Number <Mandatory />
                 </label>
                 <input
-                  className={`form-input flex w-full rounded-lg text-[#0d141b] border bg-slate-50 h-12 placeholder:text-blue-placeholder px-4 text-sm font-normal focus:ring-2 outline-none ${
-                    errors.mobileNumber
-                      ? 'border-red-500 focus:ring-red-500/40 focus:border-red-500'
-                      : 'border-[#cfdbe7] focus:ring-primary/50 focus:border-primary'
-                  }`}
-                  type='tel'
-                  maxLength={10}
-                  value={formData.mobileNumber}
-                  onChange={(event) =>
-                    handleChange(
-                      'mobileNumber',
-                      event.target.value.replace(/\D/g, ''),
-                    )
-                  }
+                  className='form-input flex w-full rounded-lg text-slate-500 border border-[#cfdbe7] bg-slate-50 h-12 placeholder:text-blue-placeholder px-4 text-sm font-normal focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none cursor-not-allowed'
+                  type='email'
+                  value={'+91 ' + formData.mobileNumber}
+                  disabled
                 />
-                {errors.mobileNumber && (
-                  <p className='text-xs text-red-600'>{errors.mobileNumber}</p>
-                )}
               </div>
 
               <div className='space-y-2'>
@@ -222,9 +271,6 @@ const Settings = () => {
                   value={formData.email}
                   disabled
                 />
-                {errors.email && (
-                  <p className='text-xs text-red-600'>{errors.email}</p>
-                )}
               </div>
             </div>
           </div>
@@ -431,20 +477,32 @@ const Settings = () => {
         </section>
 
         <div className='fixed bottom-0 left-0 md:left-64 right-0 p-6 bg-white/80 backdrop-blur-md border-t border-slate-200 flex justify-end items-center gap-4 z-10'>
-          <button
-            type='button'
-            onClick={handleCancel}
-            className='px-6 py-3 border border-slate-200 rounded-lg text-sm font-semibold hover:bg-slate-50 transition-colors'
-          >
-            Discard Changes
-          </button>
-          <button
-            type='submit'
-            className='px-10 py-3 bg-primary text-white rounded-lg text-sm font-bold shadow-lg shadow-primary/20 hover:brightness-95 transition-all flex items-center gap-2'
-          >
-            <span className='material-symbols-outlined text-[18px]'>save</span>
-            Save Changes
-          </button>
+          <div className='flex items-center gap-4 w-full md:w-[50%]'>
+            <button
+              type='button'
+              onClick={handleCancel}
+              disabled={isSaving || isUploadingImage}
+              className='px-6 py-3 border border-slate-200 rounded-lg text-sm font-semibold hover:bg-slate-50 transition-colors flex-1'
+            >
+              Discard Changes
+            </button>
+            <button
+              type='submit'
+              disabled={isSaving || isUploadingImage}
+              className='px-10 py-3 bg-primary text-white rounded-lg text-sm font-bold shadow-lg shadow-primary/20 hover:brightness-95 transition-all flex items-center justify-center gap-2 flex-1'
+            >
+              {(isSaving || isUploadingImage) ? (
+                <Loader color='white' size={22} />
+              ) : (
+                <>
+                  <span className='material-symbols-outlined text-[18px]'>
+                    save
+                  </span>
+                  Save Changes
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </form>
     </ContentLayout>

@@ -1,18 +1,11 @@
 'use client';
 
 import Modal from '../../../components/modal';
-import React, { useCallback, useEffect, useState } from 'react';
-
-type Slot = 'morning' | 'evening';
+import { useCallback, useEffect, useState } from 'react';
+import type { ScheduleVacationProps, Slot } from '../../../types';
 const slotRank = { morning: 0, evening: 1 } as const;
 
-const ScheduleVacation = ({
-  open,
-  setOpen,
-}: {
-  open: boolean;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-}) => {
+const ScheduleVacation = ({ open, setOpen }: ScheduleVacationProps) => {
   const now = new Date();
   const today = now.toISOString().split('T')[0];
 

@@ -3,6 +3,7 @@ import { useRouter } from 'next/navigation';
 import { useContext, useEffect } from 'react';
 import { UserContext } from '../context/user-context';
 import Loader from '../../components/loader';
+import { FALLBACK_CUSTOMER_PROFILE_IMAGE } from '../../constants';
 
 const CustomerPending = () => {
   const { user, loading, handleLogout } = useContext(UserContext);
@@ -74,8 +75,7 @@ const CustomerPending = () => {
                   className='bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-primary/20'
                   data-alt='User profile picture showing a friendly man'
                   style={{
-                    backgroundImage:
-                      'url("https://lh3.googleusercontent.com/aida-public/AB6AXuBzZcizJzQ0GqWzS-Y_soLh1BSc4lieIsDf_5TblUEgyvtWjxQRgAFgBgM38ZbobHuBiH-RaPetcVTN6BWdaFaGF-Bb86ab4uF_h3r3NEV0P7aybXp6HUQGckkzFEKcgk9P9TpUjLUF2yiiTibOWNUQoNQPN4ZI5qdHbGeuCVT_I33i3muqTmdIgyssCRxgP4Kwpa5urNfSShypehLC1zMM6CeeKS1EuW81ekFNRjbpQOBDfNUPm7XJrz2JRelL0yz1HMWcxY4FlcW5")',
+                    backgroundImage: `url(${FALLBACK_CUSTOMER_PROFILE_IMAGE})`,
                   }}
                 ></div>
               </div>

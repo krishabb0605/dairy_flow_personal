@@ -1,18 +1,11 @@
 'use client';
 
-import ContentLayout from '@/components/layout';
-import BillPdfDocument from '@/components/pdf/BillPdfDocument';
-import { ownerCustomers } from '@/constants';
+import ContentLayout from '../../../components/layout';
+import BillPdfDocument from '../../../components/pdf/BillPdfDocument';
+import { ownerCustomers } from '../../../constants';
 import { useMemo, useState } from 'react';
 import { pdf } from '@react-pdf/renderer';
-
-type DailyRecord = {
-  day: number;
-  morningCow: number;
-  morningBuffalo: number;
-  eveningCow: number;
-  eveningBuffalo: number;
-};
+import type { OwnerGenerateBillDailyRecord } from '../../../types';
 
 const MONTH_OPTIONS = [
   'January',
@@ -66,7 +59,7 @@ const GenerateBillPage = () => {
   const [selectedCustomer, setSelectedCustomer] = useState<
     (typeof ownerCustomers)[number] | null
   >(null);
-  const [records, setRecords] = useState<DailyRecord[]>([]);
+  const [records, setRecords] = useState<OwnerGenerateBillDailyRecord[]>([]);
   const [message, setMessage] = useState('');
   const [cowRate, setCowRate] = useState('62');
   const [buffaloRate, setBuffaloRate] = useState('78');

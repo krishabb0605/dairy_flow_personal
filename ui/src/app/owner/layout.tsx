@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import React, { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../context/user-context';
 import Loader from '../../components/loader';
+import { FALLBACK_OWNER_PROFILE_IMAGE } from '../../constants';
 
 const ownerMenu = [
   {
@@ -136,8 +137,7 @@ const OwnerLayout = ({ children }: { children: React.ReactNode }) => {
                 <div
                   className='bg-center bg-no-repeat aspect-square bg-cover rounded-full size-12 border border-[#dce0e5]'
                   style={{
-                    backgroundImage:
-                      'url("https://lh3.googleusercontent.com/aida-public/AB6AXuCPeeZBwp-3az7dkbzgurfj_-mhwl88izbLFJ0tK5VRhx7OhHJ5qbuq909LIHErHO8M6EthW4qFLHiryKM2wAniDhnfyn5OIf-zpCHD9C9jtkQGqJc17sqAPnzoDX3xV39ow4Ymi5O-nQ9yaAjmnyCd8Umsz-FybMjpp8Me3rHsA_SXyW8umHt5ZhYjPjoOw1baqACiW4vtXXrJ6DKidP06YbdWGGQ1J1qEDzNGxLbmqrJpcwsklZYt6Mc29hsXIR6CZGrEc-SbIE8")',
+                    backgroundImage: `url(${FALLBACK_OWNER_PROFILE_IMAGE})`,
                   }}
                 ></div>
 

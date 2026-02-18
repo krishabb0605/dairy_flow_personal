@@ -1,15 +1,16 @@
 'use client';
 
-import Pagination from '@/components/pagination';
+import Pagination from '../../../components/pagination';
 import {
   ownerCustomerDeliveryHistory,
-  type OwnerCustomerDeliveryHistoryItem,
-  type OwnerCustomerDeliveryStatus,
-} from '@/constants';
+} from '../../../constants';
 import { useMemo, useRef, useState } from 'react';
-
-type DeliveryShiftFilter = 'all' | 'morning' | 'evening';
-type DeliveryStatusFilter = 'all' | OwnerCustomerDeliveryStatus;
+import type {
+  DeliveryShiftFilter,
+  DeliveryStatusFilter,
+  OwnerCustomerDeliveryHistoryItem,
+  OwnerCustomerDeliveryStatus,
+} from '../../../types';
 
 const ITEMS_PER_PAGE = 5;
 
@@ -66,12 +67,17 @@ const CustomerDeliveryHistory = () => {
     });
   }, [rows, searchQuery, statusFilter, shiftFilter, startDate, endDate]);
 
-  const totalPages = Math.max(1, Math.ceil(filteredRows.length / ITEMS_PER_PAGE));
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredRows.length / ITEMS_PER_PAGE),
+  );
   const start = (page - 1) * ITEMS_PER_PAGE;
   const currentRows = filteredRows.slice(start, start + ITEMS_PER_PAGE);
 
   const updateStatus = (id: number, status: OwnerCustomerDeliveryStatus) => {
-    setRows((prev) => prev.map((row) => (row.id === id ? { ...row, status } : row)));
+    setRows((prev) =>
+      prev.map((row) => (row.id === id ? { ...row, status } : row)),
+    );
     setOpenMenuId(null);
   };
 
@@ -98,9 +104,7 @@ const CustomerDeliveryHistory = () => {
           className='w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 flex items-center justify-between text-left hover:bg-slate-100 transition-colors'
         >
           <span className='flex items-center gap-2 text-slate-700 font-semibold'>
-            <span className='material-symbols-outlined text-[20px]'>
-              tune
-            </span>
+            <span className='material-symbols-outlined text-[20px]'>tune</span>
             Filters
           </span>
           <span className='material-symbols-outlined text-slate-500'>
@@ -253,7 +257,10 @@ const CustomerDeliveryHistory = () => {
 
           <tbody className='divide-y divide-slate-100'>
             {currentRows.map((row) => (
-              <tr key={row.id} className='hover:bg-slate-50/50 transition-colors'>
+              <tr
+                key={row.id}
+                className='hover:bg-slate-50/50 transition-colors'
+              >
                 <td className='px-6 py-5 text-sm font-bold text-slate-900'>
                   {formatDate(row.date)}
                 </td>
@@ -261,7 +268,9 @@ const CustomerDeliveryHistory = () => {
                   <div className='flex items-center gap-2'>
                     <span
                       className={`material-symbols-outlined text-[20px] ${
-                        row.shift === 'morning' ? 'text-amber-500' : 'text-indigo-400'
+                        row.shift === 'morning'
+                          ? 'text-amber-500'
+                          : 'text-indigo-400'
                       }`}
                     >
                       {row.shift === 'morning' ? 'light_mode' : 'dark_mode'}
@@ -291,7 +300,9 @@ const CustomerDeliveryHistory = () => {
                     className='text-slate-400 hover:text-primary transition-colors rounded-md'
                     onClick={(e) => {
                       e.stopPropagation();
-                      setOpenMenuId((prev) => (prev === row.id ? null : row.id));
+                      setOpenMenuId((prev) =>
+                        prev === row.id ? null : row.id,
+                      );
                     }}
                   >
                     <span className='material-symbols-outlined text-[22px]'>
@@ -359,7 +370,10 @@ const CustomerDeliveryHistory = () => {
 
             {currentRows.length === 0 && (
               <tr>
-                <td colSpan={6} className='px-6 py-10 text-center text-sm text-slate-500'>
+                <td
+                  colSpan={6}
+                  className='px-6 py-10 text-center text-sm text-slate-500'
+                >
                   No delivery records match the selected filters.
                 </td>
               </tr>

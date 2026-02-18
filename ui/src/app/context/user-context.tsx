@@ -17,19 +17,21 @@ export const UserContext = createContext<UserContextType>(
   {} as UserContextType,
 );
 
+const defaultBasicInfo = {
+  fullName: '',
+  mobileNumber: '',
+  address: '',
+  email: '',
+  password: '',
+  confirmPassword: '',
+};
+
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  const [basicInfo, setBasicInfo] = useState<BasicInfoState>({
-    fullName: '',
-    mobileNumber: '',
-    address: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-  });
+  const [basicInfo, setBasicInfo] = useState<BasicInfoState>(defaultBasicInfo);
 
   const [selectedRole, setSelectedRole] = useState<UserRoleType>('CUSTOMER');
 
@@ -41,7 +43,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     new Promise<void>((resolve) => setTimeout(resolve, ms));
 
   const getUserWithRetry = async (firebaseUid: string) => {
-    const maxAttempts = 3;
+    const maxAttempts = 6;
     const retryDelayMs = 500;
 
     for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
@@ -105,7 +107,6 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         setLoading(false);
       } catch (error: any) {
         if (isUserNotFoundError(error)) {
-          setUser(null);
           setLoading(false);
           return;
         }
@@ -133,6 +134,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       await signOut(auth);
       setUser(null);
+      setBasicInfo(defaultBasicInfo);
       router.push('/login');
       localStorage.removeItem('user');
       toast.success('User sign out successfully !!');

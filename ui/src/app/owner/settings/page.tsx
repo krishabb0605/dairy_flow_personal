@@ -1,42 +1,68 @@
 'use client';
-import { type FormEvent, useState } from 'react';
-import { Mandatory } from '@/app/page';
+import { type FormEvent, useContext, useEffect, useState } from 'react';
+import { Mandatory } from '../../../app/page';
 import ContentLayout from '../../../components/layout';
+import {
+  type OwnerSettingsFormData,
+  type OwnerSettingsFormErrors,
+  type OwnerSettingsMilkConfigState,
+  type User,
+} from '../../../types';
+import { FALLBACK_OWNER_PROFILE_IMAGE } from '../../../constants';
+import { UserContext } from '../../../app/context/user-context';
+import { useCloudinaryImageUpload } from '../../../hooks/use-cloudinary-image-upload';
+import { updateOwnerSettings } from '../../../lib/users';
+import { toast } from 'react-toastify';
+import Loader from '../../../components/loader';
 
-const defaultFormData = {
-  cowMilkPrice: '62',
-  buffaloMilkPrice: '85',
-  morningStartTime: '06:00',
-  morningEndTime: '09:00',
-  eveningStartTime: '18:00',
-  eveningEndTime: '21:00',
-  fullName: 'John Dairy',
-  phoneNumber: '9876543210',
-  email: 'contact@freshmilk.com',
-  upiId: 'johndairy@okaxis',
-  bankName: 'HDFC Bank',
-  accountNumber: '987654321012',
-  ifscCode: 'HDFC0001234',
+const buildInitialFormData = (user: User | null): OwnerSettingsFormData => ({
+  fullName: user?.fullName ?? '',
+  email: user?.email ?? '',
+  mobileNumber: user?.mobileNumber ?? '',
+  address: user?.address ?? '',
+
+  morningStartTime: toTimeInputValue(user?.ownerSettings?.morningStart),
+  morningEndTime: toTimeInputValue(user?.ownerSettings?.morningEnd),
+  eveningStartTime: toTimeInputValue(user?.ownerSettings?.eveningStart),
+  eveningEndTime: toTimeInputValue(user?.ownerSettings?.eveningEnd),
+
+  upiId: user?.ownerSettings?.upiId ?? '',
+  bankName: user?.ownerSettings?.bankName ?? '',
+  accountNumber: user?.ownerSettings?.accountNumber ?? '',
+  ifscCode: user?.ownerSettings?.ifscCode ?? '',
+});
+
+const buildInitialProfileImage = (user: User | null): string => {
+  return user?.profileImageUrl ?? FALLBACK_OWNER_PROFILE_IMAGE;
 };
 
-type FormData = typeof defaultFormData;
-type FormErrors = Partial<Record<keyof FormData, string>>;
+const toTimeInputValue = (value?: string | null): string => {
+  if (!value) return '';
+  const plainMatch = value.match(/^(\d{2}:\d{2})/);
+  if (plainMatch) return plainMatch[1];
+  const isoMatch = value.match(/T(\d{2}:\d{2})/);
+  if (isoMatch) return isoMatch[1];
+  return '';
+};
 
-const validateForm = (data: FormData): FormErrors => {
-  const errors: FormErrors = {};
-  const phoneRegex = /^\d{10}$/;
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const buildInitialDeliveryData = (
+  user: User | null,
+): OwnerSettingsMilkConfigState => ({
+  cow: {
+    enabled: user?.ownerSettings?.cowEnabled ?? false,
+    price: Number(user?.ownerSettings?.cowPrice) ?? 0,
+  },
+  buffalo: {
+    enabled: user?.ownerSettings?.buffaloEnabled ?? false,
+    price: Number(user?.ownerSettings?.buffaloPrice) ?? 0,
+  },
+});
+
+const validateForm = (data: OwnerSettingsFormData): OwnerSettingsFormErrors => {
+  const errors: OwnerSettingsFormErrors = {};
   const upiRegex = /^[a-zA-Z0-9.\-_]{2,}@[a-zA-Z]{2,}$/;
   const accountNumberRegex = /^\d{9,18}$/;
   const ifscRegex = /^[A-Z]{4}0[A-Z0-9]{6}$/;
-
-  if (!data.cowMilkPrice || Number(data.cowMilkPrice) <= 0) {
-    errors.cowMilkPrice = 'Cow milk price must be greater than 0.';
-  }
-
-  if (!data.buffaloMilkPrice || Number(data.buffaloMilkPrice) <= 0) {
-    errors.buffaloMilkPrice = 'Buffalo milk price must be greater than 0.';
-  }
 
   if (!data.morningStartTime) {
     errors.morningStartTime = 'Morning start time is required.';
@@ -74,12 +100,8 @@ const validateForm = (data: FormData): FormErrors => {
     errors.fullName = 'Full name must have at least 2 characters.';
   }
 
-  if (!phoneRegex.test(data.phoneNumber)) {
-    errors.phoneNumber = 'Phone number must be exactly 10 digits.';
-  }
-
-  if (!emailRegex.test(data.email.trim())) {
-    errors.email = 'Enter a valid email address.';
+  if (!data.address.trim() || data.address.trim().length < 5) {
+    errors.address = 'Address must have at least 5 characters.';
   }
 
   if (!upiRegex.test(data.upiId.trim())) {
@@ -102,29 +124,111 @@ const validateForm = (data: FormData): FormErrors => {
 };
 
 const Settings = () => {
-  const [formData, setFormData] = useState(defaultFormData);
-  const [errors, setErrors] = useState<FormErrors>({});
+  const { user, setUser } = useContext(UserContext);
+  const [formData, setFormData] = useState(buildInitialFormData(user));
+  const [milkConfig, setMilkConfig] = useState<OwnerSettingsMilkConfigState>(
+    buildInitialDeliveryData(user),
+  );
+  const [errors, setErrors] = useState<OwnerSettingsFormErrors>({});
+  const [isSaving, setIsSaving] = useState(false);
+  const {
+    fileInputRef,
+    imageUrl: profileImageUrl,
+    uploadError,
+    isUploading: isUploadingImage,
+    openFilePicker: triggerImagePicker,
+    onFileInputChange: handleProfileImageSelect,
+    uploadPendingImage,
+    removeImage: handleRemoveImage,
+    resetImage,
+  } = useCloudinaryImageUpload({
+    initialImageUrl: buildInitialProfileImage(user),
+    fallbackImageUrl: FALLBACK_OWNER_PROFILE_IMAGE,
+  });
 
-  const handleChange = (field: keyof FormData, value: string) => {
+  useEffect(() => {
+    setFormData(buildInitialFormData(user));
+    setMilkConfig(buildInitialDeliveryData(user));
+    resetImage(buildInitialProfileImage(user));
+    setErrors({});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
+  const handleChange = (field: keyof OwnerSettingsFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => ({ ...prev, [field]: undefined }));
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const validationErrors = validateForm(formData);
 
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
-      console.log('Owner settings validation errors:', validationErrors);
       return;
     }
 
-    console.log('Owner settings form data:', formData);
+    if (
+      (milkConfig.cow.enabled && milkConfig.cow.price <= 0) ||
+      (milkConfig.buffalo.enabled && milkConfig.buffalo.price <= 0)
+    ) {
+      toast.error('Milk price must be greater than 0 for enabled milk type.');
+      return;
+    }
+
+    if (!user) {
+      toast.error('User data not found');
+      return;
+    }
+
+    const finalProfileImageUrl = await uploadPendingImage();
+    if (!finalProfileImageUrl) {
+      return;
+    }
+
+    try {
+      setIsSaving(true);
+      const updatedUser = await updateOwnerSettings(user.id, {
+        fullName: formData.fullName.trim(),
+        address: formData.address.trim(),
+        profileImageUrl: finalProfileImageUrl,
+        dairyName:
+          user.ownerSettings?.dairyName ?? `${formData.fullName} dairy`,
+        cowEnabled: milkConfig.cow.enabled,
+        cowPrice: milkConfig.cow.enabled ? Number(milkConfig.cow.price) : 0,
+        buffaloEnabled: milkConfig.buffalo.enabled,
+        buffaloPrice: milkConfig.buffalo.enabled
+          ? Number(milkConfig.buffalo.price)
+          : 0,
+        morningStart: formData.morningStartTime,
+        morningEnd: formData.morningEndTime,
+        eveningStart: formData.eveningStartTime,
+        eveningEnd: formData.eveningEndTime,
+        upiId: formData.upiId.trim() || null,
+        bankName: formData.bankName.trim() || null,
+        accountNumber: formData.accountNumber.trim() || null,
+        ifscCode: formData.ifscCode.trim().toUpperCase() || null,
+      });
+
+      setUser(updatedUser);
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      toast.success('Settings updated successfully');
+    } catch (error) {
+      console.error('Failed to update owner settings:', error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : 'Failed to update owner settings',
+      );
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleDiscardChanges = () => {
-    setFormData(defaultFormData);
+    setFormData(buildInitialFormData(user));
+    setMilkConfig(buildInitialDeliveryData(user));
+    resetImage(buildInitialProfileImage(user));
     setErrors({});
   };
 
@@ -146,35 +250,50 @@ const Settings = () => {
           </div>
 
           <div className='flex items-center gap-6 px-6'>
+            <input
+              ref={fileInputRef}
+              type='file'
+              accept='image/png,image/jpeg,image/jpg'
+              className='hidden'
+              onChange={handleProfileImageSelect}
+            />
             <div className='relative'>
               <div
                 className='size-24 rounded-full border-4 border-[#f0f2f4] bg-center bg-no-repeat bg-cover'
                 style={{
-                  backgroundImage:
-                    'url("https://lh3.googleusercontent.com/aida-public/AB6AXuDN2u-3mU6mmls0TZnnkiW-REP7B2vB0ub6z83m0yBUgaAGlPbhHoKSb7ujqng0kNBc1Tv87noGjx3jXL7BnE0_2n0PYE7lZNBphK0JPZ9mF2tamoOvLLyZ8yeibaRb-qbsJm8FKibgU89Lj-XfbdGEbX_2wn8ODNARm3rZQf_BZWQwnIW5vt3WvAM-vZPlwbOrIEPXsJBrWL6x8EGy5MnCnIs4PzPEs5hPBBG4_Td_bfd2vf0BuUC4FL8YIiJBGOZLAigyMSRyBVk")',
+                  backgroundImage: `url("${profileImageUrl}")`,
                 }}
               ></div>
               <button
                 type='button'
+                onClick={triggerImagePicker}
+                disabled={isUploadingImage}
                 className='absolute bottom-0 right-0 size-8 bg-primary text-white rounded-full flex items-center justify-center shadow-lg hover:bg-blue-600'
               >
                 <span className='material-symbols-outlined text-sm'>
-                  photo_camera
+                  {isUploadingImage ? 'progress_activity' : 'photo_camera'}
                 </span>
               </button>
             </div>
             <div className='flex flex-col gap-1'>
               <p className='text-sm font-bold'>Profile Picture</p>
               <p className='text-xs text-[#637588]'>PNG or JPG up to 5MB</p>
+              {uploadError && (
+                <p className='text-xs text-red-600'>{uploadError}</p>
+              )}
               <div className='flex gap-2 mt-2'>
                 <button
                   type='button'
+                  onClick={triggerImagePicker}
+                  disabled={isUploadingImage}
                   className='text-xs font-bold text-primary hover:underline'
                 >
-                  Change
+                  {isUploadingImage ? 'Uploading...' : 'Change'}
                 </button>
                 <button
                   type='button'
+                  onClick={handleRemoveImage}
+                  disabled={isUploadingImage}
                   className='text-xs font-bold text-red-500 hover:underline'
                 >
                   Remove
@@ -205,57 +324,69 @@ const Settings = () => {
               )}
             </div>
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-              <div>
-                <label className='block text-sm font-medium text-slate-700 mb-2'>
-                  Phone Number <Mandatory />
-                </label>
-                <div className='relative'>
-                  <span className='absolute left-4 top-1/2 -translate-y-1/2 text-slate-700 font-medium'>
-                    +91
-                  </span>
-                  <input
-                    className={`w-full pl-12 pr-4 py-3 rounded-lg border bg-slate-50 focus:ring-2 outline-none transition-all ${
-                      errors.phoneNumber
-                        ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500'
-                        : 'border-slate-200 focus:ring-primary/20 focus:border-primary'
-                    }`}
-                    placeholder='98765 43210'
-                    type='tel'
-                    maxLength={10}
-                    value={formData.phoneNumber}
-                    onChange={(e) =>
-                      handleChange(
-                        'phoneNumber',
-                        e.target.value.replace(/\D/g, ''),
-                      )
-                    }
-                  />
-                </div>
-                {errors.phoneNumber && (
-                  <p className='mt-1 text-xs text-red-600'>
-                    {errors.phoneNumber}
-                  </p>
-                )}
-              </div>
-              <div>
-                <label className='block text-sm font-medium text-slate-700 mb-2'>
-                  Email Address <Mandatory />
+              <div className='space-y-2'>
+                <label className='text-sm font-medium text-[#637588]'>
+                  Mobile Number <Mandatory />
                 </label>
                 <input
-                  className={`w-full px-4 py-3 bg-slate-50 border rounded-lg focus:ring-2 outline-none transition-all ${
-                    errors.email
-                      ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500'
-                      : 'border-slate-200 focus:ring-primary/20 focus:border-primary'
-                  }`}
+                  className='form-input flex w-full rounded-lg text-slate-500 border border-[#cfdbe7] bg-slate-50 h-12 placeholder:text-blue-placeholder px-4 text-sm font-normal focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none cursor-not-allowed'
+                  type='email'
+                  value={'+91 ' + formData.mobileNumber}
+                  disabled
+                />
+              </div>
+
+              <div className='space-y-2'>
+                <label className='text-sm font-medium text-[#637588]'>
+                  Email <Mandatory />
+                </label>
+                <input
+                  className='form-input flex w-full rounded-lg text-slate-500 border border-[#cfdbe7] bg-slate-50 h-12 placeholder:text-blue-placeholder px-4 text-sm font-normal focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none cursor-not-allowed'
                   type='email'
                   value={formData.email}
+                  disabled
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className='bg-white rounded-xl border border-[#dce0e5] shadow-sm'>
+          <div className='px-6 py-5 border-b border-[#dce0e5]'>
+            <h2 className='text-lg font-bold'>Delivery Address</h2>
+          </div>
+          <div className='p-6'>
+            <div className='space-y-4'>
+              <div className='space-y-2'>
+                <label className='text-sm font-medium text-[#637588]'>
+                  Home Address <Mandatory />
+                </label>
+                <textarea
+                  className={`form-input flex w-full rounded-lg text-[#0d141b] border bg-slate-50 placeholder:text-blue-placeholder p-4 text-sm font-normal focus:ring-2 outline-none ${
+                    errors.address
+                      ? 'border-red-500 focus:ring-red-500/40 focus:border-red-500'
+                      : 'border-[#cfdbe7] focus:ring-primary/50 focus:border-primary'
+                  }`}
+                  rows={3}
+                  value={formData.address}
                   onChange={(event) =>
-                    handleChange('email', event.target.value)
+                    handleChange('address', event.target.value)
                   }
                 />
-                {errors.email && (
-                  <p className='mt-1 text-xs text-red-600'>{errors.email}</p>
+                {errors.address && (
+                  <p className='text-xs text-red-600'>{errors.address}</p>
                 )}
+              </div>
+              <div className='flex items-center gap-2'>
+                <span className='material-symbols-outlined text-primary text-sm'>
+                  location_on
+                </span>
+                <button
+                  type='button'
+                  className='text-sm text-primary font-bold hover:underline'
+                >
+                  Detect Current Location
+                </button>
               </div>
             </div>
           </div>
@@ -271,62 +402,130 @@ const Settings = () => {
               Milk Prices
             </h3>
           </div>
-          <div className='p-6 grid grid-cols-1 md:grid-cols-2 gap-6'>
-            <div>
-              <label className='block text-sm font-medium text-slate-700 mb-2'>
-                Cow Milk Price (per liter) <Mandatory />
-              </label>
-              <div className='relative'>
-                <span className='absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-medium'>
-                  ₹
+
+          <div className='p-6 grid grid-cols-1 md:grid-cols-2 gap-8'>
+            {/* <!-- Cow Milk Section --> */}
+            <div className='p-5 border border-slate-200 rounded-xl bg-white'>
+              <div className='flex items-center justify-between mb-4'>
+                <div className='flex items-center gap-3'>
+                  <input
+                    checked={milkConfig.cow.enabled}
+                    className='w-5 h-5 rounded text-primary focus:ring-primary border-slate-300 bg-white'
+                    type='checkbox'
+                    onChange={(e) => {
+                      setMilkConfig({
+                        ...milkConfig,
+                        cow: { ...milkConfig.cow, enabled: e.target.checked },
+                      });
+                    }}
+                    id='cow-milk'
+                  />
+                  <label
+                    className='text-lg font-bold select-none'
+                    htmlFor='cow-milk'
+                  >
+                    Cow Milk
+                  </label>
+                </div>
+                <span className='material-symbols-outlined text-slate-400'>
+                  pets
                 </span>
-                <input
-                  className={`w-full pl-8 pr-4 py-3 bg-slate-50 border rounded-lg focus:ring-2 outline-none transition-all ${
-                    errors.cowMilkPrice
-                      ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500'
-                      : 'border-slate-200 focus:ring-primary/20 focus:border-primary'
-                  }`}
-                  placeholder='0.00'
-                  type='number'
-                  value={formData.cowMilkPrice}
-                  onChange={(event) =>
-                    handleChange('cowMilkPrice', event.target.value)
-                  }
-                />
               </div>
-              {errors.cowMilkPrice && (
-                <p className='mt-1 text-xs text-red-600'>
-                  {errors.cowMilkPrice}
-                </p>
-              )}
+              <div className='space-y-4'>
+                <div className='flex items-center justify-between'>
+                  <span className='text-sm text-slate-600'>
+                    Price per Liter
+                  </span>
+                  <div className='relative w-32'>
+                    <span className='absolute left-3 top-1/2 -translate-y-1/2 text-slate-500'>
+                      ₹
+                    </span>
+                    <input
+                      type='number'
+                      value={milkConfig.cow.price}
+                      onChange={(e) =>
+                        setMilkConfig({
+                          ...milkConfig,
+                          cow: {
+                            ...milkConfig.cow,
+                            price: Number(e.target.value),
+                          },
+                        })
+                      }
+                      disabled={!milkConfig.cow.enabled}
+                      className={`w-full pl-7 pr-3 py-2 rounded-lg border text-right font-bold
+                      ${
+                        milkConfig.cow.enabled
+                          ? 'bg-white border-slate-300'
+                          : 'bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed'
+                      }`}
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
-            <div>
-              <label className='block text-sm font-medium text-slate-700 mb-2'>
-                Buffalo Milk Price (per liter) <Mandatory />
-              </label>
-              <div className='relative'>
-                <span className='absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-medium'>
-                  ₹
+            {/* <!-- Buffalo Milk Section --> */}
+            <div className='p-5 border border-slate-200 rounded-xl bg-white'>
+              <div className='flex items-center justify-between mb-4'>
+                <div className='flex items-center gap-3'>
+                  <input
+                    checked={milkConfig.buffalo.enabled}
+                    className='w-5 h-5 rounded text-primary focus:ring-primary border-slate-300 bg-white'
+                    type='checkbox'
+                    onChange={(e) => {
+                      setMilkConfig({
+                        ...milkConfig,
+                        buffalo: {
+                          ...milkConfig.buffalo,
+                          enabled: e.target.checked,
+                        },
+                      });
+                    }}
+                    id='buffalo-milk'
+                  />
+                  <label
+                    className='text-lg font-bold select-none'
+                    htmlFor='buffalo-milk'
+                  >
+                    Buffalo Milk
+                  </label>
+                </div>
+                <span className='material-symbols-outlined text-slate-400'>
+                  pets
                 </span>
-                <input
-                  className={`w-full pl-8 pr-4 py-3 bg-slate-50 border rounded-lg focus:ring-2 outline-none transition-all ${
-                    errors.buffaloMilkPrice
-                      ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500'
-                      : 'border-slate-200 focus:ring-primary/20 focus:border-primary'
-                  }`}
-                  placeholder='0.00'
-                  type='number'
-                  value={formData.buffaloMilkPrice}
-                  onChange={(event) =>
-                    handleChange('buffaloMilkPrice', event.target.value)
-                  }
-                />
               </div>
-              {errors.buffaloMilkPrice && (
-                <p className='mt-1 text-xs text-red-600'>
-                  {errors.buffaloMilkPrice}
-                </p>
-              )}
+              <div className='space-y-4'>
+                <div className='flex items-center justify-between'>
+                  <span className='text-sm text-slate-600'>
+                    Price per Liter
+                  </span>
+                  <div className='relative w-32'>
+                    <span className='absolute left-3 top-1/2 -translate-y-1/2 text-slate-500'>
+                      ₹
+                    </span>
+                    <input
+                      type='number'
+                      value={milkConfig.buffalo.price}
+                      onChange={(e) =>
+                        setMilkConfig({
+                          ...milkConfig,
+                          buffalo: {
+                            ...milkConfig.buffalo,
+                            price: Number(e.target.value),
+                          },
+                        })
+                      }
+                      disabled={!milkConfig.buffalo.enabled}
+                      className={`w-full pl-7 pr-3 py-2 rounded-lg border text-right font-bold
+                    ${
+                      milkConfig.buffalo.enabled
+                        ? 'bg-white border-slate-300'
+                        : 'bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed'
+                    }`}
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -469,7 +668,7 @@ const Settings = () => {
                       ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500'
                       : 'border-slate-200 focus:ring-primary/20 focus:border-primary'
                   }`}
-                  placeholder='username@upi'
+                  placeholder='johndairy@okaxis'
                   type='text'
                   value={formData.upiId}
                   onChange={(event) =>
@@ -488,7 +687,7 @@ const Settings = () => {
             <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
               <div className='md:col-span-1'>
                 <label className='block text-sm font-medium text-slate-700 mb-2'>
-                  Bank Name
+                  Bank Name <Mandatory />
                 </label>
                 <input
                   className={`w-full px-4 py-3 bg-slate-50 border rounded-lg focus:ring-2 outline-none transition-all ${
@@ -501,6 +700,7 @@ const Settings = () => {
                   onChange={(event) =>
                     handleChange('bankName', event.target.value)
                   }
+                  placeholder='HDFC Bank'
                 />
                 {errors.bankName && (
                   <p className='mt-1 text-xs text-red-600'>{errors.bankName}</p>
@@ -508,7 +708,7 @@ const Settings = () => {
               </div>
               <div className='md:col-span-1'>
                 <label className='block text-sm font-medium text-slate-700 mb-2'>
-                  Account Number
+                  Account Number <Mandatory />
                 </label>
                 <input
                   className={`w-full px-4 py-3 bg-slate-50 border rounded-lg focus:ring-2 outline-none transition-all ${
@@ -524,6 +724,7 @@ const Settings = () => {
                       event.target.value.replace(/\D/g, ''),
                     )
                   }
+                  placeholder='4242 4242 4242'
                 />
                 {errors.accountNumber && (
                   <p className='mt-1 text-xs text-red-600'>
@@ -533,7 +734,7 @@ const Settings = () => {
               </div>
               <div className='md:col-span-1'>
                 <label className='block text-sm font-medium text-slate-700 mb-2'>
-                  IFSC Code
+                  IFSC Code <Mandatory />
                 </label>
                 <input
                   className={`w-full px-4 py-3 bg-slate-50 border rounded-lg focus:ring-2 outline-none transition-all ${
@@ -546,6 +747,7 @@ const Settings = () => {
                   onChange={(event) =>
                     handleChange('ifscCode', event.target.value.toUpperCase())
                   }
+                  placeholder='HDFC0001234'
                 />
                 {errors.ifscCode && (
                   <p className='mt-1 text-xs text-red-600'>{errors.ifscCode}</p>
@@ -556,20 +758,32 @@ const Settings = () => {
         </section>
         {/* <!-- Sticky Footer Action --> */}
         <div className='fixed bottom-0 left-0 md:left-64 right-0 p-6 bg-white/80 backdrop-blur-md border-t border-slate-200 flex justify-end items-center gap-4 z-10'>
-          <button
-            type='button'
-            onClick={handleDiscardChanges}
-            className='px-6 py-3 border border-slate-200 rounded-lg text-sm font-semibold hover:bg-slate-50 transition-colors'
-          >
-            Discard Changes
-          </button>
-          <button
-            type='submit'
-            className='px-10 py-3 bg-primary text-white rounded-lg text-sm font-bold shadow-lg shadow-primary/20 hover:brightness-95 transition-all flex items-center gap-2'
-          >
-            <span className='material-symbols-outlined text-[18px]'>save</span>
-            Save Changes
-          </button>
+          <div className='flex items-center gap-4 w-full md:w-[50%]'>
+            <button
+              type='button'
+              onClick={handleDiscardChanges}
+              disabled={isSaving || isUploadingImage}
+              className='px-6 py-3 border border-slate-200 rounded-lg text-sm font-semibold hover:bg-slate-50 transition-colors flex-1'
+            >
+              Discard Changes
+            </button>
+            <button
+              type='submit'
+              disabled={isSaving || isUploadingImage}
+              className='px-10 py-3 bg-primary text-white rounded-lg text-sm font-bold shadow-lg shadow-primary/20 hover:brightness-95 transition-all flex items-center justify-center gap-2 flex-1'
+            >
+              {isSaving || isUploadingImage ? (
+                <Loader color='white' size={22} />
+              ) : (
+                <>
+                  <span className='material-symbols-outlined text-[18px]'>
+                    save
+                  </span>
+                  Save Changes
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </form>
     </ContentLayout>
