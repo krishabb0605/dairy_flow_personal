@@ -5,6 +5,7 @@ import { useContext, useState } from 'react';
 import AddExtraMilkModal from '../../../components/modal/customer/add-extra-milk';
 import ScheduleVacation from '../../../components/modal/customer/schedule-vacation';
 import { UserContext } from '../../../app/context/user-context';
+import DeActivateOwnerModal from '../../../components/modal/customer/deactivate-owner';
 
 const Dashboard = () => {
   const { user } = useContext(UserContext);
@@ -12,6 +13,8 @@ const Dashboard = () => {
   const [openExtraMilkModal, setOpenExtraMilkModal] = useState<boolean>(false);
   const [openScheduleVacation, setOpenScheduleVacation] =
     useState<boolean>(false);
+
+  const [customerOwnerId, setCustomerOwnerId] = useState<number | null>(null);
 
   return (
     <ContentLayout title='Dashboard Overview'>
@@ -100,42 +103,42 @@ const Dashboard = () => {
           </div>
           <div className='bg-white p-6 rounded-2xl border border-slate-200 shadow-sm'>
             <div className='space-y-6'>
-              <div className='pt-4 border-t border-slate-100'>
-                <h3 className='text-sm font-bold uppercase tracking-wider text-slate-500 mb-3'>
-                  Weekly Consumption
-                </h3>
-                <div className='flex items-center justify-between'>
-                  <span className='text-sm text-slate-600'>
-                    Total this week
-                  </span>
-                  <span className='text-lg font-bold text-primary'>10.5L</span>
-                </div>
-              </div>
-              <div className='pt-4 border-t border-slate-100'>
-                <h3 className='text-xs font-bold uppercase tracking-wider text-slate-400 mb-3'>
-                  Your Milkman
-                </h3>
-                <div className='flex items-center justify-between'>
-                  <div className='flex items-center gap-3'>
-                    <div className='size-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400'>
-                      <span className='material-symbols-outlined'>person</span>
-                    </div>
-                    <div>
-                      <p className='text-sm font-bold'>
-                        {user?.currentActiveOwner?.ownerFullName}
-                      </p>
-                      <p className='text-[10px] text-slate-500'>
-                        +91 {user?.currentActiveOwner?.ownerMobileNumber}
-                      </p>
-                    </div>
+              <h3 className='text-xs font-bold uppercase tracking-wider text-slate-400 mb-3'>
+                Your Milkman
+              </h3>
+
+              <div className='flex items-center justify-between'>
+                <div className='flex items-center gap-3'>
+                  <div className='size-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400'>
+                    <span className='material-symbols-outlined'>person</span>
                   </div>
-                  <button className='p-2 bg-primary/10 text-primary rounded-full hover:bg-primary/20 transition-colors h-10 w-10'>
-                    <span className='material-symbols-outlined text-xl'>
-                      call
-                    </span>
-                  </button>
+                  <div>
+                    <p className='text-sm font-bold'>
+                      {user?.currentActiveOwner?.ownerFullName}
+                    </p>
+                    <p className='text-[10px] text-slate-500'>
+                      +91 {user?.currentActiveOwner?.ownerMobileNumber}
+                    </p>
+                  </div>
                 </div>
+                <button className='p-2 bg-primary/10 text-primary rounded-full hover:bg-primary/20 transition-colors h-10 w-10'>
+                  <span className='material-symbols-outlined text-xl'>
+                    call
+                  </span>
+                </button>
               </div>
+
+              <button
+                className='w-full mt-4 py-2 px-4 border border-red-500 text-red-500 hover:bg-red-50 text-xs font-bold rounded-lg transition-colors flex items-center justify-center gap-2'
+                onClick={() =>
+                  setCustomerOwnerId(user?.currentActiveOwner?.id || null)
+                }
+              >
+                <span className='material-symbols-outlined text-sm'>
+                  person_remove
+                </span>
+                Deactivate Owner
+              </button>
             </div>
           </div>
           <div className='bg-white rounded-2xl p-6 border border-primary/20'>
@@ -157,14 +160,22 @@ const Dashboard = () => {
       {openExtraMilkModal && (
         <AddExtraMilkModal
           open={openExtraMilkModal}
-          setOpen={setOpenExtraMilkModal}
+          onClose={() => setOpenExtraMilkModal(false)}
         />
       )}
 
       {openScheduleVacation && (
         <ScheduleVacation
           open={openScheduleVacation}
-          setOpen={setOpenScheduleVacation}
+          onClose={() => setOpenScheduleVacation(false)}
+        />
+      )}
+
+      {customerOwnerId && (
+        <DeActivateOwnerModal
+          open={!!customerOwnerId}
+          onClose={() => setCustomerOwnerId(null)}
+          customerOwnerId={customerOwnerId}
         />
       )}
     </ContentLayout>

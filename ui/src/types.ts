@@ -118,7 +118,8 @@ export type CustomerSettingConfig = {
 
 export type CustomerOwner = {
   id: number;
-  userId: number;
+  ownerId: number;
+  ownerUserId: number;
   ownerFullName: string;
   ownerMobileNumber: string;
   ownerEmail: string;
@@ -153,6 +154,8 @@ export type ModalProps = {
   cancelText?: string;
 
   loading?: boolean;
+  variant?: string;
+  icon?: string;
 
   onSubmit?: () => void;
   onClose: () => void;
@@ -300,7 +303,10 @@ export type OwnerCustomerDeliveryHistoryItem = {
   status: OwnerCustomerDeliveryStatus;
 };
 
-export type OwnerCustomerTab = 'overview' | 'delivery-history' | 'billing-history';
+export type OwnerCustomerTab =
+  | 'overview'
+  | 'delivery-history'
+  | 'billing-history';
 
 export type OwnerGenerateBillDailyRecord = {
   day: number;
@@ -394,5 +400,5 @@ export type BillPdfProps = {
 
 export type ScheduleVacationProps = {
   open: boolean;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  onClose: () => void;
 };

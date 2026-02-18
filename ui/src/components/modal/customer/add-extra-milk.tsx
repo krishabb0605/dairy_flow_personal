@@ -17,10 +17,10 @@ const defaultState = {
 
 const AddExtraMilkModal = ({
   open,
-  setOpen,
+  onClose,
 }: {
   open: boolean;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  onClose: () => void;
 }) => {
   const now = new Date();
   const isAfter6PM = now.getHours() >= 18;
@@ -74,7 +74,7 @@ const AddExtraMilkModal = ({
 
     setTimeout(() => {
       setLoading(false);
-      setOpen(false);
+      onClose();
     }, 1000);
   };
 
@@ -85,7 +85,7 @@ const AddExtraMilkModal = ({
   return (
     <Modal
       open={open}
-      onClose={() => setOpen(false)}
+      onClose={onClose}
       title='Request Extra Milk'
       description='Need a little extra tomorrow?'
       submitText={`Confirm ${selectedSlot} Order`}

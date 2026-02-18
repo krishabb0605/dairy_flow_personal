@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from 'react';
 import type { ScheduleVacationProps, Slot } from '../../../types';
 const slotRank = { morning: 0, evening: 1 } as const;
 
-const ScheduleVacation = ({ open, setOpen }: ScheduleVacationProps) => {
+const ScheduleVacation = ({ open, onClose }: ScheduleVacationProps) => {
   const now = new Date();
   const today = now.toISOString().split('T')[0];
 
@@ -57,14 +57,14 @@ const ScheduleVacation = ({ open, setOpen }: ScheduleVacationProps) => {
 
     setTimeout(() => {
       setLoading(false);
-      setOpen(false);
+      onClose();
     }, 1000);
   };
 
   return (
     <Modal
       open={open}
-      onClose={() => setOpen(false)}
+      onClose={onClose}
       title='Schedule Vacation'
       description='Select when your vacation starts and ends.'
       submitText='Confirm vacation'
