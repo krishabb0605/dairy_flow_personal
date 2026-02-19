@@ -16,7 +16,11 @@ const getLocalDateInputValue = (date: Date): string => {
     .split('T')[0];
 };
 
-const ScheduleVacation = ({ open, onClose }: ScheduleVacationProps) => {
+const ScheduleVacation = ({
+  open,
+  onClose,
+  onSuccess,
+}: ScheduleVacationProps) => {
   const { user } = useContext(UserContext);
   const now = new Date();
   const today = getLocalDateInputValue(now);
@@ -71,12 +75,13 @@ const ScheduleVacation = ({ open, onClose }: ScheduleVacationProps) => {
         endSlot,
       });
       toast.success('Vacation scheduled successfully');
+      await onSuccess();
       onClose();
+      setLoading(false);
     } catch (error: unknown) {
       const message =
         error instanceof Error ? error.message : 'Failed to schedule vacation';
       toast.error(message);
-    } finally {
       setLoading(false);
     }
   };

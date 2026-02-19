@@ -15,4 +15,10 @@ export class CustomerOwnerService {
       customerOwnerId,
     );
   }
+
+  async getUpcomingCustomerActivity(customerOwnerId: number): Promise<any> {
+    return this.customerOwnerRepository.getUpcomingCustomerActivity(
+      customerOwnerId,
+    );
+  }
 }

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Param,
   ParseIntPipe,
   Patch,
@@ -30,6 +31,15 @@ export class CustomerOwnerController {
   ) {
     return this.responseHandler.sendResponse(
       this.customerOwnerService.deactivateCustomerOwner(customerOwnerId),
+    );
+  }
+
+  @Get('upcoming/:customerOwnerId')
+  getUpcomingCustomerActivity(
+    @Param('customerOwnerId', ParseIntPipe) customerOwnerId: number,
+  ) {
+    return this.responseHandler.sendResponse(
+      this.customerOwnerService.getUpcomingCustomerActivity(customerOwnerId),
     );
   }
 }

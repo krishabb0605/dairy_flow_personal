@@ -138,4 +138,82 @@ export class CustomerOwnerRepository {
       throw new InternalServerErrorException('Unexpected error');
     }
   }
+
+  async getUpcomingCustomerActivity(customerOwnerId: number): Promise<any> {
+    try {
+      const customerOwner = await this.prisma.customerOwner.findUnique({
+        where: { id: customerOwnerId },
+      });
+
+      if (!customerOwner) {
+        throw new NotFoundException(
+          `Customer-owner relation not found with id: ${customerOwnerId}`,
+        );
+      }
+
+      const today = new Date();
+      today.setUTCHours(0, 0, 0, 0);
+
+      const [extras, vacations] = await this.prisma.$transaction([
+        this.prisma.extraMilkOrder.findMany({
+          where: {
+            customerOwnerId,
+            deliveryDate: {
+              gte: today,
+            },
+          },
+          orderBy: [{ deliveryDate: 'asc' }, { slot: 'asc' }],
+          take: 10,
+        }),
+        this.prisma.vacationSchedule.findMany({
+          where: {
+            customerOwnerId,
+            OR: [
+              {
+                startDate: {
+                  gte: today,
+                },
+              },
+              {
+                endDate: {
+                  gte: today,
+                },
+              },
+            ],
+          },
+          orderBy: [{ startDate: 'asc' }, { startSlot: 'asc' }],
+          take: 10,
+        }),
+      ]);
+
+      return {
+        extras: extras.map((item) => ({
+          id: item.id,
+          deliveryDate: item.deliveryDate.toISOString().slice(0, 10),
+          slot: item.slot.toLowerCase(),
+          cowQty: Number(item.cowQty),
+          buffaloQty: Number(item.buffaloQty),
+        })),
+        vacations: vacations.map((item) => ({
+          id: item.id,
+          startDate: item.startDate.toISOString().slice(0, 10),
+          startSlot: item.startSlot.toLowerCase(),
+          endDate: item.endDate?.toISOString().slice(0, 10) ?? null,
+          endSlot: item.endSlot?.toLowerCase() ?? null,
+        })),
+      };
+    } catch (error: unknown) {
+      if (error instanceof HttpException) throw error;
+
+      if (error instanceof Error) {
+        throw new InternalServerErrorException({
+          success: false,
+          message: 'Error while fetching upcoming customer activity',
+          error: error.message,
+        });
+      }
+
+      throw new InternalServerErrorException('Unexpected error');
+    }
+  }
 }

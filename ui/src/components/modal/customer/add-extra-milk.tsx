@@ -65,7 +65,11 @@ const getTodaySlotAvailability = (
   };
 };
 
-const AddExtraMilkModal = ({ open, onClose }: AddExtraMilkModalProps) => {
+const AddExtraMilkModal = ({
+  open,
+  onClose,
+  onSuccess,
+}: AddExtraMilkModalProps) => {
   const { user } = useContext(UserContext);
   const [date, setDate] = useState<string>('');
   const [selectedSlot, setSelectedSlot] = useState<Slot>('morning');
@@ -153,6 +157,7 @@ const AddExtraMilkModal = ({ open, onClose }: AddExtraMilkModalProps) => {
       setDate('');
       setSelectedSlot('morning');
       setDelivery(defaultState);
+      await onSuccess();
       onClose();
       setLoading(false);
     } catch (error: unknown) {

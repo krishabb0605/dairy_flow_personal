@@ -401,11 +401,13 @@ export type BillPdfProps = {
 export type ScheduleVacationProps = {
   open: boolean;
   onClose: () => void;
+  onSuccess: () => Promise<void>;
 };
 
 export type AddExtraMilkModalProps = {
   open: boolean;
   onClose: () => void;
+  onSuccess: () => Promise<void>;
 };
 
 export type AddExtraMilkDeliveryState = Record<Slot, Record<MilkType, number>>;
@@ -424,4 +426,25 @@ export type CreateVacationScheduleParams = {
   startSlot: Slot;
   endDate: string;
   endSlot: Slot;
+};
+
+export type UpcomingExtraItem = {
+  id: number;
+  deliveryDate: string;
+  slot: Slot;
+  cowQty: number;
+  buffaloQty: number;
+};
+
+export type UpcomingVacationItem = {
+  id: number;
+  startDate: string;
+  startSlot: Slot;
+  endDate: string | null;
+  endSlot: Slot | null;
+};
+
+export type UpcomingCustomerActivity = {
+  extras: UpcomingExtraItem[];
+  vacations: UpcomingVacationItem[];
 };
