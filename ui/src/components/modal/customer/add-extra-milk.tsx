@@ -12,6 +12,7 @@ import { useContext, useMemo, useState } from 'react';
 import { createExtraMilkOrder } from '../../../lib/extra-milk-order';
 import { UserContext } from '../../../app/context/user-context';
 import { toast } from 'react-toastify';
+import Button from '../../../components/ui/button';
 
 const defaultState: AddExtraMilkDeliveryState = {
   morning: {
@@ -215,10 +216,11 @@ const AddExtraMilkModal = ({
         <div className='flex gap-2 p-1 rounded-xl'>
           {(['morning', 'evening'] as Slot[]).map((slot) => {
             return (
-              <button
+              <Button
                 key={slot}
                 disabled={isSlotDisabled(slot)}
                 onClick={() => setSelectedSlot(slot)}
+                variant='ghost-list'
                 className={`flex-1 py-3 font-medium capitalize transition
                 ${
                   selectedSlot === slot
@@ -229,7 +231,7 @@ const AddExtraMilkModal = ({
               `}
               >
                 {slot}
-              </button>
+              </Button>
             );
           })}
         </div>
@@ -249,23 +251,25 @@ const AddExtraMilkModal = ({
               </div>
             </div>
             <div className='flex items-center gap-3 p-1'>
-              <button
+              <Button
                 onClick={() => updateQty('cow', -0.5)}
-                className='size-8 flex items-center justify-center rounded-md bg-white border'
+                variant='outline-muted'
+                className='size-8 flex items-center justify-center rounded-md'
               >
                 -
-              </button>
+              </Button>
 
               <span className='text-sm font-bold min-w-8 text-center'>
                 {delivery[selectedSlot].cow}L
               </span>
 
-              <button
+              <Button
                 onClick={() => updateQty('cow', 0.5)}
-                className='size-8 flex items-center justify-center rounded-md bg-primary text-white'
+                variant='primary'
+                className='size-8 flex items-center justify-center rounded-md'
               >
                 +
-              </button>
+              </Button>
             </div>
           </div>
           {/* <!-- Buffalo Milk Row --> */}
@@ -282,23 +286,25 @@ const AddExtraMilkModal = ({
               </div>
             </div>
             <div className='flex items-center gap-3'>
-              <button
+              <Button
                 onClick={() => updateQty('buffalo', -0.5)}
-                className='size-8 flex items-center justify-center rounded-md bg-white border'
+                variant='outline-muted'
+                className='size-8 flex items-center justify-center rounded-md'
               >
                 -
-              </button>
+              </Button>
 
               <span className='text-sm font-bold min-w-8 text-center'>
                 {delivery[selectedSlot].buffalo}L
               </span>
 
-              <button
+              <Button
                 onClick={() => updateQty('buffalo', 0.5)}
-                className='size-8 flex items-center justify-center rounded-md bg-primary text-white'
+                variant='primary'
+                className='size-8 flex items-center justify-center rounded-md'
               >
                 +
-              </button>
+              </Button>
             </div>
           </div>
         </div>

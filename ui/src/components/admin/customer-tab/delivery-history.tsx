@@ -1,10 +1,9 @@
 'use client';
 
 import Pagination from '../../../components/pagination';
-import {
-  ownerCustomerDeliveryHistory,
-} from '../../../constants';
+import { ownerCustomerDeliveryHistory } from '../../../constants';
 import { useMemo, useRef, useState } from 'react';
+import Button from '../../../components/ui/button';
 import type {
   DeliveryShiftFilter,
   DeliveryStatusFilter,
@@ -96,12 +95,13 @@ const CustomerDeliveryHistory = () => {
       }}
     >
       <div className='p-3 sm:p-4 border-b border-slate-200'>
-        <button
+        <Button
           type='button'
           onClick={() => setIsFiltersOpen((prev) => !prev)}
           aria-expanded={isFiltersOpen}
           aria-controls='delivery-filters-panel'
-          className='w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 flex items-center justify-between text-left hover:bg-slate-100 transition-colors'
+          variant='outline-muted'
+          className='w-full rounded-xl px-4 py-3 flex items-center justify-between text-left transition-colors'
         >
           <span className='flex items-center gap-2 text-slate-700 font-semibold'>
             <span className='material-symbols-outlined text-[20px]'>tune</span>
@@ -110,7 +110,7 @@ const CustomerDeliveryHistory = () => {
           <span className='material-symbols-outlined text-slate-500'>
             {isFiltersOpen ? 'expand_less' : 'expand_more'}
           </span>
-        </button>
+        </Button>
 
         {isFiltersOpen && (
           <div id='delivery-filters-panel' className='pt-4'>
@@ -209,8 +209,9 @@ const CustomerDeliveryHistory = () => {
                   </div>
 
                   <div className='flex items-end'>
-                    <button
-                      className='w-full bg-primary/10 hover:bg-primary/20 text-slate-700 rounded-lg px-4 py-2.5 text-sm font-bold transition-colors'
+                    <Button
+                      variant='soft-muted'
+                      className='w-full rounded-lg px-4 py-2.5 text-sm font-bold transition-colors'
                       onClick={() => {
                         setSearchQuery('');
                         setStartDate('');
@@ -221,7 +222,7 @@ const CustomerDeliveryHistory = () => {
                       }}
                     >
                       Reset
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -295,9 +296,10 @@ const CustomerDeliveryHistory = () => {
                   </span>
                 </td>
                 <td className='px-6 py-5 text-right relative'>
-                  <button
+                  <Button
                     type='button'
-                    className='text-slate-400 hover:text-primary transition-colors rounded-md'
+                    variant='link-subtle'
+                    className='transition-colors rounded-md'
                     onClick={(e) => {
                       e.stopPropagation();
                       setOpenMenuId((prev) =>
@@ -308,60 +310,65 @@ const CustomerDeliveryHistory = () => {
                     <span className='material-symbols-outlined text-[22px]'>
                       more_vert
                     </span>
-                  </button>
+                  </Button>
 
                   {openMenuId === row.id && (
                     <div className='absolute right-6 top-12 z-20 w-48 rounded-xl bg-white border border-slate-200 shadow-lg overflow-hidden'>
-                      <button
+                      <Button
                         type='button'
-                        className='w-full text-left px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 flex items-center gap-2'
+                        variant='ghost-list'
+                        className='w-full text-left px-4 py-3 text-sm font-semibold flex items-center gap-2'
                         onClick={() => setOpenMenuId(null)}
                       >
                         <span className='material-symbols-outlined text-[18px]'>
                           edit_square
                         </span>
                         Edit Quantity
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         type='button'
-                        className='w-full text-left px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 flex items-center gap-2'
+                        variant='ghost-list'
+                        className='w-full text-left px-4 py-3 text-sm font-semibold flex items-center gap-2'
                         onClick={() => updateStatus(row.id, 'skipped')}
                       >
                         <span className='material-symbols-outlined text-[18px]'>
                           do_not_disturb_on
                         </span>
                         Mark as Skipped
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         type='button'
-                        className='w-full text-left px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 flex items-center gap-2'
+                        variant='ghost-list'
+                        className='w-full text-left px-4 py-3 text-sm font-semibold flex items-center gap-2'
                         onClick={() => updateStatus(row.id, 'delivered')}
                       >
                         <span className='material-symbols-outlined text-[18px]'>
                           check_circle
                         </span>
                         Mark as Delivered
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         type='button'
-                        className='w-full text-left px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 flex items-center gap-2'
+                        variant='ghost-list'
+                        className='w-full text-left px-4 py-3 text-sm font-semibold flex items-center gap-2'
                         onClick={() => updateStatus(row.id, 'cancelled')}
                       >
                         <span className='material-symbols-outlined text-[18px]'>
                           cancel
                         </span>
                         Mark as Cancelled
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         type='button'
-                        className='w-full text-left px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 flex items-center gap-2'
+                        variant='ghost-list'
+                        className='w-full text-left px-4 py-3 text-sm font-semibold flex items-center gap-2'
                         onClick={() => setOpenMenuId(null)}
                       >
                         <span className='material-symbols-outlined text-[18px]'>
                           note_add
                         </span>
                         Add Note
-                      </button>
+                      </Button>
                     </div>
                   )}
                 </td>

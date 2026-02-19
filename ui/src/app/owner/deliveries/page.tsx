@@ -4,6 +4,7 @@ import ContentLayout from '../../../components/layout';
 import { ownerDeliveries } from '../../../constants';
 import Pagination from '../../../components/pagination';
 import CustomerDelivery from '../../../components/admin/customer-delivery';
+import Button from '../../../components/ui/button';
 const ITEMS_PER_PAGE = 3;
 
 const Deliveries = () => {
@@ -70,8 +71,9 @@ const Deliveries = () => {
         {/* <!-- Page Heading --> */}
         <div className='flex flex-wrap justify-end items-start gap-3'>
           <div className='flex gap-3'>
-            <button
-              className='px-4 bg-primary/20 text-slate-700 font-bold rounded-lg flex items-center gap-2 hover:bg-primary/30 transition-colors'
+            <Button
+              variant='soft'
+              className='px-4 font-bold rounded-lg flex items-center gap-2 transition-colors'
               onClick={() => {
                 setCustomerSearch('');
                 setShift('all');
@@ -85,24 +87,28 @@ const Deliveries = () => {
                 filter_list
               </span>
               Reset Filters
-            </button>
-            <button className='flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-5 py-2.5 rounded-lg font-bold transition-all shadow-sm'>
+            </Button>
+            <Button
+              variant='primary'
+              className='flex items-center gap-2 px-5 py-2.5 rounded-lg font-bold transition-all shadow-sm'
+            >
               <span className='material-symbols-outlined text-xl'>
                 download
               </span>
               <span>Export CSV</span>
-            </button>
+            </Button>
           </div>
         </div>
 
         {/* <!-- Filters --> */}
         <div className='bg-white rounded-xl border border-primary/5 shadow-sm overflow-hidden'>
-          <button
+          <Button
             type='button'
             onClick={() => setIsFiltersOpen((prev) => !prev)}
             aria-expanded={isFiltersOpen}
             aria-controls='delivery-filters-panel'
-            className='w-full p-4 flex items-center justify-between hover:bg-slate-50 transition-colors border-b border-gray-200'
+            variant='ghost-list'
+            className='w-full p-4 flex items-center justify-between transition-colors border-b border-gray-200'
           >
             <div className='flex items-center gap-2'>
               <span className='material-symbols-outlined text-slate-500'>
@@ -113,7 +119,7 @@ const Deliveries = () => {
             <span className='material-symbols-outlined text-slate-500'>
               {isFiltersOpen ? 'expand_less' : 'expand_more'}
             </span>
-          </button>
+          </Button>
 
           {isFiltersOpen && (
             <div id='delivery-filters-panel' className='p-4'>

@@ -12,7 +12,8 @@ import {
   getOwnerCustomers,
 } from '../../../lib/customerOwner';
 import { toast } from 'react-toastify';
-import Loader from '@/components/loader';
+import Loader from '../../../components/loader';
+import Button from '../../../components/ui/button';
 
 const ITEMS_PER_PAGE = 3;
 
@@ -162,8 +163,9 @@ const OwnerCustomersPage = () => {
                 />
               </div>
             </div>
-            <button
-              className='text-white bg-linear-to-r from-[#1f6fe8] to-[#42a5ff] hover:opacity-90 font-bold py-3 rounded-full flex items-center justify-center gap-2 transition-all shadow-lg shadow-primary/20 w-auto px-8 disabled:opacity-60 disabled:cursor-not-allowed min-w-51.25'
+            <Button
+              variant='gradient'
+              className='font-bold py-3 rounded-full flex items-center justify-center gap-2 transition-all shadow-lg shadow-primary/20 w-auto px-8 disabled:opacity-60 disabled:cursor-not-allowed min-w-51.25'
               onClick={handleAddCustomer}
             >
               {!addCustomerLoading ? (
@@ -174,7 +176,7 @@ const OwnerCustomersPage = () => {
               ) : (
                 <Loader color='white' size={24} />
               )}
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -234,12 +236,13 @@ const OwnerCustomersPage = () => {
                 }
               }}
             />
-            <button
-              className='px-6 py-2.5 rounded-full text-white text-sm font-medium bg-linear-to-r from-[#1f6fe8] to-[#42a5ff] hover:opacity-90 transition-opacity shadow-[0_6px_14px_rgba(33,116,230,0.32)]'
+            <Button
+              variant='gradient'
+              className='px-6 py-2.5 rounded-full text-sm font-medium transition-opacity shadow-[0_6px_14px_rgba(33,116,230,0.32)]'
               onClick={handleSearch}
             >
               Search
-            </button>
+            </Button>
           </div>
 
           <div className='flex flex-wrap items-center gap-2 w-full lg:w-auto'>
@@ -258,8 +261,9 @@ const OwnerCustomersPage = () => {
               <option value='paused'>Paused</option>
             </select>
 
-            <button
-              className='flex items-center gap-2 px-4 py-2.5 bg-white border border-primary/20 rounded-xl text-sm font-medium hover:opacity-90 transition-colors'
+            <Button
+              variant='outline'
+              className='flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium hover:opacity-90 transition-colors'
               onClick={() => {
                 setSearchInput('');
                 setSearchQuery('');
@@ -271,7 +275,7 @@ const OwnerCustomersPage = () => {
                 restart_alt
               </span>
               Reset
-            </button>
+            </Button>
           </div>
         </div>
 

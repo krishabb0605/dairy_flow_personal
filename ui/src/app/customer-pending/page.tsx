@@ -4,6 +4,7 @@ import { useContext, useEffect } from 'react';
 import { UserContext } from '../context/user-context';
 import Loader from '../../components/loader';
 import { FALLBACK_CUSTOMER_PROFILE_IMAGE } from '../../constants';
+import Button from '../../components/ui/button';
 
 const CustomerPending = () => {
   const { user, loading, handleLogout } = useContext(UserContext);
@@ -128,22 +129,24 @@ const CustomerPending = () => {
               </div>
               {/* <!-- Primary Actions --> */}
               <div className='mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 w-full'>
-                <button
-                  className='flex flex-1 min-w-50 w-full sm:w-auto cursor-pointer items-center justify-center overflow-hidden rounded-xl h-14 px-6 py-3.5 bg-primary text-[#102213] hover:brightness-105 active:scale-[0.98] transition-all gap-2 text-base font-bold shadow-lg shadow-primary/20'
+                <Button
+                  variant='primary'
+                  className='flex flex-1 min-w-50 w-full sm:w-auto cursor-pointer items-center justify-center overflow-hidden rounded-xl h-14 px-6 py-3.5 active:scale-[0.98] transition-all gap-2 text-base font-bold shadow-lg shadow-primary/20'
                   onClick={() => window.location.reload()}
                 >
                   <span className='material-symbols-outlined'>sync</span>
                   <span className='truncate'>Refresh Status</span>
-                </button>
-                <button
-                  className='flex flex-1 min-w-50 w-full sm:w-auto cursor-pointer items-center justify-center overflow-hidden rounded-xl h-14 px-6 py-3.5 bg-background-light text-[#102213] hover:bg-primary/10 border border-primary/20 transition-all gap-2 text-base font-bold'
+                </Button>
+                <Button
+                  variant='outline'
+                  className='flex flex-1 min-w-50 w-full sm:w-auto cursor-pointer items-center justify-center overflow-hidden rounded-xl h-14 px-6 py-3.5 bg-background-light text-[#102213] hover:bg-primary/10 transition-all gap-2 text-base font-bold'
                   onClick={handleLogout}
                 >
                   <span className='material-symbols-outlined text-lg'>
                     logout
                   </span>
                   Sign Out
-                </button>
+                </Button>
               </div>
             </div>
           </main>

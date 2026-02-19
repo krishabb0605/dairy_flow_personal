@@ -14,6 +14,7 @@ import { useCloudinaryImageUpload } from '../../../hooks/use-cloudinary-image-up
 import { updateOwnerSettings } from '../../../lib/users';
 import { toast } from 'react-toastify';
 import Loader from '../../../components/loader';
+import Button from '../../../components/ui/button';
 
 const buildInitialFormData = (user: User | null): OwnerSettingsFormData => ({
   fullName: user?.fullName ?? '',
@@ -264,16 +265,17 @@ const Settings = () => {
                   backgroundImage: `url("${profileImageUrl}")`,
                 }}
               ></div>
-              <button
+              <Button
                 type='button'
                 onClick={triggerImagePicker}
                 disabled={isUploadingImage}
-                className='absolute bottom-0 right-0 size-8 bg-primary text-white rounded-full flex items-center justify-center shadow-lg hover:bg-blue-600'
+                variant='primary'
+                className='absolute bottom-0 right-0 size-8 rounded-full flex items-center justify-center shadow-lg hover:bg-blue-600'
               >
                 <span className='material-symbols-outlined text-sm'>
                   {isUploadingImage ? 'progress_activity' : 'photo_camera'}
                 </span>
-              </button>
+              </Button>
             </div>
             <div className='flex flex-col gap-1'>
               <p className='text-sm font-bold'>Profile Picture</p>
@@ -282,22 +284,24 @@ const Settings = () => {
                 <p className='text-xs text-red-600'>{uploadError}</p>
               )}
               <div className='flex gap-2 mt-2'>
-                <button
+                <Button
                   type='button'
                   onClick={triggerImagePicker}
                   disabled={isUploadingImage}
-                  className='text-xs font-bold text-primary hover:underline'
+                  variant='link'
+                  className='text-xs font-bold'
                 >
                   {isUploadingImage ? 'Uploading...' : 'Change'}
-                </button>
-                <button
+                </Button>
+                <Button
                   type='button'
                   onClick={handleRemoveImage}
                   disabled={isUploadingImage}
-                  className='text-xs font-bold text-red-500 hover:underline'
+                  variant='link-danger'
+                  className='text-xs font-bold'
                 >
                   Remove
-                </button>
+                </Button>
               </div>
             </div>
           </div>
@@ -381,12 +385,13 @@ const Settings = () => {
                 <span className='material-symbols-outlined text-primary text-sm'>
                   location_on
                 </span>
-                <button
+                <Button
                   type='button'
-                  className='text-sm text-primary font-bold hover:underline'
+                  variant='link'
+                  className='text-sm font-bold'
                 >
                   Detect Current Location
-                </button>
+                </Button>
               </div>
             </div>
           </div>
@@ -759,18 +764,20 @@ const Settings = () => {
         {/* <!-- Sticky Footer Action --> */}
         <div className='fixed bottom-0 left-0 md:left-64 right-0 p-6 bg-blue-50 backdrop-blur-md border-t border-slate-200 flex justify-end items-center gap-4 z-10'>
           <div className='flex items-center gap-4 w-full md:w-[50%]'>
-            <button
+            <Button
               type='button'
               onClick={handleDiscardChanges}
               disabled={isSaving || isUploadingImage}
-              className='px-6 py-3 border border-slate-200 rounded-lg text-sm font-semibold hover:bg-slate-50 transition-colors flex-1'
+              variant='outline-muted'
+              className='px-6 py-3 rounded-lg text-sm font-semibold transition-colors flex-1'
             >
               Discard Changes
-            </button>
-            <button
+            </Button>
+            <Button
               type='submit'
               disabled={isSaving || isUploadingImage}
-              className='px-10 py-3 bg-primary text-white rounded-lg text-sm font-bold shadow-lg shadow-primary/20 hover:brightness-95 transition-all flex items-center justify-center gap-2 flex-1'
+              variant='primary'
+              className='px-10 py-3 rounded-lg text-sm font-bold shadow-lg shadow-primary/20 hover:brightness-95 transition-all flex items-center justify-center gap-2 flex-1'
             >
               {isSaving || isUploadingImage ? (
                 <Loader color='white' size={22} />
@@ -782,7 +789,7 @@ const Settings = () => {
                   Save Changes
                 </>
               )}
-            </button>
+            </Button>
           </div>
         </div>
       </form>

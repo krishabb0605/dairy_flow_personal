@@ -4,6 +4,7 @@ import Pagination from '../../../components/pagination';
 import { billingHistory } from '../../../constants';
 import { useMemo, useState } from 'react';
 import type { BillingStatusFilter } from '../../../types';
+import Button from '../../../components/ui/button';
 
 const ITEMS_PER_PAGE = 4;
 
@@ -60,12 +61,13 @@ const CustomerBillingHistory = () => {
   return (
     <div className='bg-white rounded-xl border border-slate-200 shadow-sm mt-8'>
       <div className='p-3 sm:p-4 border-b border-slate-200'>
-        <button
+        <Button
           type='button'
           onClick={() => setIsFiltersOpen((prev) => !prev)}
           aria-expanded={isFiltersOpen}
           aria-controls='billing-filters-panel'
-          className='w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 flex items-center justify-between text-left hover:bg-slate-100 transition-colors'
+          variant='outline-muted'
+          className='w-full rounded-xl px-4 py-3 flex items-center justify-between text-left transition-colors'
         >
           <span className='flex items-center gap-2 text-slate-700 font-semibold'>
             <span className='material-symbols-outlined text-[20px]'>tune</span>
@@ -74,7 +76,7 @@ const CustomerBillingHistory = () => {
           <span className='material-symbols-outlined text-slate-500'>
             {isFiltersOpen ? 'expand_less' : 'expand_more'}
           </span>
-        </button>
+        </Button>
 
         {isFiltersOpen && (
           <div id='billing-filters-panel' className='pt-4'>
@@ -132,8 +134,9 @@ const CustomerBillingHistory = () => {
                 </select>
               </div>
 
-              <button
-                className='w-full sm:w-32 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg px-4 py-2.5 text-sm font-bold transition-colors'
+              <Button
+                variant='secondary'
+                className='w-full sm:w-32 rounded-lg px-4 py-2.5 text-sm font-bold transition-colors'
                 onClick={() => {
                   setSearch('');
                   setStatusFilter('all');
@@ -142,7 +145,7 @@ const CustomerBillingHistory = () => {
                 }}
               >
                 Reset
-              </button>
+              </Button>
             </div>
           </div>
         )}
@@ -198,26 +201,33 @@ const CustomerBillingHistory = () => {
                   <td className='px-6 py-4 text-right'>
                     <div className='flex justify-end items-center gap-2'>
                       {normalizeStatus(item.status) === 'paid' && (
-                        <button
-                          className='flex items-center justify-center h-8 w-8 rounded-lg text-slate-400 hover:bg-primary/10 hover:text-primary transition-all'
+                        <Button
+                          variant='ghost-primary'
+                          className='flex items-center justify-center h-8 w-8 rounded-lg text-slate-400 transition-all'
                           title='Download PDF'
                         >
                           <span className='material-symbols-outlined text-[20px]'>
                             download
                           </span>
-                        </button>
+                        </Button>
                       )}
                       {normalizeStatus(item.status) !== 'paid' && (
-                        <button className='px-3 py-1 bg-green-100 text-green-700 hover:bg-green-800 hover:text-white text-xs font-bold rounded transition-all'>
+                        <Button
+                          variant='success-soft'
+                          className='px-3 py-1 text-xs font-bold rounded transition-all'
+                        >
                           Mark Paid
-                        </button>
+                        </Button>
                       )}
 
-                      <button className='flex items-center justify-center h-8 w-8 text-primary p-2 rounded-lg hover:bg-primary/10 hover:text-primary transition cursor-pointer'>
+                      <Button
+                        variant='ghost-primary'
+                        className='flex items-center justify-center h-8 w-8 text-primary p-2 rounded-lg transition cursor-pointer'
+                      >
                         <span className='material-symbols-outlined'>
                           visibility
                         </span>
-                      </button>
+                      </Button>
                     </div>
                   </td>
                 </tr>

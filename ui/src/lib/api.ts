@@ -11,9 +11,9 @@ export const api = async (
     method,
     headers: {
       'Content-Type': 'application/json',
-      ...(token && { Authorization: `Bearer ${token}` }),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
-    ...(body && { body: JSON.stringify(body) }),
+    ...(body ? { body: JSON.stringify(body) } : {}),
   });
 
   const data = await res.json();

@@ -2,14 +2,7 @@
 
 import { ModalProps } from '../types';
 import Loader from './loader';
-
-const getColor = (variant = 'primary') => {
-  if (variant === 'warning') {
-    return 'bg-orange-600 hover:bg-orange-700';
-  }
-
-  return 'bg-primary';
-};
+import Button from '../components/ui/button';
 
 const getIcon = (variant = 'default') => {
   if (variant === 'warning') {
@@ -47,6 +40,7 @@ const Modal = ({
   icon = 'default',
   children,
 }: ModalProps) => {
+  const buttonVariant = variant === 'warning' ? 'warning' : 'primary';
   if (!open) return null;
 
   return (
@@ -66,12 +60,9 @@ const Modal = ({
             )}
           </div>
 
-          <button
-            onClick={onClose}
-            className='text-gray-400 hover:text-gray-600'
-          >
+          <Button onClick={onClose} variant='link-gray'>
             <span className='material-symbols-outlined'>close</span>
-          </button>
+          </Button>
         </div>
 
         {/* Body */}
@@ -80,21 +71,23 @@ const Modal = ({
         {/* Footer */}
         <div className='px-6 py-5 bg-[#f8fcf9] flex flex-col gap-3'>
           {onSubmit && (
-            <button
+            <Button
               disabled={loading}
               onClick={onSubmit}
-              className={`w-full text-white font-bold py-4 rounded-lg shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 flex justify-center ${getColor(variant)}`}
+              variant={buttonVariant}
+              className='w-full font-bold py-4 rounded-lg shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 flex justify-center'
             >
               {loading ? <Loader color='white' size={24} /> : submitText}
-            </button>
+            </Button>
           )}
 
-          <button
+          <Button
             onClick={onCancel || onClose}
-            className='w-full text-gray-500 font-medium py-2 text-sm hover:text-gray-700'
+            variant='link-gray'
+            className='w-full font-medium py-2 text-sm'
           >
             {cancelText}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

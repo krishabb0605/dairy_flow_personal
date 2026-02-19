@@ -4,6 +4,7 @@ import ContentLayout from '../../../components/layout';
 import { deliveries, deliveryFilters } from '../../../constants';
 import { deliveryFilter } from '../../../types';
 import { Fragment, useMemo, useState } from 'react';
+import Button from '../../../components/ui/button';
 const PAGE_SIZE = 5;
 
 const DeliveriesHistory = () => {
@@ -85,18 +86,18 @@ const DeliveriesHistory = () => {
           </div>
 
           <div className='flex gap-2'>
-            <button className='flex items-center justify-center rounded-lg h-10 px-4 bg-gray-100  text-[#111418]  text-sm font-bold gap-2 border border-transparent hover:border-gray-300'>
+            <Button size='md' variant='neutral' className='flex items-center justify-center rounded-lg font-bold gap-2'>
               <span className='material-symbols-outlined text-[20px]'>
                 calendar_month
               </span>
               <span>October 2023</span>
-            </button>
-            <button className='flex items-center justify-center rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold gap-2 shadow-md shadow-primary/20 hover:bg-primary/90'>
+            </Button>
+            <Button variant='primary' size='md' className='flex items-center justify-center rounded-lg font-bold gap-2 shadow-md shadow-primary/20'>
               <span className='material-symbols-outlined text-[20px]'>
                 download
               </span>
               <span>Export CSV</span>
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -158,12 +159,13 @@ const DeliveriesHistory = () => {
         <div className='bg-white rounded-t-xl border-x border-t border-[#dce0e5] mt-2'>
           <div className='flex border-b border-[#dce0e5] px-6 gap-8 overflow-x-auto'>
             {deliveryFilters.map((deliveryFilter) => (
-              <button
+              <Button
                 key={deliveryFilter}
                 onClick={() => {
                   setTab(deliveryFilter as deliveryFilter);
                   setPage(1);
                 }}
+                variant='ghost-list'
                 className={`flex items-center justify-center border-b-2 pb-3 pt-4 px-1 ${
                   tab === deliveryFilter
                     ? 'border-primary text-primary'
@@ -175,7 +177,7 @@ const DeliveriesHistory = () => {
                     ? deliveryFilter
                     : `${deliveryFilter} (${totalDeliveries[deliveryFilter as 'Confirmed' | 'Pending']})`}
                 </p>
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -255,11 +257,11 @@ const DeliveriesHistory = () => {
                         )}
                       </td>
                       <td className='px-6 py-4 text-right'>
-                        <button className='text-[#637588] hover:text-primary'>
+                        <Button variant='link-muted'>
                           <span className='material-symbols-outlined'>
                             more_vert
                           </span>
-                        </button>
+                        </Button>
                       </td>
                     </tr>
                     {/* ACCORDION */}

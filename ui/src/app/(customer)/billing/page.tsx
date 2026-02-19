@@ -5,6 +5,7 @@ import { useState } from 'react';
 import pieChart from '../../../assets/images/pie-chart.png';
 import { billingHistory, dailyDeliveriesHistory } from '../../../constants';
 import Pagination from '../../../components/pagination';
+import Button from '../../../components/ui/button';
 
 const ITEMS_PER_PAGE = 3;
 
@@ -76,10 +77,16 @@ const MonthlyBiling = () => {
                     </p>
                   </div>
                   <div className='flex gap-3'>
-                    <button className='flex-1 md:flex-none min-w-30 bg-primary text-white font-bold py-2.5 px-6 rounded-lg hover:bg-primary/90 transition shadow-lg shadow-primary/20'>
+                    <Button
+                      variant='primary'
+                      className='flex-1 md:flex-none min-w-30 font-bold py-2.5 px-6 rounded-lg transition shadow-lg shadow-primary/20'
+                    >
                       Pay Now
-                    </button>
-                    <button className='flex items-center justify-center gap-2 border border-[#f0f2f4]  text-[#111418] font-semibold py-2.5 px-6 rounded-lg hover:bg-gray-50  transition'>
+                    </Button>
+                    <Button
+                      variant='outline-neutral'
+                      className='flex items-center justify-center gap-2 font-semibold py-2.5 px-6 rounded-lg transition'
+                    >
                       <span
                         className='material-symbols-outlined text-lg'
                         data-icon='download'
@@ -87,7 +94,7 @@ const MonthlyBiling = () => {
                         download
                       </span>
                       Invoice
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -181,7 +188,10 @@ const MonthlyBiling = () => {
                 Billing History
               </h2>
               <div className='flex items-center gap-2'>
-                <button className='flex items-center gap-1 text-sm text-[#637588] bg-slate-100 border border-solid border-[#f0f2f4] px-3 py-1.5 rounded-lg hover:bg-white '>
+                <Button
+                  variant='secondary-muted'
+                  className='flex items-center gap-1 text-sm px-3 py-1.5 rounded-lg'
+                >
                   <span
                     className='material-symbols-outlined text-lg'
                     data-icon='filter_list'
@@ -189,7 +199,7 @@ const MonthlyBiling = () => {
                     filter_list
                   </span>
                   2023
-                </button>
+                </Button>
               </div>
             </div>
             <div className='bg-white  border border-[#f0f2f4]  rounded-xl shadow-sm overflow-hidden'>
@@ -251,17 +261,19 @@ const MonthlyBiling = () => {
 
                         <td className='px-6 py-5 text-right'>
                           <div className='flex justify-end gap-2'>
-                            <button
+                            <Button
                               onClick={() => setOpenPanel(true)}
-                              className='text-primary p-2 rounded-lg hover:bg-primary/5 transition cursor-pointer'
+                              variant='ghost-primary'
+                              className='p-2 rounded-lg transition cursor-pointer text-primary'
                             >
                               <span className='material-symbols-outlined'>
                                 visibility
                               </span>
-                            </button>
+                            </Button>
 
-                            <button
-                              className='text-[#637588]  hover:bg-gray-100  p-2 rounded-lg transition'
+                            <Button
+                              variant='ghost-muted'
+                              className='p-2 rounded-lg transition'
                               title='Download'
                             >
                               <span
@@ -270,7 +282,7 @@ const MonthlyBiling = () => {
                               >
                                 download
                               </span>
-                            </button>
+                            </Button>
                           </div>
                         </td>
                       </tr>
@@ -300,12 +312,13 @@ const MonthlyBiling = () => {
                       </p>
                     </div>
 
-                    <button
+                    <Button
                       onClick={() => setOpenPanel(false)}
-                      className='p-2 hover:bg-gray-100 rounded-full'
+                      variant='ghost-muted'
+                      className='p-2 rounded-full'
                     >
                       <span className='material-symbols-outlined'>close</span>
-                    </button>
+                    </Button>
                   </div>
 
                   {/* DAILY DELIVERIES (scrollable only this) */}
@@ -344,14 +357,15 @@ const MonthlyBiling = () => {
                     ))}
 
                     <div className='text-center py-4'>
-                      <button
+                      <Button
                         onClick={() => setShowAllDays((prev) => !prev)}
-                        className='text-primary text-sm font-semibold hover:underline'
+                        variant='link'
+                        className='text-sm font-semibold'
                       >
                         {!showAllDays
                           ? `View remaining ${dailyDeliveriesHistory.length - 3} days`
                           : 'View less'}
-                      </button>
+                      </Button>
                     </div>
                   </div>
 

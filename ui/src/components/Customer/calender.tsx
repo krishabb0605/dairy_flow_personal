@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Modal from '../modal';
 import { type DeliveryCalendarProps } from '../../types';
+import Button from '../../components/ui/button';
 
 const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -130,28 +131,30 @@ export default function DeliveryCalendar({
         </div>
 
         <div className='flex items-center gap-2 bg-slate-100 p-1 rounded-xl'>
-          <button
+          <Button
             onClick={() => changeMonth(-1)}
-            className='p-2 hover:bg-white rounded-lg'
+            variant='ghost-list'
+            className='p-2 rounded-lg'
           >
             <span className='material-symbols-outlined'>chevron_left</span>
-          </button>
+          </Button>
 
           <span className='px-3 font-bold text-sm'>
             {currentDate.toLocaleString('default', { month: 'long' })} {year}
           </span>
 
-          <button
+          <Button
             disabled={!canGoNextMonth}
             onClick={() => changeMonth(1)}
+            variant='ghost-list'
             className={`p-2 rounded-lg ${
               canGoNextMonth
-                ? 'hover:bg-white'
+                ? ''
                 : 'opacity-40 cursor-not-allowed pointer-events-none'
             }`}
           >
             <span className='material-symbols-outlined'>chevron_right</span>
-          </button>
+          </Button>
         </div>
       </div>
 

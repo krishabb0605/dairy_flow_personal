@@ -6,17 +6,13 @@ import React, { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../context/user-context';
 import Loader from '../../components/loader';
 import { FALLBACK_OWNER_PROFILE_IMAGE } from '../../constants';
+import Button from '../../components/ui/button';
 
 const ownerMenu = [
   {
     label: 'Dashboard',
     href: '/owner/dashboard',
     icon: 'dashboard',
-  },
-  {
-    label: 'Customer Setup',
-    href: '/owner/customer-setup',
-    icon: 'person_add',
   },
   {
     label: 'Customers',
@@ -90,7 +86,13 @@ const OwnerLayout = ({ children }: { children: React.ReactNode }) => {
       {/* Mobile Header */}
       <div className='md:hidden fixed top-0 left-0 right-0 bg-gray-800 text-white p-4 flex justify-between z-20'>
         <span className='font-semibold'>My App</span>
-        <button onClick={() => setOpen(!open)}>☰</button>
+        <Button
+          onClick={() => setOpen(!open)}
+          variant='ghost'
+          className='text-white'
+        >
+          ☰
+        </Button>
       </div>
 
       {/* Sidebar */}
@@ -152,13 +154,14 @@ const OwnerLayout = ({ children }: { children: React.ReactNode }) => {
               </div>
             </div>
 
-            <button
-              className='w-full h-10 py-2 bg-primary text-white font-bold rounded-lg text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2 text-[16px]'
+            <Button
+              variant='primary'
+              className='w-full h-10 py-2 font-bold rounded-lg text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2 text-[16px]'
               onClick={handleLogout}
             >
               <div>Sign out</div>
               <span className='material-symbols-outlined'>logout</span>
-            </button>
+            </Button>
           </div>
         </div>
         {/* </aside> */}

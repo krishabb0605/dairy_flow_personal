@@ -6,6 +6,7 @@ import { ownerCustomers } from '../../../constants';
 import { useMemo, useState } from 'react';
 import { pdf } from '@react-pdf/renderer';
 import type { OwnerGenerateBillDailyRecord } from '../../../types';
+import Button from '../../../components/ui/button';
 
 const MONTH_OPTIONS = [
   'January',
@@ -224,12 +225,13 @@ const GenerateBillPage = () => {
             />
           </div>
           <div className='flex items-end'>
-            <button
+            <Button
               onClick={onFind}
-              className='h-10 w-full bg-primary text-white rounded-lg font-bold text-sm hover:opacity-90 transition-opacity'
+              variant='primary'
+              className='h-10 w-full rounded-lg font-bold text-sm hover:opacity-90 transition-opacity'
             >
               Find
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -460,12 +462,13 @@ const GenerateBillPage = () => {
         </div>
 
         <div className='flex justify-end gap-3'>
-          <button
+          <Button
             onClick={onPreviewPdf}
-            className='h-10 px-5 rounded-lg border border-slate-300 text-slate-700 font-semibold hover:bg-slate-50'
+            variant='outline-muted'
+            className='h-10 px-5 rounded-lg font-semibold'
           >
             Preview / Print
-          </button>
+          </Button>
         </div>
       </div>
     </ContentLayout>

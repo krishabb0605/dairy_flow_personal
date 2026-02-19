@@ -1,4 +1,5 @@
 import { PaginationProps } from '../types';
+import Button from '../components/ui/button';
 
 const Pagination = ({ page, totalPages, setPage }: PaginationProps) => {
   return (
@@ -8,21 +9,23 @@ const Pagination = ({ page, totalPages, setPage }: PaginationProps) => {
       </p>
 
       <div className='flex gap-3'>
-        <button
+        <Button
           onClick={() => setPage((p) => Math.max(p - 1, 1))}
           disabled={page === 1}
-          className='w-10 h-10 flex items-center justify-center rounded border border-[#f0f2f4] text-[#637588] bg-primary/7 hover:bg-primary/10  disabled:opacity-50'
+          variant='secondary-muted'
+          className='w-10 h-10 flex items-center justify-center rounded disabled:opacity-50'
         >
           <span className='material-symbols-outlined'>chevron_left</span>
-        </button>
+        </Button>
 
-        <button
+        <Button
           onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
           disabled={page === totalPages}
-          className='w-10 h-10 flex items-center justify-center rounded border border-[#f0f2f4] text-[#637588] bg-primary/7 hover:bg-primary/10  disabled:opacity-50'
+          variant='secondary-muted'
+          className='w-10 h-10 flex items-center justify-center rounded disabled:opacity-50'
         >
           <span className='material-symbols-outlined'>chevron_right</span>
-        </button>
+        </Button>
       </div>
     </div>
   );

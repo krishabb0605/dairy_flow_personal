@@ -4,6 +4,7 @@ import { OnboardingLayoutProps } from './../../../types';
 import { useContext } from 'react';
 import { UserContext } from '../../../app/context/user-context';
 import { useRouter } from 'next/navigation';
+import Button from '../../../components/ui/button';
 
 const OnboardingLayout = ({
   currentStep,
@@ -44,17 +45,19 @@ const OnboardingLayout = ({
               className={`pt-2 grid gap-4 ${currentStep === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}
             >
               {currentStep !== 1 && (
-                <button
-                  className='flex items-center justify-center gap-2 rounded-xl h-12 bg-primary text-white text-base font-bold transition-all hover:bg-primary/90 hover:shadow-lg active:scale-[0.98] px-8 cursor-pointer'
+                <Button
+                  variant='primary'
+                  className='flex items-center justify-center gap-2 rounded-xl h-12 text-base font-bold transition-all hover:shadow-lg active:scale-[0.98] px-8 cursor-pointer'
                   onClick={() => setCurrentStep((prev) => prev - 1)}
                 >
                   <span className='material-symbols-outlined'>arrow_back</span>
                   <span>Back</span>
-                </button>
+                </Button>
               )}
 
-              <button
-                className='flex items-center justify-center gap-2 rounded-xl h-12 bg-primary text-white text-base font-bold transition-all hover:bg-primary/90 hover:shadow-lg active:scale-[0.98] cursor-pointer'
+              <Button
+                variant='primary'
+                className='flex items-center justify-center gap-2 rounded-xl h-12 text-base font-bold transition-all hover:shadow-lg active:scale-[0.98] cursor-pointer'
                 onClick={handleSubmit}
               >
                 {submitLoading ? (
@@ -67,21 +70,22 @@ const OnboardingLayout = ({
                     </span>
                   </>
                 )}
-              </button>
+              </Button>
             </div>
 
             {/* <!-- Login Redirect --> */}
             <p className='text-center text-blue-placeholder text-sm mt-4'>
               Already have an account?{' '}
-              <button
-                className='text-primary font-bold hover:underline'
+              <Button
+                variant='link'
+                className='font-bold'
                 onClick={() => {
                   handleLogout();
                   router.replace('/login');
                 }}
               >
                 Log in
-              </button>
+              </Button>
             </p>
           </div>
         </div>

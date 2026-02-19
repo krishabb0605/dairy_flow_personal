@@ -5,6 +5,7 @@ import { DeliveryStatus, Slot } from '../../../types';
 import { ownerDashboardDeliveriesData } from '../../../constants';
 import DashboardCustomer from '../../../components/admin/dashboard-customer';
 import Pagination from '../../../components/pagination';
+import Button from '../../../components/ui/button';
 
 const Dashboard = () => {
   const [selectedSlot, setSelectedSlot] = useState<Slot>('morning');
@@ -64,10 +65,13 @@ const Dashboard = () => {
                 type='text'
               />
             </div>
-            <button className='bg-white p-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 relative h-10 w-10'>
+            <Button
+              variant='outline-muted'
+              className='p-2 rounded-lg relative h-10 w-10'
+            >
               <span className='material-symbols-outlined'>notifications</span>
               <span className='absolute top-1 right-1 size-2 bg-red-500 rounded-full border-2 border-white'></span>
-            </button>
+            </Button>
           </div>
         </header>
         {/* <!-- Summary Cards --> */}
@@ -127,9 +131,9 @@ const Dashboard = () => {
         <div className='flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 bg-white pr-2'>
           <div className='flex border-b border-slate-200 w-full md:w-auto flex-1'>
             {(['morning', 'evening'] as Slot[]).map((shift, index) => (
-              <button
+              <Button
                 key={index}
-                // className='flex-1 px-6 py-1.5 text-sm font-bold bg-white text-primary shadow-sm'
+                variant='ghost-list'
                 className={`flex-1 px-6 py-2.5 text-sm font-semibold border-b-2 capitalize
                 ${
                   selectedSlot === shift
@@ -143,7 +147,7 @@ const Dashboard = () => {
                 }}
               >
                 {shift} Slot
-              </button>
+              </Button>
             ))}
           </div>
           <div className='flex items-center justify-center gap-3'>
@@ -157,7 +161,7 @@ const Dashboard = () => {
               <option value='skipped'>Mark Skipped</option>
             </select>
 
-            <button
+            <Button
               disabled={!(selectedIds.length && bulkAction)}
               onClick={() => {
                 if (!bulkAction) return;
@@ -173,10 +177,11 @@ const Dashboard = () => {
                 setSelectedIds([]);
                 setBulkAction('');
               }}
-              className='bg-primary text-white px-4 py-2 rounded-lg text-sm disabled:opacity-40'
+              variant='primary'
+              className='px-4 py-2 rounded-lg text-sm disabled:opacity-40'
             >
               Apply
-            </button>
+            </Button>
           </div>
         </div>
         <div className='space-y-8'>

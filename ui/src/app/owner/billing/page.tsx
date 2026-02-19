@@ -4,6 +4,7 @@ import ContentLayout from '../../../components/layout';
 import Pagination from '../../../components/pagination';
 import { useMemo, useState } from 'react';
 import type { OwnerBillingRecord, OwnerBillingStatus } from '../../../types';
+import Button from '../../../components/ui/button';
 
 const OWNER_BILLING_DATA: OwnerBillingRecord[] = [
   {
@@ -130,7 +131,10 @@ const OwnerBillingPage = () => {
     (sum, row) => (row.status === 'paid' ? sum + row.amount : sum),
     0,
   );
-  const totalLitersDelivered = filteredRows.reduce((sum, row) => sum + row.qty, 0);
+  const totalLitersDelivered = filteredRows.reduce(
+    (sum, row) => sum + row.qty,
+    0,
+  );
 
   return (
     <ContentLayout title='Billing Management'>
@@ -230,8 +234,9 @@ const OwnerBillingPage = () => {
             </div>
 
             <div className='flex items-end'>
-              <button
-                className='h-10 w-full px-4 bg-primary/20 text-slate-700 font-bold rounded-lg hover:bg-primary/30 transition-colors'
+              <Button
+                variant='soft'
+                className='h-10 w-full px-4 font-bold rounded-lg transition-colors'
                 onClick={() => {
                   setSearch('');
                   setStatus('all');
@@ -240,7 +245,7 @@ const OwnerBillingPage = () => {
                 }}
               >
                 Reset
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -308,8 +313,9 @@ const OwnerBillingPage = () => {
                     </td>
                     <td className='px-6 py-4 text-center'>
                       {row.status === 'pending' ? (
-                        <button
-                          className='px-3 py-1 bg-green-100 text-green-700 hover:bg-primary hover:text-white text-xs font-bold rounded transition-all'
+                        <Button
+                          variant='success-soft'
+                          className='px-3 py-1 text-xs font-bold rounded transition-all'
                           onClick={() =>
                             setRows((prev) =>
                               prev.map((item) =>
@@ -321,7 +327,7 @@ const OwnerBillingPage = () => {
                           }
                         >
                           Mark as Paid
-                        </button>
+                        </Button>
                       ) : (
                         <span className='text-xs text-slate-400'>-</span>
                       )}

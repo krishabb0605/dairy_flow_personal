@@ -9,6 +9,7 @@ import DeActivateOwnerModal from '../../../components/modal/customer/deactivate-
 import { getUpcomingCustomerActivity } from '../../../lib/customerOwner';
 import type { UpcomingCustomerActivity } from '../../../types';
 import Loader from '../../../components/loader';
+import Button from '../../../components/ui/button';
 
 const Dashboard = () => {
   const { user } = useContext(UserContext);
@@ -121,8 +122,9 @@ const Dashboard = () => {
               Quick Actions
             </h3>
             <div className='space-y-3'>
-              <button
-                className='w-full flex items-center justify-between p-3 rounded-xl hover:bg-primary/10 hover:text-primary transition-all group'
+              <Button
+                variant='ghost-primary'
+                className='w-full flex items-center justify-between p-3 rounded-xl transition-all group'
                 onClick={() => setOpenExtraMilkModal(true)}
               >
                 <div className='flex items-center gap-3'>
@@ -136,10 +138,11 @@ const Dashboard = () => {
                 <span className='material-symbols-outlined text-sm opacity-0 group-hover:opacity-100'>
                   chevron_right
                 </span>
-              </button>
+              </Button>
 
-              <button
-                className='w-full flex items-center justify-between p-3 rounded-xl hover:bg-primary/10 hover:text-primary transition-all group'
+              <Button
+                variant='ghost-primary'
+                className='w-full flex items-center justify-between p-3 rounded-xl transition-all group'
                 onClick={() => setOpenScheduleVacation(true)}
               >
                 <div className='flex items-center gap-3'>
@@ -153,7 +156,7 @@ const Dashboard = () => {
                 <span className='material-symbols-outlined text-sm opacity-0 group-hover:opacity-100'>
                   chevron_right
                 </span>
-              </button>
+              </Button>
             </div>
           </div>
           <div className='bg-white p-6 rounded-2xl border border-slate-200 shadow-sm'>
@@ -176,15 +179,19 @@ const Dashboard = () => {
                     </p>
                   </div>
                 </div>
-                <button className='p-2 bg-primary/10 text-primary rounded-full hover:bg-primary/20 transition-colors h-10 w-10'>
+                <Button
+                  variant='soft-primary'
+                  className='p-2 rounded-full transition-colors h-10 w-10'
+                >
                   <span className='material-symbols-outlined text-xl'>
                     call
                   </span>
-                </button>
+                </Button>
               </div>
 
-              <button
-                className='w-full mt-4 py-2 px-4 border border-red-500 text-red-500 hover:bg-red-50 text-xs font-bold rounded-lg transition-colors flex items-center justify-center gap-2'
+              <Button
+                variant='danger-outline'
+                className='w-full mt-4 py-2 px-4 text-xs font-bold rounded-lg transition-colors flex items-center justify-center gap-2'
                 onClick={() =>
                   setCustomerOwnerId(user?.currentActiveOwner?.id || null)
                 }
@@ -193,7 +200,7 @@ const Dashboard = () => {
                   person_remove
                 </span>
                 Deactivate Owner
-              </button>
+              </Button>
             </div>
           </div>
           <div className='bg-white p-6 rounded-2xl border border-slate-200 shadow-sm'>

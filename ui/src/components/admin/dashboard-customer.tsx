@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Button from '../../components/ui/button';
 
 const DashboardCustomer = ({
   slotDeliverie,
@@ -81,49 +82,53 @@ const DashboardCustomer = ({
             {!isEditing ? (
               <>
                 {/* Edit */}
-                <button
+                <Button
                   onClick={() => setIsEditing(true)}
-                  className='h-8 w-8 p-1.5 text-slate-400 hover:text-primary'
+                  variant='link-subtle'
+                  className='h-8 w-8 p-1.5'
                 >
                   <span className='material-symbols-outlined text-[20px]'>
                     edit
                   </span>
-                </button>
+                </Button>
 
-                <button
+                <Button
                   onClick={() =>
                     updateSingleStatus(slotDeliverie.id, 'delivered')
                   }
-                  className='bg-primary text-white text-xs px-3 py-1.5 rounded-lg'
+                  variant='primary'
+                  className='text-xs px-3 py-1.5 rounded-lg'
                 >
                   Mark Delivered
-                </button>
+                </Button>
 
-                <button
+                <Button
                   onClick={() =>
                     updateSingleStatus(slotDeliverie.id, 'skipped')
                   }
-                  className='bg-red-500 text-white text-xs px-3 py-1.5 rounded-lg'
+                  variant='danger'
+                  className='text-xs px-3 py-1.5 rounded-lg'
                 >
                   Skip
-                </button>
+                </Button>
               </>
             ) : (
               <>
                 {/* Cancel */}
-                <button
+                <Button
                   onClick={() => {
                     setCowQty(slotDeliverie.cowQty);
                     setBuffaloQty(slotDeliverie.buffaloQty);
                     setIsEditing(false);
                   }}
+                  variant='link-muted'
                   className='text-xs'
                 >
                   Cancel
-                </button>
+                </Button>
 
                 {/* Save */}
-                <button
+                <Button
                   onClick={() => {
                     setDeliveries((prev: any[]) =>
                       prev.map((d) =>
@@ -135,10 +140,11 @@ const DashboardCustomer = ({
 
                     setIsEditing(false);
                   }}
-                  className='bg-primary text-white text-xs px-3 py-1.5 rounded-lg'
+                  variant='primary'
+                  className='text-xs px-3 py-1.5 rounded-lg'
                 >
                   Save
-                </button>
+                </Button>
               </>
             )}
           </div>

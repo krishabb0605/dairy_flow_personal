@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import type { OwnerCustomerTab } from '../../../../types';
+import Button from '../../../../components/ui/button';
 
 const OwnerCustomerProfilePage = () => {
   const params = useParams<{ id: string }>();
@@ -80,54 +81,58 @@ const OwnerCustomerProfilePage = () => {
                 </div>
               </div>
 
-              <button
-                className='flex lg:items-center self-end lg:self-auto gap-2 rounded-xl bg-primary px-5 py-2 text-sm font-bold text-white hover:bg-primary/90 transition-all shadow-md'
+              <Button
+                variant='primary'
+                className='flex lg:items-center self-end lg:self-auto gap-2 rounded-xl px-5 py-2 text-sm font-bold transition-all shadow-md'
                 onClick={() => router.push('/owner/customers')}
               >
                 <span className='material-symbols-outlined text-[18px]'>
                   arrow_back
                 </span>
                 Back to Profile
-              </button>
+              </Button>
             </div>
 
             {/* <!-- Tabs --> */}
           </header>
-            <div className=' mt-8 flex border-b border-slate-100'>
-              <button
-                type='button'
-                onClick={() => setActiveTab('overview')}
-                className={`px-6 py-3 text-sm transition-colors flex-1 ${
-                  activeTab === 'overview'
-                    ? 'font-bold text-slate-900 border-b-2 border-primary'
-                    : 'font-medium text-slate-500 hover:text-slate-800'
-                }`}
-              >
-                Overview
-              </button>
-              <button
-                type='button'
-                onClick={() => setActiveTab('delivery-history')}
-                className={`px-6 py-3 text-sm transition-colors flex-1 ${
-                  activeTab === 'delivery-history'
-                    ? 'font-bold text-slate-900 border-b-2 border-primary'
-                    : 'font-medium text-slate-500 hover:text-slate-800'
-                }`}
-              >
-                Delivery History
-              </button>
-              <button
-                type='button'
-                onClick={() => setActiveTab('billing-history')}
-                className={`px-6 py-3 text-sm transition-colors flex-1 ${
-                  activeTab === 'billing-history'
-                    ? 'font-bold text-slate-900 border-b-2 border-primary'
-                    : 'font-medium text-slate-500 hover:text-slate-800'
-                }`}
-              >
-                Billing History
-              </button>
-            </div>
+          <div className=' mt-8 flex border-b border-slate-100'>
+            <Button
+              type='button'
+              onClick={() => setActiveTab('overview')}
+              variant='ghost-list'
+              className={`px-6 py-3 text-sm transition-colors flex-1 ${
+                activeTab === 'overview'
+                  ? 'font-bold text-slate-900 border-b-2 border-primary'
+                  : 'font-medium text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              Overview
+            </Button>
+            <Button
+              type='button'
+              onClick={() => setActiveTab('delivery-history')}
+              variant='ghost-list'
+              className={`px-6 py-3 text-sm transition-colors flex-1 ${
+                activeTab === 'delivery-history'
+                  ? 'font-bold text-slate-900 border-b-2 border-primary'
+                  : 'font-medium text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              Delivery History
+            </Button>
+            <Button
+              type='button'
+              onClick={() => setActiveTab('billing-history')}
+              variant='ghost-list'
+              className={`px-6 py-3 text-sm transition-colors flex-1 ${
+                activeTab === 'billing-history'
+                  ? 'font-bold text-slate-900 border-b-2 border-primary'
+                  : 'font-medium text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              Billing History
+            </Button>
+          </div>
           {activeTab === 'overview' && <CustomerOverView />}
           {activeTab === 'delivery-history' && <CustomerDeliveryHistory />}
           {activeTab === 'billing-history' && <CustomerBillingHistory />}

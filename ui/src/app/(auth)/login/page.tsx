@@ -8,6 +8,7 @@ import { login } from '../../../lib/users';
 import { useRouter } from 'next/navigation';
 import { UserContext } from '../../../app/context/user-context';
 import Loader from '../../../components/loader';
+import Button from '../../../components/ui/button';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -132,12 +133,13 @@ const LoginPage = () => {
               </div>
             </div>
 
-            <button
+            <Button
               type='submit'
-              className='flex w-full items-center justify-center rounded-xl bg-primary h-14 text-white font-bold cursor-pointer'
+              variant='primary'
+              className='flex w-full items-center justify-center rounded-xl h-14 font-bold cursor-pointer'
             >
               {submitLoading ? <Loader color='white' /> : 'Sign In'}
-            </button>
+            </Button>
           </form>
 
           <p className='mt-10 text-center text-sm text-slate-600'>
