@@ -103,13 +103,14 @@ model CustomerOwner {
 
   isActivated Boolean @default(true)
 
-  customer CustomerSettings @relation(fields: [customerId], references: [id])
-  owner    OwnerSettings    @relation(fields: [ownerId], references: [id])
-  extraMilkOrders ExtraMilkOrder[]
+  customer          CustomerSettings   @relation(fields: [customerId], references: [id])
+  owner             OwnerSettings      @relation(fields: [ownerId], references: [id])
+  extraMilkOrders   ExtraMilkOrder[]
   vacationSchedules VacationSchedule[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  dailyMilks DailyMilk[]
 
   @@index([customerId])
   @@index([ownerId])
@@ -126,17 +127,17 @@ model ExtraMilkOrder {
   customerOwnerId Int
   customerOwner   CustomerOwner @relation(fields: [customerOwnerId], references: [id])
 
-  deliveryDate DateTime @db.Date
+  deliveryDate DateTime      @db.Date
   slot         ExtraMilkSlot
-  cowQty       Decimal @default(0) @db.Decimal(10, 2)
-  buffaloQty   Decimal @default(0) @db.Decimal(10, 2)
+  cowQty       Decimal       @default(0) @db.Decimal(10, 2)
+  buffaloQty   Decimal       @default(0) @db.Decimal(10, 2)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([customerOwnerId, deliveryDate, slot])
   @@index([customerOwnerId])
   @@index([deliveryDate])
-  @@unique([customerOwnerId, deliveryDate, slot])
 }
 
 model VacationSchedule {
@@ -145,10 +146,10 @@ model VacationSchedule {
   customerOwnerId Int
   customerOwner   CustomerOwner @relation(fields: [customerOwnerId], references: [id])
 
-  startDate DateTime @db.Date
+  startDate DateTime      @db.Date
   startSlot ExtraMilkSlot
 
-  endDate DateTime @db.Date
+  endDate DateTime      @db.Date
   endSlot ExtraMilkSlot
 
   createdAt DateTime @default(now())
@@ -156,4 +157,37 @@ model VacationSchedule {
 
   @@index([customerOwnerId])
   @@index([startDate])
+}
+
+enum DailyMilkSource {
+  CRON
+  MANUAL
+}
+
+model DailyMilk {
+  id Int @id @default(autoincrement())
+
+  customerOwnerId Int
+  customerOwner   CustomerOwner @relation(fields: [customerOwnerId], references: [id])
+
+  deliveryDate DateTime      @db.Date
+  slot         ExtraMilkSlot
+
+  cowQty     Decimal @default(0) @db.Decimal(10, 2)
+  buffaloQty Decimal @default(0) @db.Decimal(10, 2)
+
+  cowPrice     Decimal @db.Decimal(10, 2)
+  buffaloPrice Decimal @db.Decimal(10, 2)
+
+  totalAmount Decimal @db.Decimal(10, 2)
+
+  source DailyMilkSource @default(CRON)
+  notes  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([customerOwnerId, deliveryDate, slot])
+  @@index([customerOwnerId])
+  @@index([deliveryDate])
 }
