@@ -136,7 +136,7 @@ const Deliveries = () => {
                         setCustomerSearch(e.target.value);
                         setPage(1);
                       }}
-                      className='w-full h-10 pl-10 pr-4 bg-background-light border-slate-200 font-medium rounded-lg text-sm focus:ring-primary focus:border-primary focus-visible:outline-primary/50'
+                      className='w-full h-10 pl-10 pr-4 bg-slate-50 border-slate-200 font-medium rounded-lg text-sm focus:ring-primary focus:border-primary focus-visible:outline-primary/50'
                     />
                   </div>
                 </div>
@@ -158,7 +158,7 @@ const Deliveries = () => {
                           setStartDate(e.target.value);
                           setPage(1);
                         }}
-                        className='w-full h-10 bg-background-light border-slate-200 rounded-lg text-sm font-medium pl-10 pr-2 focus:ring-primary focus:border-primary focus-visible:outline-primary/50'
+                        className='w-full h-10 bg-slate-50 border-slate-200 rounded-lg text-sm font-medium pl-10 pr-2 focus:ring-primary focus:border-primary focus-visible:outline-primary/50'
                         aria-label='Start date'
                       />
                     </div>
@@ -174,7 +174,7 @@ const Deliveries = () => {
                           setEndDate(e.target.value);
                           setPage(1);
                         }}
-                        className='w-full h-10 bg-background-light border-slate-200 rounded-lg text-sm font-medium pl-10 pr-2 focus:ring-primary focus:border-primary focus-visible:outline-primary/50'
+                        className='w-full h-10 bg-slate-50 border-slate-200 rounded-lg text-sm font-medium pl-10 pr-2 focus:ring-primary focus:border-primary focus-visible:outline-primary/50'
                         aria-label='End date'
                       />
                     </div>
@@ -192,7 +192,7 @@ const Deliveries = () => {
                         setShift(e.target.value);
                         setPage(1);
                       }}
-                      className='w-full bg-background-light border-none rounded-lg text-sm font-medium py-2.5 pl-10 pr-4 appearance-none focus:ring-2 focus:ring-primary/20 focus-visible:outline-primary/50'
+                      className='w-full bg-slate-50 border-none rounded-lg text-sm font-medium py-2.5 pl-10 pr-4 appearance-none focus:ring-2 focus:ring-primary/20 focus-visible:outline-primary/50'
                     >
                       <option value='all'>All Shifts</option>
                       <option value='morning'>Morning</option>
@@ -216,7 +216,7 @@ const Deliveries = () => {
                         setStatus(e.target.value);
                         setPage(1);
                       }}
-                      className='w-full bg-background-light border-none rounded-lg text-sm font-medium py-2.5 pl-10 pr-4 appearance-none focus:ring-2 focus:ring-primary/20 focus-visible:outline-primary/50'
+                      className='w-full bg-slate-50 border-none rounded-lg text-sm font-medium py-2.5 pl-10 pr-4 appearance-none focus:ring-2 focus:ring-primary/20 focus-visible:outline-primary/50'
                     >
                       <option value='all'>All Status</option>
                       <option value='delivered'>Delivered</option>

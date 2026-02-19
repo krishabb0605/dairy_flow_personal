@@ -2,7 +2,7 @@ import { PaginationProps } from '../types';
 
 const Pagination = ({ page, totalPages, setPage }: PaginationProps) => {
   return (
-    <div className='px-6 py-4 bg-background-light/50 border-t border-[#f0f2f4] flex justify-between items-center'>
+    <div className='px-6 py-4 bg-slate-50 border-t border-[#f0f2f4] flex justify-between items-center'>
       <p className='text-sm text-[#637588]'>
         Page {page} of {totalPages}
       </p>

@@ -71,7 +71,7 @@ const CustomerOverView = () => {
                 </p>
               </div>
               <div className='space-y-3'>
-                <div className='flex justify-between items-center p-3 bg-background-light  rounded-lg'>
+                <div className='flex justify-between items-center p-3 bg-slate-50  rounded-lg'>
                   <div className='flex items-center gap-2'>
                     <span className='material-symbols-outlined text-primary'>
                       water_drop
@@ -80,7 +80,7 @@ const CustomerOverView = () => {
                   </div>
                   <span className='text-lg font-bold text-primary'>2.0 L</span>
                 </div>
-                <div className='flex justify-between items-center p-3 bg-background-light  rounded-lg'>
+                <div className='flex justify-between items-center p-3 bg-slate-50  rounded-lg'>
                   <div className='flex items-center gap-2 text-slate-400'>
                     <span className='material-symbols-outlined'>
                       water_drop
@@ -109,7 +109,7 @@ const CustomerOverView = () => {
                 </p>
               </div>
               <div className='space-y-3'>
-                <div className='flex justify-between items-center p-3 bg-background-light  rounded-lg'>
+                <div className='flex justify-between items-center p-3 bg-slate-50  rounded-lg'>
                   <div className='flex items-center gap-2'>
                     <span className='material-symbols-outlined text-primary'>
                       water_drop
@@ -118,7 +118,7 @@ const CustomerOverView = () => {
                   </div>
                   <span className='text-lg font-bold text-primary'>1.0 L</span>
                 </div>
-                <div className='flex justify-between items-center p-3 bg-background-light  rounded-lg'>
+                <div className='flex justify-between items-center p-3 bg-slate-50  rounded-lg'>
                   <div className='flex items-center gap-2'>
                     <span className='material-symbols-outlined text-primary'>
                       water_drop

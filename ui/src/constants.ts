@@ -280,57 +280,6 @@ export const billingHistory = [
   },
 ];
 
-export const invitedCustomers = [
-  {
-    mobile: '+91 99887 76655',
-    id: '120-449',
-    created: '2 mins ago',
-    status: 'Pending',
-  },
-  {
-    mobile: '+91 91234 56789',
-    id: '902-113',
-    created: '15 mins ago',
-    status: 'Pending',
-  },
-  {
-    mobile: '+91 88776 65544',
-    id: '445-098',
-    created: '1 hour ago',
-    status: 'Pending',
-  },
-  {
-    mobile: '+91 90123 45678',
-    id: '221-334',
-    created: '2 hours ago',
-    status: 'Completed',
-  },
-  {
-    mobile: '+91 90909 11122',
-    id: '667-890',
-    created: 'Yesterday',
-    status: 'Pending',
-  },
-  {
-    mobile: '+91 88877 66554',
-    id: '332-100',
-    created: 'Yesterday',
-    status: 'Completed',
-  },
-  {
-    mobile: '+91 77766 55443',
-    id: '778-221',
-    created: '2 days ago',
-    status: 'Pending',
-  },
-  {
-    mobile: '+91 66655 44332',
-    id: '991-220',
-    created: '3 days ago',
-    status: 'Completed',
-  },
-];
-
 export const ownerDeliveries = [
   {
     id: 1,

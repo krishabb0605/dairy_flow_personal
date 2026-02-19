@@ -196,7 +196,7 @@ const MonthlyBiling = () => {
               <div className='overflow-x-auto'>
                 <table className='w-full text-left border-collapse'>
                   <thead>
-                    <tr className='bg-background-light/50 text-[#637588]  text-xs font-semibold uppercase tracking-wider'>
+                    <tr className='bg-slate-50 text-[#637588]  text-xs font-semibold uppercase tracking-wider'>
                       <th className='px-6 py-4'>Billing Month</th>
                       <th className='px-6 py-4'>Total Qty</th>
                       <th className='px-6 py-4'>Amount</th>
@@ -356,7 +356,7 @@ const MonthlyBiling = () => {
                   </div>
 
                   {/* SUMMARY (fixed bottom) */}
-                  <div className='p-6 border-t border-[#f0f2f4] bg-background-light space-y-3'>
+                  <div className='p-6 border-t border-[#f0f2f4] bg-slate-50 space-y-3'>
                     <h3 className='text-xs font-bold uppercase tracking-wider text-[#637588]'>
                       Statement Summary
                     </h3>

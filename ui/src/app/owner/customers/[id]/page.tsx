@@ -44,7 +44,7 @@ const OwnerCustomerProfilePage = () => {
       <div className='space-y-4'>
         <main className='flex-1 flex flex-col overflow-y-auto'>
           {/* <!-- Header Profile Section --> */}
-          <header className='bg-white border-b border-slate-200 pb-8'>
+          <header className='bg-white border-b border-slate-200 p-4'>
             <div className='flex justify-between items-start lg:items-center flex-col-reverse lg:flex-row'>
               <div className='flex flex-col @[520px]:flex-row justify-between items-start @[520px]:items-center gap-6'>
                 <div className='flex items-center gap-6'>
@@ -92,6 +92,7 @@ const OwnerCustomerProfilePage = () => {
             </div>
 
             {/* <!-- Tabs --> */}
+          </header>
             <div className=' mt-8 flex border-b border-slate-100'>
               <button
                 type='button'
@@ -127,7 +128,6 @@ const OwnerCustomerProfilePage = () => {
                 Billing History
               </button>
             </div>
-          </header>
           {activeTab === 'overview' && <CustomerOverView />}
           {activeTab === 'delivery-history' && <CustomerDeliveryHistory />}
           {activeTab === 'billing-history' && <CustomerBillingHistory />}

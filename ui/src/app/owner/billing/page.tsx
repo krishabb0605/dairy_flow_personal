@@ -185,7 +185,7 @@ const OwnerBillingPage = () => {
                     setPage(1);
                   }}
                   placeholder='Search customer, mobile or invoice id...'
-                  className='w-full h-10 pl-10 pr-4 bg-background-light border-slate-200 font-medium rounded-lg text-sm focus:ring-primary focus:border-primary focus-visible:outline-primary/50'
+                  className='w-full h-10 pl-10 pr-4 bg-slate-50 border-slate-200 font-medium rounded-lg text-sm focus:ring-primary focus:border-primary focus-visible:outline-primary/50'
                 />
               </div>
             </div>
@@ -200,7 +200,7 @@ const OwnerBillingPage = () => {
                   setStatus(e.target.value as 'all' | OwnerBillingStatus);
                   setPage(1);
                 }}
-                className='w-full h-10 bg-background-light border-slate-200 rounded-lg text-sm font-medium px-3 focus:ring-primary focus:border-primary focus-visible:outline-primary/50'
+                className='w-full h-10 bg-slate-50 border-slate-200 rounded-lg text-sm font-medium px-3 focus:ring-primary focus:border-primary focus-visible:outline-primary/50'
               >
                 <option value='all'>All Status</option>
                 <option value='paid'>Paid</option>
@@ -218,7 +218,7 @@ const OwnerBillingPage = () => {
                   setYear(e.target.value);
                   setPage(1);
                 }}
-                className='w-full h-10 bg-background-light border-slate-200 rounded-lg text-sm font-medium px-3 focus:ring-primary focus:border-primary focus-visible:outline-primary/50'
+                className='w-full h-10 bg-slate-50 border-slate-200 rounded-lg text-sm font-medium px-3 focus:ring-primary focus:border-primary focus-visible:outline-primary/50'
               >
                 <option value='all'>All Years</option>
                 {years.map((item) => (

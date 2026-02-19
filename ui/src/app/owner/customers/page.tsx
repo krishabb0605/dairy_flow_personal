@@ -58,7 +58,7 @@ const OwnerCustomersPage = () => {
   return (
     <ContentLayout title='Quick Customer Add' description='Enter a mobile number to add a new customer instantly.'>
       <div className='flex-1 overflow-y-auto space-y-6'>
-        <div className='rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] border border-[#f0f2f4] p-2'>
+        <div className='rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] border border-[#f0f2f4] p-2 bg-white'>
           <h3 className='text-lg font-bold mb-4 flex items-center gap-2'>
             Recently Added Customers
           </h3>
@@ -69,7 +69,7 @@ const OwnerCustomersPage = () => {
                   +91
                 </span>
                 <input
-                  className='w-full pl-12 pr-4 py-3 rounded-lg border-[#f0f2f4] bg-background-light focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all'
+                  className='w-full pl-12 pr-4 py-3 rounded-lg border-[#f0f2f4] bg-slate-50 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all'
                   placeholder='Mobile Number (e.g. 98765 43210)'
                   type='tel'
                 />
@@ -175,7 +175,7 @@ const OwnerCustomersPage = () => {
           <div className='overflow-x-auto'>
             <table className='w-full text-left border-collapse'>
               <thead>
-                <tr className='border-b border-primary/10 bg-primary/5'>
+                <tr className='border-b border-primary/10 bg-slate-50'>
                   <th className='px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500'>
                     Name
                   </th>
