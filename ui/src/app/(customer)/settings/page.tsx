@@ -99,7 +99,10 @@ const Settings = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
-  const handleChange = (field: keyof CustomerSettingsFormData, value: string) => {
+  const handleChange = (
+    field: keyof CustomerSettingsFormData,
+    value: string,
+  ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => ({ ...prev, [field]: undefined }));
   };
@@ -255,7 +258,7 @@ const Settings = () => {
                 </label>
                 <input
                   className='form-input flex w-full rounded-lg text-slate-500 border border-[#cfdbe7] bg-slate-50 h-12 placeholder:text-blue-placeholder px-4 text-sm font-normal focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none cursor-not-allowed'
-                  type='email'
+                  type='tel'
                   value={'+91 ' + formData.mobileNumber}
                   disabled
                 />
@@ -491,7 +494,7 @@ const Settings = () => {
               disabled={isSaving || isUploadingImage}
               className='px-10 py-3 bg-primary text-white rounded-lg text-sm font-bold shadow-lg shadow-primary/20 hover:brightness-95 transition-all flex items-center justify-center gap-2 flex-1'
             >
-              {(isSaving || isUploadingImage) ? (
+              {isSaving || isUploadingImage ? (
                 <Loader color='white' size={22} />
               ) : (
                 <>

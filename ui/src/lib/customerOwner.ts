@@ -1,5 +1,17 @@
 import { api } from '../lib/api';
-import type { UpcomingCustomerActivity } from '../types';
+import type { CreateCustomerOwnerParams, UpcomingCustomerActivity } from '../types';
+
+export const createCustomerOwner = async (data: CreateCustomerOwnerParams) => {
+  try {
+    return await api('/customer-owner/create', {
+      method: 'POST',
+      body: data,
+    });
+  } catch (error) {
+    console.error('Error while creating customer-owner relation:', error);
+    throw error;
+  }
+};
 
 export const deActivateOwner = async (customerOwnerId: number) => {
   try {

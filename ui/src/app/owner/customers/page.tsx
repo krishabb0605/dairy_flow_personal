@@ -4,8 +4,12 @@ import ContentLayout from '../../../components/layout';
 import Pagination from '../../../components/pagination';
 import { ownerCustomers } from '../../../constants';
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useContext, useMemo, useState } from 'react';
 import type { OwnerCustomer } from '../../../types';
+import { UserContext } from '../../context/user-context';
+import { createCustomerOwner } from '../../../lib/customerOwner';
+import { toast } from 'react-toastify';
+import Loader from '@/components/loader';
 
 const ITEMS_PER_PAGE = 4;
 
@@ -13,7 +17,10 @@ const formatQtyPair = (cowQty: number, buffaloQty: number) =>
   `${cowQty}L / ${buffaloQty}L`;
 
 const OwnerCustomersPage = () => {
+  const { user } = useContext(UserContext);
+  const [mobileNumber, setMobileNumber] = useState('');
   const [page, setPage] = useState(1);
+  const [addCustomerLoading, setAddCustomerLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<
     'all' | OwnerCustomer['status']
@@ -55,8 +62,43 @@ const OwnerCustomersPage = () => {
     0,
   );
 
+  const handleAddCustomer = async () => {
+    const ownerId = user?.ownerSettings?.id;
+
+    if (!ownerId) {
+      toast.error('Owner profile not found.');
+      return;
+    }
+
+    const normalizedMobile = mobileNumber.trim();
+
+    if (!/^\d{10}$/.test(normalizedMobile)) {
+      toast.error('Enter a valid 10 digit mobile number.');
+      return;
+    }
+
+    try {
+      setAddCustomerLoading(true);
+      await createCustomerOwner({
+        ownerId,
+        mobileNumber: normalizedMobile,
+      });
+      toast.success('Customer added successfully.');
+      setMobileNumber('');
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : 'Failed to add customer.';
+      toast.error(message);
+    } finally {
+      setAddCustomerLoading(false);
+    }
+  };
+
   return (
-    <ContentLayout title='Quick Customer Add' description='Enter a mobile number to add a new customer instantly.'>
+    <ContentLayout
+      title='Quick Customer Add'
+      description='Enter a mobile number to add a new customer instantly.'
+    >
       <div className='flex-1 overflow-y-auto space-y-6'>
         <div className='rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] border border-[#f0f2f4] p-2 bg-white'>
           <h3 className='text-lg font-bold mb-4 flex items-center gap-2'>
@@ -71,13 +113,30 @@ const OwnerCustomersPage = () => {
                 <input
                   className='w-full pl-12 pr-4 py-3 rounded-lg border-[#f0f2f4] bg-slate-50 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all'
                   placeholder='Mobile Number (e.g. 98765 43210)'
+                  maxLength={10}
+                  minLength={10}
                   type='tel'
+                  name='mobileNumber'
+                  value={mobileNumber}
+                  onChange={(e) =>
+                    setMobileNumber(e.target.value.replace(/\D/g, ''))
+                  }
+                  required
                 />
               </div>
             </div>
-            <button className='bg-primary hover:bg-primary/90 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 transition-all shadow-lg shadow-primary/20 w-auto px-8'>
-              <span className='material-symbols-outlined'>person_add</span> Add
-              Customer
+            <button
+              className='bg-primary hover:bg-primary/90 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 transition-all shadow-lg shadow-primary/20 w-auto px-8 disabled:opacity-60 disabled:cursor-not-allowed min-w-51.25'
+              onClick={handleAddCustomer}
+            >
+              {!addCustomerLoading ? (
+                <>
+                  <span className='material-symbols-outlined'>person_add</span>{' '}
+                  Add Customer
+                </>
+              ) : (
+                <Loader color='white' size={24} />
+              )}
             </button>
           </div>
         </div>

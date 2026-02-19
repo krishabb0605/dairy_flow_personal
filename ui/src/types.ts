@@ -428,6 +428,12 @@ export type CreateVacationScheduleParams = {
   endSlot: Slot;
 };
 
+export type CreateCustomerOwnerParams = {
+  ownerId: number;
+  mobileNumber: string;
+  isActivated?: boolean;
+};
+
 export type UpcomingExtraItem = {
   id: number;
   deliveryDate: string;
