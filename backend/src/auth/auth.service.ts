@@ -7,7 +7,7 @@ import { UpdateCustomerSettingsDto } from './dto/update-customer-settings.dto.js
 import { UpdateOwnerSettingsDto } from './dto/update-owner-settings.dto.js';
 import { AuthRepository } from './auth.repositary.js';
 import { GetUserResponse } from './auth.repositary.types.js';
-import { User } from '../../generated/prisma/client.js';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class AuthService {

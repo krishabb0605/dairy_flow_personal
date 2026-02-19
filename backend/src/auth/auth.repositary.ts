@@ -5,11 +5,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import {
-  Prisma,
-  type User,
-  type UserRole,
-} from '../../generated/prisma/client.js';
+import { Prisma, type User, type UserRole } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { BasicInfoDto } from './dto/basic-info.dto.js';
 import { CustomerConfigDto } from './dto/customer-config.dto.js';
