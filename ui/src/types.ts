@@ -286,6 +286,26 @@ export type OwnerCustomer = {
   avatar: string;
 };
 
+export type OwnerCustomerStatusFilter = 'all' | OwnerCustomer['status'];
+
+export type GetOwnerCustomersParams = {
+  ownerId: number;
+  page: number;
+  limit: number;
+  search?: string;
+  status?: OwnerCustomerStatusFilter;
+};
+
+export type OwnerCustomersResponse = {
+  customers: OwnerCustomer[];
+  page: number;
+  limit: number;
+  totalPages: number;
+  totalCustomers: number;
+  totalMorningLiters: number;
+  totalEveningLiters: number;
+};
+
 export type OwnerCustomerDeliveryStatus =
   | 'delivered'
   | 'pending'

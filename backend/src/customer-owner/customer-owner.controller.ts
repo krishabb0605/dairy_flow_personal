@@ -6,6 +6,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { ResponseHandler } from '../common/response.handler.js';
 import { CustomerOwnerService } from './customer-owner.service.js';
@@ -40,6 +41,24 @@ export class CustomerOwnerController {
   ) {
     return this.responseHandler.sendResponse(
       this.customerOwnerService.getUpcomingCustomerActivity(customerOwnerId),
+    );
+  }
+
+  @Get('customers/:ownerId')
+  getOwnerCustomers(
+    @Param('ownerId', ParseIntPipe) ownerId: number,
+    @Query('page') page = '1',
+    @Query('limit') limit = '10',
+    @Query('search') search = '',
+    @Query('status') status = 'all',
+  ) {
+    return this.responseHandler.sendResponse(
+      this.customerOwnerService.getOwnerCustomers(ownerId, {
+        page: Number(page),
+        limit: Number(limit),
+        search,
+        status,
+      }),
     );
   }
 }

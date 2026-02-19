@@ -21,4 +21,16 @@ export class CustomerOwnerService {
       customerOwnerId,
     );
   }
+
+  async getOwnerCustomers(
+    ownerId: number,
+    params: {
+      page: number;
+      limit: number;
+      search: string;
+      status: string;
+    },
+  ): Promise<any> {
+    return this.customerOwnerRepository.getOwnerCustomers(ownerId, params);
+  }
 }

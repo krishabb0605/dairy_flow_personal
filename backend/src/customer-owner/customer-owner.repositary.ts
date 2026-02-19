@@ -54,8 +54,19 @@ export class CustomerOwnerRepository {
           },
         });
 
-      if (existingSameOwnerRelation?.isActivated) {
-        throw new BadRequestException('You already added this customer');
+      if (existingSameOwnerRelation) {
+        if (existingSameOwnerRelation.isActivated) {
+          throw new BadRequestException('You already added this customer');
+        } else {
+          return await this.prisma.customerOwner.update({
+            where: {
+              id: existingSameOwnerRelation.id,
+            },
+            data: {
+              isActivated: true,
+            },
+          });
+        }
       }
 
       const activeRelationWithAnotherOwner =
@@ -209,6 +220,135 @@ export class CustomerOwnerRepository {
         throw new InternalServerErrorException({
           success: false,
           message: 'Error while fetching upcoming customer activity',
+          error: error.message,
+        });
+      }
+
+      throw new InternalServerErrorException('Unexpected error');
+    }
+  }
+
+  async getOwnerCustomers(
+    ownerId: number,
+    params: {
+      page: number;
+      limit: number;
+      search: string;
+      status: string;
+    },
+  ): Promise<any> {
+    try {
+      const safePage = Number.isFinite(params.page)
+        ? Math.max(1, Math.floor(params.page))
+        : 1;
+      const safeLimit = Number.isFinite(params.limit)
+        ? Math.min(50, Math.max(1, Math.floor(params.limit)))
+        : 10;
+      const normalizedSearch = (params.search ?? '').trim().toLowerCase();
+      const normalizedStatus = (params.status ?? 'all').toLowerCase();
+
+      const owner = await this.prisma.ownerSettings.findUnique({
+        where: { id: ownerId },
+      });
+
+      if (!owner) {
+        throw new NotFoundException(`Owner not found with id: ${ownerId}`);
+      }
+
+      const customers = await this.prisma.customerOwner.findMany({
+        where: {
+          ownerId,
+          isActivated: true,
+        },
+        orderBy: { updatedAt: 'desc' },
+        include: {
+          customer: {
+            include: {
+              user: true,
+            },
+          },
+          vacationSchedules: true,
+        },
+      });
+
+      const today = new Date();
+      today.setUTCHours(0, 0, 0, 0);
+
+      const mappedCustomers = customers.map((customer) => {
+        const isPaused = customer.vacationSchedules.some((vacation) => {
+          const startDate = new Date(vacation.startDate);
+          startDate.setUTCHours(0, 0, 0, 0);
+
+          const endDate = new Date(vacation.endDate);
+          endDate.setUTCHours(0, 0, 0, 0);
+
+          return today >= startDate && today <= endDate;
+        });
+
+        return {
+          id: customer.id,
+          name: customer.customer.user.fullName,
+          phone: customer.customer.user.mobileNumber,
+          morningCowQty: Number(customer.customer.morningCowQty),
+          morningBuffaloQty: Number(customer.customer.morningBuffaloQty),
+          eveningCowQty: Number(customer.customer.eveningCowQty),
+          eveningBuffaloQty: Number(customer.customer.eveningBuffaloQty),
+          status: isPaused ? 'paused' : 'active',
+          avatar: customer.customer.user.profileImageUrl,
+        };
+      });
+
+      const filteredCustomers = mappedCustomers.filter((customer) => {
+        const matchesSearch =
+          !normalizedSearch ||
+          customer.name.toLowerCase().includes(normalizedSearch) ||
+          customer.phone.toLowerCase().includes(normalizedSearch);
+
+        if (!matchesSearch) return false;
+        if (
+          normalizedStatus !== 'all' &&
+          normalizedStatus !== customer.status.toLowerCase()
+        ) {
+          return false;
+        }
+
+        return true;
+      });
+
+      const totalCustomers = filteredCustomers.length;
+      const totalMorningLiters = filteredCustomers.reduce(
+        (sum, customer) =>
+          sum + customer.morningCowQty + customer.morningBuffaloQty,
+        0,
+      );
+      const totalEveningLiters = filteredCustomers.reduce(
+        (sum, customer) =>
+          sum + customer.eveningCowQty + customer.eveningBuffaloQty,
+        0,
+      );
+      const totalPages = Math.max(1, Math.ceil(totalCustomers / safeLimit));
+      const offset = (safePage - 1) * safeLimit;
+      const paginatedCustomers = filteredCustomers.slice(
+        offset,
+        offset + safeLimit,
+      );
+
+      return {
+        customers: paginatedCustomers,
+        page: safePage,
+        limit: safeLimit,
+        totalPages,
+        totalCustomers,
+        totalMorningLiters,
+        totalEveningLiters,
+      };
+    } catch (error: unknown) {
+      if (error instanceof HttpException) throw error;
+
+      if (error instanceof Error) {
+        throw new InternalServerErrorException({
+          success: false,
+          message: 'Error while fetching owner customers',
           error: error.message,
         });
       }
