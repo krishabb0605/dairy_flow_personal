@@ -280,60 +280,6 @@ export const billingHistory = [
   },
 ];
 
-export const ownerDeliveries = [
-  {
-    id: 1,
-    initials: 'JS',
-    name: 'John Sharma',
-    shift: 'morning',
-    cowMilkQty: 2.0,
-    buffaloMilkQty: 2.0,
-    status: 'delivered',
-    date: 'Feb 8, 2026',
-  },
-  {
-    id: 2,
-    initials: 'AM',
-    name: 'Aditi Mehra',
-    shift: 'morning',
-    cowMilkQty: 1.5,
-    buffaloMilkQty: 1.5,
-    status: 'delivered',
-    date: 'Feb 10, 2026',
-  },
-  {
-    id: 3,
-    initials: 'RK',
-    name: 'Rahul Kapoor',
-    shift: 'evening',
-    cowMilkQty: 1.0,
-    buffaloMilkQty: 1.0,
-    status: 'cancelled',
-    date: 'Oct 23, 2023',
-  },
-  {
-    id: 4,
-    initials: 'VP',
-    name: 'Vikram Patel',
-    shift: 'morning',
-    cowMilkQty: 3.0,
-    buffaloMilkQty: 3.0,
-    status: 'delivered',
-    date: 'Oct 23, 2023',
-  },
-  {
-    id: 5,
-    initials: 'CE',
-    name: 'Chris Evans',
-    shift: 'evening',
-    cowMilkQty: 3.0,
-    buffaloMilkQty: 3.0,
-    status: 'skipped',
-    date: 'Oct 22, 2023',
-  },
-];
-
-
 export const ownerCustomers: OwnerCustomer[] = [
   {
     id: 1,

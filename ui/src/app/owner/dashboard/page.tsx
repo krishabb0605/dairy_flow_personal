@@ -112,7 +112,7 @@ const Dashboard = () => {
       <main className='flex-1'>
         {/* <!-- Header --> */}
         <header className='mb-8'>
-          <div className='flex-1 w-full lg:w-auto rounded-full bg-[#eef6ff] border border-[#d7e9ff] p-1 flex items-center overflow-hidden shadow-sm'>
+          <div className='flex-1 w-full lg:w-auto rounded-full bg-white border border-[#d7e9ff] p-1 flex items-center overflow-hidden shadow-sm'>
             <div className='pl-3 pr-2 text-[#6a97c8] flex items-center justify-center'>
               <span className='material-symbols-outlined text-[22px] leading-none'>
                 search

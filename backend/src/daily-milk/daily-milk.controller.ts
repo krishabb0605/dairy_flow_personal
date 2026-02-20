@@ -38,6 +38,30 @@ export class DailyMilkController {
     );
   }
 
+  @Get('owner/:ownerId/history')
+  getOwnerDeliveryHistory(
+    @Param('ownerId', ParseIntPipe) ownerId: number,
+    @Query('page') page = '1',
+    @Query('limit') limit = '10',
+    @Query('search') search = '',
+    @Query('slot') slot?: string,
+    @Query('status') status?: string,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    return this.responseHandler.sendResponse(
+      this.dailyMilkService.getOwnerDeliveryHistory(ownerId, {
+        page: Number(page),
+        limit: Number(limit),
+        search,
+        slot,
+        status,
+        startDate,
+        endDate,
+      }),
+    );
+  }
+
   @Patch(':dailyMilkId')
   updateDailyMilk(
     @Param('dailyMilkId', ParseIntPipe) dailyMilkId: number,

@@ -183,6 +183,10 @@ export type OwnerDelivery = {
   notes?: string | null;
 };
 
+export type OwnerDeliveryHistoryItem = OwnerDelivery & {
+  date: string;
+};
+
 export type OwnerDashboardResponse = {
   date: string;
   page: number;
@@ -192,6 +196,13 @@ export type OwnerDashboardResponse = {
   totalBuffaloQty: number;
   totalLiters: number;
   deliveries: OwnerDelivery[];
+};
+
+export type OwnerDeliveryHistoryResponse = {
+  page: number;
+  totalPages: number;
+  totalItems: number;
+  deliveries: OwnerDeliveryHistoryItem[];
 };
 
 export type CreateUserParams = {

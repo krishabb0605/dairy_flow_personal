@@ -173,6 +173,7 @@ const EditDeliveryModal = ({
         </div>
       </div>
     </Modal>,
+    document.body,
   );
 };
 

@@ -5,7 +5,7 @@ const getColor = (status: string) => {
     return 'bg-red-100 text-red-700';
   }
 
-  if (status === 'skipped') {
+  if (status === 'pending') {
     return 'bg-amber-100 text-amber-700';
   }
 

@@ -195,11 +195,10 @@ export class DailyMilkService {
     });
   }
 
-  private normalizeSlot(
-    slot?: 'MORNING' | 'EVENING',
-  ): 'MORNING' | 'EVENING' | undefined {
+  private normalizeSlot(slot?: string): 'MORNING' | 'EVENING' | undefined {
     if (!slot) return undefined;
-    if (slot === 'MORNING' || slot === 'EVENING') return slot;
+    const upper = slot.toUpperCase();
+    if (upper === 'MORNING' || upper === 'EVENING') return upper;
     throw new BadRequestException('Invalid slot value');
   }
 
@@ -261,5 +260,65 @@ export class DailyMilkService {
       status: updated.status,
       notes: updated.notes,
     };
+  }
+
+  async getOwnerDeliveryHistory(
+    ownerId: number,
+    params: {
+      page: number;
+      limit: number;
+      search?: string;
+      slot?: string;
+      status?: string;
+      startDate?: string;
+      endDate?: string;
+    },
+  ) {
+    const page = Math.max(1, params.page || 1);
+    const limit = Math.max(1, params.limit || 10);
+    const slot = this.normalizeSlot(params.slot);
+    const status = this.normalizeStatus(params.status);
+    const startDate = params.startDate
+      ? this.parseDateOnly(params.startDate, 'startDate')
+      : undefined;
+    const endDate = params.endDate
+      ? this.parseDateOnly(params.endDate, 'endDate')
+      : undefined;
+
+    return this.dailyMilkRepository.getOwnerDeliveryHistory(ownerId, {
+      page,
+      limit,
+      search: params.search,
+      slot,
+      status,
+      startDate,
+      endDate,
+    });
+  }
+
+  private normalizeStatus(
+    status?: string,
+  ): 'PENDING' | 'DELIVERED' | 'CANCELLED' | undefined {
+    if (!status) return undefined;
+    const upper = status.toUpperCase();
+    if (upper === 'PENDING' || upper === 'DELIVERED' || upper === 'CANCELLED') {
+      return upper;
+    }
+    throw new BadRequestException('Invalid status value');
+  }
+
+  private parseDateOnly(value: string, label: string): Date {
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) {
+      throw new BadRequestException(`Invalid ${label} format`);
+    }
+
+    return new Date(
+      Date.UTC(
+        parsed.getUTCFullYear(),
+        parsed.getUTCMonth(),
+        parsed.getUTCDate(),
+      ),
+    );
   }
 }

@@ -239,4 +239,92 @@ export class DailyMilkRepository {
       deliveries,
     };
   }
+
+  async getOwnerDeliveryHistory(
+    ownerId: number,
+    params: {
+      page: number;
+      limit: number;
+      search?: string;
+      slot?: 'MORNING' | 'EVENING';
+      status?: 'PENDING' | 'DELIVERED' | 'CANCELLED';
+      startDate?: Date;
+      endDate?: Date;
+    },
+  ) {
+    const { page, limit, search, slot, status, startDate, endDate } = params;
+
+    const where: Prisma.DailyMilkWhereInput = {
+      ...(slot ? { slot } : {}),
+      ...(status ? { status } : {}),
+      ...(startDate || endDate
+        ? {
+            deliveryDate: {
+              ...(startDate ? { gte: startDate } : {}),
+              ...(endDate ? { lte: endDate } : {}),
+            },
+          }
+        : {}),
+      customerOwner: {
+        ownerId,
+        ...(search
+          ? {
+              customer: {
+                user: {
+                  fullName: {
+                    contains: search,
+                    mode: 'insensitive',
+                  },
+                },
+              },
+            }
+          : {}),
+      },
+    };
+
+    const totalItems = await this.prisma.dailyMilk.count({ where });
+    const totalPages = Math.max(1, Math.ceil(totalItems / limit));
+    const safePage = Math.min(page, totalPages);
+
+    const dailyMilks = await this.prisma.dailyMilk.findMany({
+      where,
+      include: {
+        customerOwner: {
+          include: {
+            customer: {
+              include: {
+                user: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: [{ deliveryDate: 'desc' }, { id: 'desc' }],
+      skip: (safePage - 1) * limit,
+      take: limit,
+    });
+
+    const deliveries = dailyMilks.map((item) => {
+      const customerUser = item.customerOwner.customer.user;
+
+      return {
+        id: item.id,
+        name: customerUser.fullName,
+        profileImageUrl: customerUser.profileImageUrl,
+        date: item.deliveryDate.toISOString().slice(0, 10),
+        cowQty: Number(item.cowQty),
+        buffaloQty: Number(item.buffaloQty),
+        slot: item.slot.toLowerCase(),
+        status: item.status,
+        notes: item.notes,
+      };
+    });
+
+    return {
+      page: safePage,
+      totalPages,
+      totalItems,
+      deliveries,
+    };
+  }
 }

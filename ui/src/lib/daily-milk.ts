@@ -1,5 +1,9 @@
 import { api } from '../lib/api';
-import type { OwnerDashboardResponse, OwnerDelivery } from '../types';
+import type {
+  OwnerDashboardResponse,
+  OwnerDelivery,
+  OwnerDeliveryHistoryResponse,
+} from '../types';
 
 export const getOwnerDashboard = async (
   ownerId: number,
@@ -45,6 +49,40 @@ export const updateDailyMilk = async (
     });
   } catch (error) {
     console.error('Error while updating daily milk:', error);
+    throw error;
+  }
+};
+
+export const getOwnerDeliveryHistory = async (
+  ownerId: number,
+  params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    slot?: 'morning' | 'evening' | 'all';
+    status?: 'pending' | 'delivered' | 'cancelled' | 'all';
+    startDate?: string;
+    endDate?: string;
+  },
+): Promise<OwnerDeliveryHistoryResponse> => {
+  try {
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.set('page', String(params.page));
+    if (params?.limit) searchParams.set('limit', String(params.limit));
+    if (params?.search) searchParams.set('search', params.search);
+    if (params?.slot && params.slot !== 'all')
+      searchParams.set('slot', params.slot);
+    if (params?.status && params.status !== 'all')
+      searchParams.set('status', params.status);
+    if (params?.startDate) searchParams.set('startDate', params.startDate);
+    if (params?.endDate) searchParams.set('endDate', params.endDate);
+
+    const query = searchParams.toString();
+    const suffix = query ? `?${query}` : '';
+
+    return await api(`/daily-milk/owner/${ownerId}/history${suffix}`);
+  } catch (error) {
+    console.error('Error while fetching delivery history:', error);
     throw error;
   }
 };
