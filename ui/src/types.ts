@@ -170,16 +170,28 @@ export type PaginationProps = {
   setPage: (value: React.SetStateAction<number>) => void;
 };
 
-export type DeliveryStatus = 'pending' | 'delivered' | 'skipped';
+export type DeliveryStatus = 'PENDING' | 'DELIVERED' | 'CANCELLED';
 
 export type OwnerDelivery = {
   id: number;
   name: string;
-  address: string;
+  profileImageUrl?: string | null;
   cowQty: number;
   buffaloQty: number;
   slot: Slot;
   status: DeliveryStatus;
+  notes?: string | null;
+};
+
+export type OwnerDashboardResponse = {
+  date: string;
+  page: number;
+  totalPages: number;
+  totalItems: number;
+  totalCowQty: number;
+  totalBuffaloQty: number;
+  totalLiters: number;
+  deliveries: OwnerDelivery[];
 };
 
 export type CreateUserParams = {
