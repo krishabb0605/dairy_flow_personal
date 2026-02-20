@@ -14,9 +14,9 @@ export class DailyMilkService {
 
   constructor(private prisma: PrismaService) {}
 
-  @Cron(CronExpression.EVERY_5_MINUTES, CRON_OPTIONS)
+  @Cron(CronExpression.EVERY_HOUR, CRON_OPTIONS)
   runEveryFiveMinite() {
-    this.logger.log('Milk entry cron placeholder is running at 5 minute');
+    this.logger.log('Milk entry cron placeholder is running at every hour');
   }
 
   // @Cron(CronExpression.EVERY_DAY_AT_5AM, CRON_OPTIONS)
