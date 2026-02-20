@@ -309,6 +309,20 @@ export type OwnerCustomer = {
   avatar: string;
 };
 
+export type OwnerCustomerProfile = {
+  id: number;
+  name: string;
+  phone: string;
+  email: string;
+  address: string;
+  morningCowQty: number;
+  morningBuffaloQty: number;
+  eveningCowQty: number;
+  eveningBuffaloQty: number;
+  status: 'active' | 'paused';
+  avatar: string | null;
+};
+
 export type OwnerCustomerStatusFilter = 'all' | OwnerCustomer['status'];
 
 export type GetOwnerCustomersParams = {
@@ -329,11 +343,7 @@ export type OwnerCustomersResponse = {
   totalEveningLiters: number;
 };
 
-export type OwnerCustomerDeliveryStatus =
-  | 'delivered'
-  | 'pending'
-  | 'skipped'
-  | 'cancelled';
+export type OwnerCustomerDeliveryStatus = 'delivered' | 'pending' | 'cancelled';
 
 export type OwnerCustomerDeliveryShift = 'morning' | 'evening';
 
@@ -344,6 +354,16 @@ export type OwnerCustomerDeliveryHistoryItem = {
   cowQty: number;
   buffaloQty: number;
   status: OwnerCustomerDeliveryStatus;
+  name: string;
+  profileImageUrl?: string | null;
+  notes?: string | null;
+};
+
+export type CustomerDeliveryHistoryResponse = {
+  page: number;
+  totalPages: number;
+  totalItems: number;
+  deliveries: OwnerCustomerDeliveryHistoryItem[];
 };
 
 export type OwnerCustomerTab =

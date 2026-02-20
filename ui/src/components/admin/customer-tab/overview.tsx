@@ -1,5 +1,80 @@
+'use client';
 
-const CustomerOverView = () => {
+import type {
+  OwnerCustomerProfile,
+  UpcomingCustomerActivity,
+} from '../../../types';
+import { useEffect, useRef, useState } from 'react';
+import { getUpcomingCustomerActivity } from '../../../lib/customerOwner';
+
+type CustomerOverViewProps = {
+  profile: OwnerCustomerProfile | null;
+  customerOwnerId: number;
+};
+
+const formatDate = (dateValue: string) => {
+  const date = new Date(dateValue);
+  return date.toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
+};
+
+const CustomerOverView = ({
+  profile,
+  customerOwnerId,
+}: CustomerOverViewProps) => {
+  const phone = profile?.phone ? `+91 ${profile.phone}` : '-';
+  const email = profile?.email || '-';
+  const address = profile?.address || '-';
+  const morningCowQty = profile?.morningCowQty ?? 0;
+  const morningBuffaloQty = profile?.morningBuffaloQty ?? 0;
+  const eveningCowQty = profile?.eveningCowQty ?? 0;
+  const eveningBuffaloQty = profile?.eveningBuffaloQty ?? 0;
+  const [activity, setActivity] = useState<UpcomingCustomerActivity>({
+    extras: [],
+    vacations: [],
+  });
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const fetchUpcomingRef = useRef(false);
+
+  useEffect(() => {
+    const loadActivity = async () => {
+      if (!customerOwnerId) {
+        setActivity({ extras: [], vacations: [] });
+        setLoading(false);
+        return;
+      }
+
+      if (fetchUpcomingRef.current) return;
+      fetchUpcomingRef.current = true;
+
+      try {
+        setLoading(true);
+        const data = await getUpcomingCustomerActivity(customerOwnerId);
+        setActivity({
+          extras: Array.isArray(data?.extras) ? data.extras : [],
+          vacations: Array.isArray(data?.vacations) ? data.vacations : [],
+        });
+        setLoadError(null);
+      } catch (error: unknown) {
+        const message =
+          error instanceof Error
+            ? error.message
+            : 'Failed to load upcoming activity.';
+        setLoadError(message);
+        setActivity({ extras: [], vacations: [] });
+      } finally {
+        setLoading(false);
+        fetchUpcomingRef.current = false;
+      }
+    };
+
+    loadActivity();
+  }, [customerOwnerId]);
+
   return (
     <div className='pt-8  w-full grid grid-cols-1 lg:grid-cols-3 gap-8'>
       {/* <!-- Left Column: Personal Info & Plans --> */}
@@ -19,25 +94,19 @@ const CustomerOverView = () => {
               <p className='text-[10px] font-bold text-slate-400 uppercase mb-1'>
                 Phone Number
               </p>
-              <p className='text-sm font-medium text-slate-900'>
-                +91 98765-43210
-              </p>
+              <p className='text-sm font-medium text-slate-900'>{phone}</p>
             </div>
             <div className='bg-white p-4 rounded-xl border border-slate-100 shadow-sm'>
               <p className='text-[10px] font-bold text-slate-400 uppercase mb-1'>
                 Email Address
               </p>
-              <p className='text-sm font-medium text-slate-900'>
-                john.doe@example.com
-              </p>
+              <p className='text-sm font-medium text-slate-900'>{email}</p>
             </div>
             <div className='bg-white p-4 rounded-xl border border-slate-100 shadow-sm sm:col-span-2'>
               <p className='text-[10px] font-bold text-slate-400 uppercase mb-1'>
                 Service Address
               </p>
-              <p className='text-sm font-medium text-slate-900'>
-                123 Green Valley Apartment, Sector 4, MG Road, Pune - 411001
-              </p>
+              <p className='text-sm font-medium text-slate-900'>{address}</p>
             </div>
           </div>
         </section>
@@ -78,17 +147,19 @@ const CustomerOverView = () => {
                     </span>
                     <span className='text-sm font-medium'>Cow Milk</span>
                   </div>
-                  <span className='text-lg font-bold text-primary'>2.0 L</span>
+                  <span className='text-lg font-bold text-primary'>
+                    {morningCowQty.toFixed(1)} L
+                  </span>
                 </div>
                 <div className='flex justify-between items-center p-3 bg-slate-50  rounded-lg'>
-                  <div className='flex items-center gap-2 text-slate-400'>
-                    <span className='material-symbols-outlined'>
+                  <div className='flex items-center gap-2'>
+                    <span className='material-symbols-outlined text-primary'>
                       water_drop
                     </span>
                     <span className='text-sm font-medium'>Buffalo Milk</span>
                   </div>
-                  <span className='text-lg font-bold text-slate-400'>
-                    0.0 L
+                  <span className='text-lg font-bold text-primary'>
+                    {morningBuffaloQty.toFixed(1)} L
                   </span>
                 </div>
               </div>
@@ -116,7 +187,9 @@ const CustomerOverView = () => {
                     </span>
                     <span className='text-sm font-medium'>Cow Milk</span>
                   </div>
-                  <span className='text-lg font-bold text-primary'>1.0 L</span>
+                  <span className='text-lg font-bold text-primary'>
+                    {eveningCowQty.toFixed(1)} L
+                  </span>
                 </div>
                 <div className='flex justify-between items-center p-3 bg-slate-50  rounded-lg'>
                   <div className='flex items-center gap-2'>
@@ -125,7 +198,9 @@ const CustomerOverView = () => {
                     </span>
                     <span className='text-sm font-medium'>Buffalo Milk</span>
                   </div>
-                  <span className='text-lg font-bold text-primary'>1.0 L</span>
+                  <span className='text-lg font-bold text-primary'>
+                    {eveningBuffaloQty.toFixed(1)} L
+                  </span>
                 </div>
               </div>
             </div>
@@ -144,15 +219,103 @@ const CustomerOverView = () => {
               Upcoming Extras
             </h3>
           </div>
-          <div className='bg-white rounded-xl border-2 border-dashed border-slate-200 p-6 text-center'>
-            <div className='w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-3'>
-              <span className='material-symbols-outlined text-slate-300'>
-                add_shopping_cart
-              </span>
-            </div>
-            <p className='text-sm font-medium text-slate-500 mb-4'>
-              No extra requests scheduled for the next 7 days.
-            </p>
+          <div className='bg-white rounded-xl border border-slate-200 p-4'>
+            {loading && (
+              <p className='text-sm text-slate-500 text-center py-4'>
+                Loading upcoming extras...
+              </p>
+            )}
+            {!loading && loadError && (
+              <p className='text-sm text-rose-500 text-center py-4'>
+                {loadError}
+              </p>
+            )}
+            {!loading && !loadError && activity.extras.length === 0 && (
+              <div className='text-center py-4'>
+                <div className='w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-3'>
+                  <span className='material-symbols-outlined text-slate-300'>
+                    add_shopping_cart
+                  </span>
+                </div>
+                <p className='text-sm font-medium text-slate-500'>
+                  No extra requests scheduled.
+                </p>
+              </div>
+            )}
+            {!loading && !loadError && activity.extras.length > 0 && (
+              <div className='space-y-3'>
+                {activity.extras.map((extra) => (
+                  <div
+                    key={extra.id}
+                    className='flex items-center justify-between rounded-lg border border-slate-100 bg-slate-50/60 px-3 py-2'
+                  >
+                    <div>
+                      <p className='text-xs font-bold text-slate-500 uppercase tracking-wide'>
+                        {formatDate(extra.deliveryDate)} • {extra.slot}
+                      </p>
+                      <p className='text-sm font-semibold text-slate-900'>
+                        Cow {extra.cowQty.toFixed(1)} L · Buffalo{' '}
+                        {extra.buffaloQty.toFixed(1)} L
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* <!-- Section: Upcoming Vacations --> */}
+        <section>
+          <div className='flex items-center gap-2 mb-4'>
+            <span className='material-symbols-outlined text-slate-400'>
+              beach_access
+            </span>
+            <h3 className='text-sm font-bold text-slate-800 uppercase tracking-wider'>
+              Upcoming Vacations
+            </h3>
+          </div>
+          <div className='bg-white rounded-xl border border-slate-200 p-4'>
+            {loading && (
+              <p className='text-sm text-slate-500 text-center py-4'>
+                Loading upcoming vacations...
+              </p>
+            )}
+            {!loading && loadError && (
+              <p className='text-sm text-rose-500 text-center py-4'>
+                {loadError}
+              </p>
+            )}
+            {!loading && !loadError && activity.vacations.length === 0 && (
+              <div className='text-center py-4'>
+                <div className='w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-3'>
+                  <span className='material-symbols-outlined text-slate-300'>
+                    event_available
+                  </span>
+                </div>
+                <p className='text-sm font-medium text-slate-500'>
+                  No upcoming vacations scheduled.
+                </p>
+              </div>
+            )}
+            {!loading && !loadError && activity.vacations.length > 0 && (
+              <div className='space-y-3'>
+                {activity.vacations.map((vacation) => (
+                  <div
+                    key={vacation.id}
+                    className='rounded-lg border border-slate-100 bg-slate-50/60 px-3 py-2'
+                  >
+                    <p className='text-sm text-slate-500 tracking-wide'>
+                      • {formatDate(vacation.startDate)}{' '}
+                      {`(${vacation.startSlot})`} -{' '}
+                      {vacation.endDate
+                        ? `${formatDate(vacation.endDate)} (${vacation.endSlot ?? ''})`
+                        : 'Open ended'}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </section>
       </div>
