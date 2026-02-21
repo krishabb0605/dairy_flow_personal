@@ -321,4 +321,51 @@ export class DailyMilkService {
       ),
     );
   }
+
+  async getCustomerMonthlyCalendar(
+    customerOwnerId: number,
+    params: {
+      month?: string;
+    },
+  ) {
+    const { month } = params;
+    const baseDate = this.resolveCalendarMonth(month);
+
+    return this.dailyMilkRepository.getCustomerMonthlyCalendar(
+      customerOwnerId,
+      baseDate,
+    );
+  }
+
+  async getCustomerMonthlySummary(
+    customerOwnerId: number,
+    params: {
+      month?: string;
+    },
+  ) {
+    const { month } = params;
+    const baseDate = this.resolveCalendarMonth(month);
+
+    return this.dailyMilkRepository.getCustomerMonthlySummary(
+      customerOwnerId,
+      baseDate,
+    );
+  }
+
+  private resolveCalendarMonth(value?: string): Date {
+    if (!value) return this.getTodayDateOnly();
+
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) {
+      throw new BadRequestException('Invalid month format');
+    }
+
+    return new Date(
+      Date.UTC(
+        parsed.getUTCFullYear(),
+        parsed.getUTCMonth(),
+        parsed.getUTCDate(),
+      ),
+    );
+  }
 }

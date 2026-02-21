@@ -1,5 +1,7 @@
 import { api } from '../lib/api';
 import type {
+  CustomerCalendarResponse,
+  CustomerMonthlySummaryResponse,
   OwnerDashboardResponse,
   OwnerDelivery,
   OwnerDeliveryHistoryResponse,
@@ -83,6 +85,50 @@ export const getOwnerDeliveryHistory = async (
     return await api(`/daily-milk/owner/${ownerId}/history${suffix}`);
   } catch (error) {
     console.error('Error while fetching delivery history:', error);
+    throw error;
+  }
+};
+
+export const getCustomerMonthlyCalendar = async (
+  customerOwnerId: number,
+  params?: {
+    month?: string;
+  },
+): Promise<CustomerCalendarResponse> => {
+  try {
+    const searchParams = new URLSearchParams();
+    if (params?.month) searchParams.set('month', params.month);
+
+    const query = searchParams.toString();
+    const suffix = query ? `?${query}` : '';
+
+    return await api(
+      `/daily-milk/customer/${customerOwnerId}/calendar${suffix}`,
+    );
+  } catch (error) {
+    console.error('Error while fetching customer monthly calendar:', error);
+    throw error;
+  }
+};
+
+export const getCustomerMonthlySummary = async (
+  customerOwnerId: number,
+  params?: {
+    month?: string;
+  },
+): Promise<CustomerMonthlySummaryResponse> => {
+  try {
+    const searchParams = new URLSearchParams();
+    if (params?.month) searchParams.set('month', params.month);
+
+    const query = searchParams.toString();
+    const suffix = query ? `?${query}` : '';
+
+    return await api(
+      `/daily-milk/customer/${customerOwnerId}/summary${suffix}`,
+    );
+  } catch (error) {
+    console.error('Error while fetching customer monthly summary:', error);
     throw error;
   }
 };
