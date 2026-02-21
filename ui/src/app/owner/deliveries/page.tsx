@@ -72,15 +72,7 @@ const Deliveries = () => {
     } finally {
       setLoading(false);
     }
-  }, [
-    ownerId,
-    page,
-    searchQuery,
-    shift,
-    status,
-    startDate,
-    endDate,
-  ]);
+  }, [ownerId, page, searchQuery, shift, status, startDate, endDate]);
 
   useEffect(() => {
     fetchDeliveries();
@@ -260,33 +252,33 @@ const Deliveries = () => {
         </div>
 
         {/* Table */}
-        <div className='bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden'>
+        <div className='bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden'>
           <div className='overflow-x-auto'>
             <table className='w-full text-left border-collapse'>
               <thead>
-                <tr className='bg-slate-50 border-b border-primary/10'>
-                  <th className='px-6 py-4 text-[11px] font-black text-slate-400 uppercase tracking-widest text-center'>
+                <tr className='bg-slate-50 border-b border-slate-200'>
+                  <th className='px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider'>
                     Date
                   </th>
-                  <th className='px-6 ps-17 py-4 text-[11px] font-black text-slate-400 uppercase tracking-widest'>
+                  <th className='px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider'>
                     Customer
                   </th>
-                  <th className='px-6 py-4 text-[11px] font-black text-slate-400 uppercase tracking-widest text-center'>
+                  <th className='px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider'>
                     Shift
                   </th>
-                  <th className='px-6 py-4 text-[11px] font-black text-slate-400 uppercase tracking-widest text-center'>
+                  <th className='px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider'>
                     Cow Qty
                   </th>
-                  <th className='px-6 py-4 text-[11px] font-black text-slate-400 uppercase tracking-widest text-center'>
+                  <th className='px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider'>
                     Buffalo Qty
                   </th>
-                  <th className='px-6 py-4 text-[11px] font-black text-slate-400 uppercase tracking-widest text-center'>
+                  <th className='px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider'>
                     Status
                   </th>
-                  <th className='px-6 py-4 text-[11px] font-black text-slate-400 uppercase tracking-widest text-center'>
+                  <th className='px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider'>
                     Notes
                   </th>
-                  <th className='px-6 py-4 text-[11px] font-black text-slate-400 uppercase tracking-widest text-center'>
+                  <th className='px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider'>
                     Actions
                   </th>
                 </tr>
@@ -319,9 +311,7 @@ const Deliveries = () => {
                       delivery={currentRow}
                       onUpdated={(updated) => {
                         setDeliveries((prev) =>
-                          prev.map((d) =>
-                            d.id === updated.id ? updated : d,
-                          ),
+                          prev.map((d) => (d.id === updated.id ? updated : d)),
                         );
                       }}
                     />
@@ -330,7 +320,9 @@ const Deliveries = () => {
               </tbody>
             </table>
           </div>
-          <Pagination page={page} totalPages={totalPages} setPage={setPage} />
+          {deliveries.length > 0 && (
+            <Pagination page={page} totalPages={totalPages} setPage={setPage} />
+          )}
         </div>
       </div>
     </ContentLayout>
