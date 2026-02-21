@@ -62,6 +62,30 @@ export class DailyMilkController {
     );
   }
 
+  @Get('customer/:customerOwnerId/calendar')
+  getCustomerCalendar(
+    @Param('customerOwnerId', ParseIntPipe) customerOwnerId: number,
+    @Query('month') month?: string,
+  ) {
+    return this.responseHandler.sendResponse(
+      this.dailyMilkService.getCustomerMonthlyCalendar(customerOwnerId, {
+        month,
+      }),
+    );
+  }
+
+  @Get('customer/:customerOwnerId/summary')
+  getCustomerMonthlySummary(
+    @Param('customerOwnerId', ParseIntPipe) customerOwnerId: number,
+    @Query('month') month?: string,
+  ) {
+    return this.responseHandler.sendResponse(
+      this.dailyMilkService.getCustomerMonthlySummary(customerOwnerId, {
+        month,
+      }),
+    );
+  }
+
   @Patch(':dailyMilkId')
   updateDailyMilk(
     @Param('dailyMilkId', ParseIntPipe) dailyMilkId: number,

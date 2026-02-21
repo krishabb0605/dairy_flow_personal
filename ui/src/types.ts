@@ -436,6 +436,34 @@ export type BillingStatusFilter = 'all' | 'paid' | 'pending';
 
 export type DeliveryCalendarProps = {
   customerSetting?: CustomerSettingConfig | null;
+  customerOwnerId?: number | null;
+};
+
+export type CustomerCalendarRecord = {
+  day: number;
+  morningCow: number;
+  morningBuffalo: number;
+  eveningCow: number;
+  eveningBuffalo: number;
+};
+
+export type CustomerCalendarResponse = {
+  month: string;
+  base: {
+    morningCow: number;
+    morningBuffalo: number;
+    eveningCow: number;
+    eveningBuffalo: number;
+  };
+  records: CustomerCalendarRecord[];
+};
+
+export type CustomerMonthlySummaryResponse = {
+  month: string;
+  totalCowQty: number;
+  totalBuffaloQty: number;
+  totalLiters: number;
+  totalAmount: number;
 };
 
 export type BillPdfDailyRecord = {

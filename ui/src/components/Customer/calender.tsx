@@ -1,17 +1,25 @@
 'use client';
 
-import { useState } from 'react';
-import Modal from '../modal';
-import { type DeliveryCalendarProps } from '../../types';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import DeliveryDayModal from './DeliveryDayModal';
+import {
+  type CustomerCalendarRecord,
+  type DeliveryCalendarProps,
+} from '../../types';
 import Button from '../../components/ui/button';
+import { getCustomerMonthlyCalendar } from '../../lib/daily-milk';
+import Loader from '../loader';
 
 const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export default function DeliveryCalendar({
-  customerSetting,
+  customerOwnerId,
 }: DeliveryCalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [records, setRecords] = useState<CustomerCalendarRecord[]>([]);
+  const [calendarLoading, setCalendarLoading] = useState(true);
+  const fetchCalendarRef = useRef(false);
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -46,16 +54,58 @@ export default function DeliveryCalendar({
   const todayMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
   const canGoNextMonth = new Date(year, month + 1, 1) <= todayMonthStart;
 
-  const deliveryData = {
-    morningCow: Number(customerSetting?.morningCowQty) ?? 0,
-    morningBuffalo: Number(customerSetting?.morningBuffaloQty) ?? 0,
-    eveningCow: Number(customerSetting?.eveningCowQty) ?? 0,
-    eveningBuffalo: Number(customerSetting?.eveningBuffaloQty) ?? 0,
-  };
+  useEffect(() => {
+    const fetchCalendar = async () => {
+      if (!customerOwnerId) {
+        const fallback = Array.from({ length: daysInMonth }, (_, index) => ({
+          day: index + 1,
+          morningCow: 0,
+          morningBuffalo: 0,
+          eveningCow: 0,
+          eveningBuffalo: 0,
+        }));
+        setRecords(fallback);
+        return;
+      }
 
-  const totalMorning = deliveryData.morningCow + deliveryData.morningBuffalo;
-  const totalEvening = deliveryData.eveningCow + deliveryData.eveningBuffalo;
-  const totalDay = totalMorning + totalEvening;
+      if (fetchCalendarRef.current) return;
+      fetchCalendarRef.current = true;
+
+      setCalendarLoading(true);
+      try {
+        const monthValue = new Date(Date.UTC(year, month, 1))
+          .toISOString()
+          .slice(0, 10);
+        const data = await getCustomerMonthlyCalendar(customerOwnerId, {
+          month: monthValue,
+        });
+        setRecords(data.records);
+      } catch (error) {
+        console.error('Failed to fetch customer calendar:', error);
+        const fallback = Array.from({ length: daysInMonth }, (_, index) => ({
+          day: index + 1,
+          morningCow: 0,
+          morningBuffalo: 0,
+          eveningCow: 0,
+          eveningBuffalo: 0,
+        }));
+        setRecords(fallback);
+      } finally {
+        setCalendarLoading(false);
+        fetchCalendarRef.current = false;
+      }
+    };
+
+    fetchCalendar();
+  }, [customerOwnerId, daysInMonth, month, year]);
+
+  const recordByDay = useMemo(() => {
+    const map = new Map<number, CustomerCalendarRecord>();
+    for (const record of records) {
+      map.set(record.day, record);
+    }
+    return map;
+  }, [records]);
 
   const cells = [];
 
@@ -73,6 +123,14 @@ export default function DeliveryCalendar({
       day: i,
       disabled: false,
     });
+  }
+
+  if (calendarLoading) {
+    return (
+      <div className='flex justify-center items-center h-75'>
+        <Loader />
+      </div>
+    );
   }
 
   return (
@@ -204,11 +262,26 @@ export default function DeliveryCalendar({
 
                 {!d.disabled && !isFuture && (
                   <div className='flex flex-col items-center justify-center h-full -mt-4'>
-                    <div className='text-xs font-bold text-slate-400 uppercase'>
-                      {totalDay}L
-                    </div>
+                    {(() => {
+                      const record = recordByDay.get(d.day);
+                      const morning =
+                        (record?.morningCow ?? 0) +
+                        (record?.morningBuffalo ?? 0);
+                      const evening =
+                        (record?.eveningCow ?? 0) +
+                        (record?.eveningBuffalo ?? 0);
+                      const totalDay = morning + evening;
 
-                    <div className='size-1.5 rounded-full mt-1 bg-primary'></div>
+                      return (
+                        <>
+                          <div className='text-xs font-bold text-slate-400 uppercase'>
+                            {totalDay}L
+                          </div>
+
+                          <div className='size-1.5 rounded-full mt-1 bg-primary'></div>
+                        </>
+                      );
+                    })()}
                   </div>
                 )}
 
@@ -223,83 +296,13 @@ export default function DeliveryCalendar({
         </div>
       </div>
 
-      <Modal
+      <DeliveryDayModal
         open={Boolean(selectedDate)}
         onClose={() => setSelectedDate(null)}
-        cancelText='Close'
-        title={
-          selectedDate
-            ? selectedDate.toLocaleDateString('default', {
-                weekday: 'long',
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric',
-              })
-            : 'Day Details'
-        }
-        description='Delivery quantity breakdown'
-      >
-        <div className='space-y-4'>
-          <div className='rounded-xl border border-slate-200 bg-slate-50 p-4'>
-            <p className='text-xs font-bold uppercase tracking-wider text-primary mb-3'>
-              Morning
-            </p>
-            <div className='space-y-2 text-sm'>
-              <div className='flex justify-between'>
-                <span className='text-slate-600'>Cow Milk</span>
-                <span className='font-semibold'>
-                  {deliveryData.morningCow} L
-                </span>
-              </div>
-              <div className='flex justify-between'>
-                <span className='text-slate-600'>Buffalo Milk</span>
-                <span className='font-semibold'>
-                  {deliveryData.morningBuffalo} L
-                </span>
-              </div>
-              <div className='flex justify-between border-t border-slate-200 pt-2'>
-                <span className='text-slate-700 font-medium'>
-                  Morning Total
-                </span>
-                <span className='font-bold text-primary'>{totalMorning} L</span>
-              </div>
-            </div>
-          </div>
-
-          <div className='rounded-xl border border-slate-200 bg-slate-50 p-4'>
-            <p className='text-xs font-bold uppercase tracking-wider text-primary mb-3'>
-              Evening
-            </p>
-            <div className='space-y-2 text-sm'>
-              <div className='flex justify-between'>
-                <span className='text-slate-600'>Cow Milk</span>
-                <span className='font-semibold'>
-                  {deliveryData.eveningCow} L
-                </span>
-              </div>
-              <div className='flex justify-between'>
-                <span className='text-slate-600'>Buffalo Milk</span>
-                <span className='font-semibold'>
-                  {deliveryData.eveningBuffalo} L
-                </span>
-              </div>
-              <div className='flex justify-between border-t border-slate-200 pt-2'>
-                <span className='text-slate-700 font-medium'>
-                  Evening Total
-                </span>
-                <span className='font-bold text-primary'>{totalEvening} L</span>
-              </div>
-            </div>
-          </div>
-
-          <div className='rounded-xl border border-primary/20 bg-primary/5 p-4 flex justify-between items-center'>
-            <span className='text-sm font-semibold text-slate-700'>
-              Total for this day
-            </span>
-            <span className='text-lg font-bold text-primary'>{totalDay} L</span>
-          </div>
-        </div>
-      </Modal>
+        selectedDate={selectedDate}
+        record={selectedDate ? recordByDay.get(selectedDate.getDate()) : null}
+        loading={calendarLoading}
+      />
     </div>
   );
 }
