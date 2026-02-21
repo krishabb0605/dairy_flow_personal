@@ -117,13 +117,8 @@ export class CustomerSettingsRepository {
       const startDate = params.startDate ? new Date(params.startDate) : null;
       const endDate = params.endDate ? new Date(params.endDate) : null;
 
-      const where = {
+      const baseWhere = {
         customerOwnerId,
-        ...(status
-          ? {
-              status: status as DailyMilkStatus,
-            }
-          : {}),
         ...(slot
           ? {
               slot: slot as ExtraMilkSlot,
@@ -135,6 +130,15 @@ export class CustomerSettingsRepository {
                 ...(startDate ? { gte: startDate } : {}),
                 ...(endDate ? { lte: endDate } : {}),
               },
+            }
+          : {}),
+      };
+
+      const where = {
+        ...baseWhere,
+        ...(status
+          ? {
+              status: status as DailyMilkStatus,
             }
           : {}),
       };
@@ -163,16 +167,36 @@ export class CustomerSettingsRepository {
         },
       });
 
+      const statusCounts = await this.prisma.dailyMilk.groupBy({
+        by: ['status'],
+        where: baseWhere,
+        _count: { status: true },
+      });
+
+      const counts = {
+        delivered:
+          statusCounts.find((item) => item.status === 'DELIVERED')?._count
+            .status ?? 0,
+        pending:
+          statusCounts.find((item) => item.status === 'PENDING')?._count
+            .status ?? 0,
+        cancelled:
+          statusCounts.find((item) => item.status === 'CANCELLED')?._count
+            .status ?? 0,
+      };
+
       return {
         page: safePage,
         totalPages,
         totalItems,
+        statusCounts: counts,
         deliveries: history.map((item) => ({
           id: item.id,
           date: item.deliveryDate.toISOString().slice(0, 10),
           shift: item.slot.toLowerCase(),
           cowQty: Number(item.cowQty),
           buffaloQty: Number(item.buffaloQty),
+          totalAmount: Number(item.totalAmount),
           status: item.status.toLowerCase(),
           name: item.customerOwner.customer.user.fullName,
           profileImageUrl: item.customerOwner.customer.user.profileImageUrl,

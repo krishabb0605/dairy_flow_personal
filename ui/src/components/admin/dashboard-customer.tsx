@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Button from '../../components/ui/button';
 import EditDeliveryModal from '../modal/admin/edit-delivery';
 import { updateDailyMilk } from '../../lib/daily-milk';
-import { FALLBACK_CUSTOMER_PROFILE_IMAGE } from '@/constants';
+import { FALLBACK_CUSTOMER_PROFILE_IMAGE } from '../../constants';
 import Image from 'next/image';
 
 const DashboardCustomer = ({ slotDeliverie, setDeliveries }: any) => {

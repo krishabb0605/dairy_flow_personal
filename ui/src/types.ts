@@ -1,7 +1,11 @@
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 export type Slot = 'morning' | 'evening';
 export type MilkType = 'cow' | 'buffalo';
-export type deliveryFilter = 'All Deliveries' | 'Confirmed' | 'Pending';
+export type deliveryFilter =
+  | 'All Deliveries'
+  | 'Confirmed'
+  | 'Pending'
+  | 'Cancelled';
 
 export interface ApiOptions {
   method?: HttpMethod;
@@ -293,7 +297,7 @@ export type Delivery = {
   day: string;
   totalQty: number;
   totalPrice: number;
-  status: 'Confirmed' | 'Pending';
+  status: 'Confirmed' | 'Pending' | 'Cancelled';
   sessions: DeliverySession[];
 };
 
@@ -353,6 +357,7 @@ export type OwnerCustomerDeliveryHistoryItem = {
   shift: OwnerCustomerDeliveryShift;
   cowQty: number;
   buffaloQty: number;
+  totalAmount: number;
   status: OwnerCustomerDeliveryStatus;
   name: string;
   profileImageUrl?: string | null;
@@ -363,7 +368,32 @@ export type CustomerDeliveryHistoryResponse = {
   page: number;
   totalPages: number;
   totalItems: number;
+  statusCounts?: {
+    delivered: number;
+    pending: number;
+    cancelled: number;
+  };
   deliveries: OwnerCustomerDeliveryHistoryItem[];
+};
+
+export type CustomerDeliveryHistorySession = {
+  id: number;
+  shift: OwnerCustomerDeliveryShift;
+  cowQty: number;
+  buffaloQty: number;
+  totalAmount: number;
+  status: OwnerCustomerDeliveryStatus;
+  notes?: string | null;
+};
+
+export type CustomerDeliveryHistoryDay = {
+  date: string;
+  totalCowQty: number;
+  totalBuffaloQty: number;
+  totalLiters: number;
+  totalAmount: number;
+  status: OwnerCustomerDeliveryStatus;
+  sessions: CustomerDeliveryHistorySession[];
 };
 
 export type OwnerCustomerTab =
