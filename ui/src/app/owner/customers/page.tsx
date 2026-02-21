@@ -284,18 +284,18 @@ const OwnerCustomersPage = () => {
             <Loader />
           </div>
         ) : (
-          <div className='bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden'>
+          <div className='bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden'>
             <div className='overflow-x-auto'>
               <table className='w-full text-left border-collapse'>
                 <thead>
-                  <tr className='border-b border-primary/10 bg-slate-50'>
-                    <th className='px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500'>
+                  <tr className='border-b border-slate-200 bg-slate-50'>
+                    <th className='px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider'>
                       Name
                     </th>
-                    <th className='px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500'>
+                    <th className='px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider'>
                       Phone
                     </th>
-                    <th className='px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500 text-center'>
+                    <th className='px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center'>
                       <div className='flex flex-col gap-0.5'>
                         <p>Morning Qty</p>
                         <p className='font-semibold text-[9px]'>
@@ -303,7 +303,7 @@ const OwnerCustomersPage = () => {
                         </p>
                       </div>
                     </th>
-                    <th className='px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500 text-center'>
+                    <th className='px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center'>
                       <div className='flex flex-col gap-0.5'>
                         <p>Evening Qty</p>
                         <p className='font-semibold text-[9px]'>
@@ -311,10 +311,10 @@ const OwnerCustomersPage = () => {
                         </p>
                       </div>
                     </th>
-                    <th className='px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500'>
+                    <th className='px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider'>
                       Status
                     </th>
-                    <th className='px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500 text-right'>
+                    <th className='px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center'>
                       Actions
                     </th>
                   </tr>

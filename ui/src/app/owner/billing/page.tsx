@@ -250,30 +250,30 @@ const OwnerBillingPage = () => {
           </div>
         </div>
 
-        <div className='bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden'>
+        <div className='bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden'>
           <div className='overflow-x-auto'>
             <table className='w-full text-left border-collapse'>
               <thead>
-                <tr className='bg-slate-50 border-b border-primary/10'>
-                  <th className='px-6 py-4 text-[11px] font-black text-slate-400 uppercase tracking-widest'>
+                <tr className='bg-slate-50 border-b border-slate-200'>
+                  <th className='px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider'>
                     Invoice
                   </th>
-                  <th className='px-6 py-4 text-[11px] font-black text-slate-400 uppercase tracking-widest'>
+                  <th className='px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider'>
                     Customer
                   </th>
-                  <th className='px-6 py-4 text-[11px] font-black text-slate-400 uppercase tracking-widest text-center'>
+                  <th className='px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center'>
                     Month
                   </th>
-                  <th className='px-6 py-4 text-[11px] font-black text-slate-400 uppercase tracking-widest text-center'>
+                  <th className='px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center'>
                     Qty
                   </th>
-                  <th className='px-6 py-4 text-[11px] font-black text-slate-400 uppercase tracking-widest text-center'>
+                  <th className='px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center'>
                     Amount
                   </th>
-                  <th className='px-6 py-4 text-[11px] font-black text-slate-400 uppercase tracking-widest text-center'>
+                  <th className='px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center'>
                     Status
                   </th>
-                  <th className='px-6 py-4 text-[11px] font-black text-slate-400 uppercase tracking-widest text-center'>
+                  <th className='px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center'>
                     Actions
                   </th>
                 </tr>
