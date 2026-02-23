@@ -110,6 +110,7 @@ model CustomerOwner {
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
   dailyMilks DailyMilk[]
+  invoices   Invoice[]
 
   @@index([customerId])
   @@index([ownerId])
@@ -169,6 +170,18 @@ enum DailyMilkStatus {
   CANCELLED
 }
 
+enum PaymentMethod {
+  STRIPE
+  COD
+}
+
+enum InvoiceStatus {
+  UNPAID
+  PENDING_COD
+  PAID
+  FAILED
+}
+
 model DailyMilk {
   id Int @id @default(autoincrement())
 
@@ -196,4 +209,34 @@ model DailyMilk {
   @@unique([customerOwnerId, deliveryDate, slot])
   @@index([customerOwnerId])
   @@index([deliveryDate])
+}
+
+model Invoice {
+  id              Int           @id @default(autoincrement())
+  customerOwnerId Int
+  customerOwner   CustomerOwner @relation(fields: [customerOwnerId], references: [id])
+
+  billYear  Int
+  billMonth Int // 1-12
+
+  cowMilkTotal     Decimal @default(0) @db.Decimal(10, 2)
+  buffaloMilkTotal Decimal @default(0) @db.Decimal(10, 2)
+  totalAmount      Decimal @db.Decimal(10, 2)
+
+  status        InvoiceStatus @default(UNPAID)
+  paymentMethod PaymentMethod
+
+  paidAt  DateTime?
+  dueDate DateTime? @db.Date
+  notes   String?
+
+  stripeSessionId       String?
+  stripePaymentIntentId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([customerOwnerId, billYear, billMonth])
+  @@index([customerOwnerId])
+  @@index([billYear, billMonth])
 }
