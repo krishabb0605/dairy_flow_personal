@@ -1,13 +1,12 @@
 'use client';
 
 import type { OwnerCustomerDeliveryHistoryItem } from '../../types';
-import Button from '../ui/button';
 
-type DeliveryHistoryRowProps = {
+const DeliveryHistoryRow = ({
+  row,
+}: {
   row: OwnerCustomerDeliveryHistoryItem;
-};
-
-const DeliveryHistoryRow = ({ row }: DeliveryHistoryRowProps) => {
+}) => {
   const statusBadge =
     row.status === 'delivered' ? (
       <span className='inline-flex items-center gap-1.5 py-1 px-3 rounded-full bg-primary/10 text-primary text-xs font-bold'>
@@ -68,7 +67,9 @@ const DeliveryHistoryRow = ({ row }: DeliveryHistoryRowProps) => {
       <td className='px-6 py-4 text-sm text-center font-medium'>
         {row.buffaloQty} L
       </td>
-      <td className='px-6 py-4 text-sm text-center font-medium'>{totalQty} L</td>
+      <td className='px-6 py-4 text-sm text-center font-medium'>
+        {totalQty} L
+      </td>
       <td className='px-6 py-4 text-sm text-center font-bold text-[#111418]'>
         ₹ {row.totalAmount}
       </td>

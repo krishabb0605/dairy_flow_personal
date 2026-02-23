@@ -1,6 +1,8 @@
 'use client';
-import Modal from '../../../components/modal';
+
 import React, { useState } from 'react';
+
+import Modal from '../../../components/modal';
 
 const DeliveryIssueModal = ({
   open,

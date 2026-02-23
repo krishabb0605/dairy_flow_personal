@@ -1,12 +1,17 @@
 'use client';
-import { deActivateOwner } from '../../../lib/customerOwner';
-import Modal from '../../../components/modal';
+
 import { useContext, useState } from 'react';
 import { toast } from 'react-toastify';
-import { UserContext } from '../../../app/context/user-context';
-import { auth } from '../../../config/firebase-config';
-import { getUser } from '../../../lib/users';
 import { useRouter } from 'next/navigation';
+
+import { UserContext } from '../../../app/context/user-context';
+
+import Modal from '../../../components/modal';
+
+import { deActivateOwner } from '../../../lib/customerOwner';
+import { getUser } from '../../../lib/users';
+
+import { auth } from '../../../config/firebase-config';
 
 const DeActivateOwnerModal = ({
   open,

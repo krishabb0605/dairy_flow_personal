@@ -1,11 +1,15 @@
 'use client';
 
-import Modal from '../../../components/modal';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
+
 import { UserContext } from '../../../app/context/user-context';
-import { createVacationSchedule } from '../../../lib/schedule-vacation';
+
+import Modal from '../../../components/modal';
+
 import type { ScheduleVacationProps, Slot } from '../../../types';
+
+import { createVacationSchedule } from '../../../lib/schedule-vacation';
 
 const slotRank = { morning: 0, evening: 1 } as const;
 

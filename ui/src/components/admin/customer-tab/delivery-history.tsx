@@ -1,26 +1,28 @@
 'use client';
 
-import Pagination from '../../../components/pagination';
 import { useCallback, useEffect, useState } from 'react';
+
+import Pagination from '../../../components/pagination';
 import Button from '../../../components/ui/button';
 import Loader from '../../../components/loader';
+
 import type {
   DeliveryShiftFilter,
   DeliveryStatusFilter,
   OwnerCustomerDeliveryHistoryItem,
 } from '../../../types';
+
 import { getCustomerDeliveryHistory } from '../../../lib/customerSettings';
+
 import DeliveryHistoryRow from './delivery-history-row';
 
 const ITEMS_PER_PAGE = 2;
 
-type CustomerDeliveryHistoryProps = {
-  customerOwnerId: number;
-};
-
 const CustomerDeliveryHistory = ({
   customerOwnerId,
-}: CustomerDeliveryHistoryProps) => {
+}: {
+  customerOwnerId: number;
+}) => {
   const [page, setPage] = useState(1);
   const [isFiltersOpen, setIsFiltersOpen] = useState(true);
   const [startDate, setStartDate] = useState('');
@@ -287,7 +289,9 @@ const CustomerDeliveryHistory = ({
         </table>
       </div>
 
-      <Pagination page={page} totalPages={totalPages} setPage={setPage} />
+      {rows.length > 0 && (
+        <Pagination page={page} totalPages={totalPages} setPage={setPage} />
+      )}
     </div>
   );
 };

@@ -1,10 +1,14 @@
 'use client';
-import Loader from '../../../components/loader';
-import { OnboardingLayoutProps } from './../../../types';
+
 import { useContext } from 'react';
-import { UserContext } from '../../../app/context/user-context';
 import { useRouter } from 'next/navigation';
+
+import { UserContext } from '../../../app/context/user-context';
+
+import Loader from '../../../components/loader';
 import Button from '../../../components/ui/button';
+
+import { OnboardingLayoutProps } from './../../../types';
 
 const OnboardingLayout = ({
   currentStep,

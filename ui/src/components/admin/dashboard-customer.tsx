@@ -1,11 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import Button from '../../components/ui/button';
-import EditDeliveryModal from '../modal/admin/edit-delivery';
-import { updateDailyMilk } from '../../lib/daily-milk';
-import { FALLBACK_CUSTOMER_PROFILE_IMAGE } from '../../constants';
 import Image from 'next/image';
+
+import Button from '../../components/ui/button';
+
+import { FALLBACK_CUSTOMER_PROFILE_IMAGE } from '../../constants';
+
+import { updateDailyMilk } from '../../lib/daily-milk';
+
+import EditDeliveryModal from '../modal/admin/edit-delivery';
 
 const DashboardCustomer = ({ slotDeliverie, setDeliveries }: any) => {
   const [isEditOpen, setIsEditOpen] = useState(false);

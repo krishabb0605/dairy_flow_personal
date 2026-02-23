@@ -1,8 +1,10 @@
 'use client';
 
-import { ModalProps } from '../types';
-import Loader from './loader';
 import Button from '../components/ui/button';
+
+import { ModalProps } from '../types';
+
+import Loader from './loader';
 
 const getIcon = (variant = 'default') => {
   if (variant === 'warning') {

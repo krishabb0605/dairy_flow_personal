@@ -1,4 +1,3 @@
-import { api } from '../lib/api';
 import type {
   CustomerCalendarResponse,
   CustomerMonthlySummaryResponse,
@@ -6,6 +5,8 @@ import type {
   OwnerDelivery,
   OwnerDeliveryHistoryResponse,
 } from '../types';
+
+import { api } from '../lib/api';
 
 export const getOwnerDashboard = async (
   ownerId: number,

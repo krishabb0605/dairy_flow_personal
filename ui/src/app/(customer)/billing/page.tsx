@@ -1,11 +1,15 @@
 'use client';
-import ContentLayout from '../../../components/layout';
+
 import Image from 'next/image';
 import { useState } from 'react';
-import pieChart from '../../../assets/images/pie-chart.png';
-import { billingHistory, dailyDeliveriesHistory } from '../../../constants';
+
+import ContentLayout from '../../../components/layout';
 import Pagination from '../../../components/pagination';
 import Button from '../../../components/ui/button';
+
+import { billingHistory, dailyDeliveriesHistory } from '../../../constants';
+
+import pieChart from '../../../assets/images/pie-chart.png';
 
 const ITEMS_PER_PAGE = 3;
 

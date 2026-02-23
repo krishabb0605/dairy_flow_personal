@@ -1,19 +1,23 @@
 'use client';
 
 import { useState } from 'react';
-import Button from '../ui/button';
-import EditDeliveryModal from '../modal/admin/edit-delivery';
-import { updateDailyMilk } from '../../lib/daily-milk';
-import type { OwnerDeliveryHistoryItem } from '../../types';
 import { toast } from 'react-toastify';
 import Image from 'next/image';
 
-type OwnerDeliveryRowProps = {
+import type { OwnerDeliveryHistoryItem } from '../../types';
+
+import { updateDailyMilk } from '../../lib/daily-milk';
+
+import Button from '../ui/button';
+import EditDeliveryModal from '../modal/admin/edit-delivery';
+
+const OwnerDeliveryRow = ({
+  delivery,
+  onUpdated,
+}: {
   delivery: OwnerDeliveryHistoryItem;
   onUpdated: (updated: OwnerDeliveryHistoryItem) => void;
-};
-
-const OwnerDeliveryRow = ({ delivery, onUpdated }: OwnerDeliveryRowProps) => {
+}) => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [statusUpdating, setStatusUpdating] = useState(false);
 

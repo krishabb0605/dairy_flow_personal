@@ -1,16 +1,13 @@
 'use client';
 
+import { useEffect, useRef, useState } from 'react';
+
 import type {
   OwnerCustomerProfile,
   UpcomingCustomerActivity,
 } from '../../../types';
-import { useEffect, useRef, useState } from 'react';
-import { getUpcomingCustomerActivity } from '../../../lib/customerOwner';
 
-type CustomerOverViewProps = {
-  profile: OwnerCustomerProfile | null;
-  customerOwnerId: number;
-};
+import { getUpcomingCustomerActivity } from '../../../lib/customerOwner';
 
 const formatDate = (dateValue: string) => {
   const date = new Date(dateValue);
@@ -24,7 +21,10 @@ const formatDate = (dateValue: string) => {
 const CustomerOverView = ({
   profile,
   customerOwnerId,
-}: CustomerOverViewProps) => {
+}: {
+  profile: OwnerCustomerProfile | null;
+  customerOwnerId: number;
+}) => {
   const phone = profile?.phone ? `+91 ${profile.phone}` : '-';
   const email = profile?.email || '-';
   const address = profile?.address || '-';

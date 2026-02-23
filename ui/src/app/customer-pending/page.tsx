@@ -1,10 +1,14 @@
 'use client';
+
 import { useRouter } from 'next/navigation';
 import { useContext, useEffect } from 'react';
+
 import { UserContext } from '../context/user-context';
+
 import Loader from '../../components/loader';
-import { FALLBACK_CUSTOMER_PROFILE_IMAGE } from '../../constants';
 import Button from '../../components/ui/button';
+
+import { FALLBACK_CUSTOMER_PROFILE_IMAGE } from '../../constants';
 
 const CustomerPending = () => {
   const { user, loading, handleLogout } = useContext(UserContext);

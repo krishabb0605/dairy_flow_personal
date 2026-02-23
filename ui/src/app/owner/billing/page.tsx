@@ -1,10 +1,12 @@
 'use client';
 
+import { useMemo, useState } from 'react';
+
 import ContentLayout from '../../../components/layout';
 import Pagination from '../../../components/pagination';
-import { useMemo, useState } from 'react';
-import type { OwnerBillingRecord, OwnerBillingStatus } from '../../../types';
 import Button from '../../../components/ui/button';
+
+import type { OwnerBillingRecord, OwnerBillingStatus } from '../../../types';
 
 const OWNER_BILLING_DATA: OwnerBillingRecord[] = [
   {

@@ -1,13 +1,15 @@
 'use client';
 
+import { useContext, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+
+import { UserContext } from '../../../app/context/user-context';
+
 import UserRole from '../../../components/Auth/onboarding/user-role';
 import BasicInfo from '../../../components/Auth/onboarding/basic-info';
-import { Stepper } from '../../../components/Auth/stepper';
-import { useContext, useEffect, useState } from 'react';
 import OwnerConfiguration from '../../../components/Auth/onboarding/owner-configuration';
 import CustomerConfiguration from '../../../components/Auth/onboarding/customer-configuration';
-import { UserContext } from '../../../app/context/user-context';
-import { useRouter } from 'next/navigation';
+import { Stepper } from '../../../components/Auth/stepper';
 
 const steps = [
   { id: 1, title: 'Basic Info' },

@@ -1,19 +1,23 @@
 'use client';
+
+import { type FormEvent, useContext, useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
+
 import { UserContext } from '../../../app/context/user-context';
 import { Mandatory } from '../../../app/page';
+
 import ContentLayout from '../../../components/layout';
-import { type FormEvent, useContext, useEffect, useState } from 'react';
-import {
-  type CustomerSettingsFormData,
-  type CustomerSettingsFormErrors,
-  type User,
-} from '../../../types';
-import { useCloudinaryImageUpload } from '../../../hooks/use-cloudinary-image-upload';
-import { FALLBACK_CUSTOMER_PROFILE_IMAGE } from '../../../constants';
-import { updateCustomerSettings } from '../../../lib/users';
-import { toast } from 'react-toastify';
 import Loader from '../../../components/loader';
 import Button from '../../../components/ui/button';
+
+import type {
+  CustomerSettingsFormData,
+  CustomerSettingsFormErrors,
+  User,
+} from '../../../types';
+import { FALLBACK_CUSTOMER_PROFILE_IMAGE } from '../../../constants';
+import { updateCustomerSettings } from '../../../lib/users';
+import { useCloudinaryImageUpload } from '../../../hooks/use-cloudinary-image-upload';
 
 const buildInitialFormData = (user: User | null): CustomerSettingsFormData => ({
   fullName: user?.fullName ?? '',

@@ -1,17 +1,22 @@
 'use client';
+
 import { useCallback, useContext, useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
+
+import { UserContext } from '../../context/user-context';
+
 import ContentLayout from '../../../components/layout';
 import Pagination from '../../../components/pagination';
 import Button from '../../../components/ui/button';
-import { UserContext } from '../../context/user-context';
-import { getOwnerDeliveryHistory } from '../../../lib/daily-milk';
+import Loader from '../../../components/loader';
+import OwnerDeliveryRow from '../../../components/admin/owner-delivery-row';
+
 import type {
   OwnerDeliveryHistoryItem,
   OwnerDeliveryHistoryResponse,
 } from '../../../types';
-import Loader from '../../../components/loader';
-import { toast } from 'react-toastify';
-import OwnerDeliveryRow from '../../../components/admin/owner-delivery-row';
+
+import { getOwnerDeliveryHistory } from '../../../lib/daily-milk';
 
 const ITEMS_PER_PAGE = 5;
 
@@ -320,6 +325,7 @@ const Deliveries = () => {
               </tbody>
             </table>
           </div>
+
           {deliveries.length > 0 && (
             <Pagination page={page} totalPages={totalPages} setPage={setPage} />
           )}

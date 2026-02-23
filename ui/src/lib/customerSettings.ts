@@ -1,8 +1,9 @@
-import { api } from '../lib/api';
 import type {
   CustomerDeliveryHistoryResponse,
   OwnerCustomerProfile,
 } from '../types';
+
+import { api } from '../lib/api';
 
 export const getCustomerProfile = async (
   customerOwnerId: number,

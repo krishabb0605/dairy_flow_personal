@@ -218,20 +218,15 @@ export type CreateUserParams = {
   existingFirebaseId?: string | null;
 };
 
-export type AddOwnerConfigInfoParams = {
-  dairyName: string;
-  cowEnabled: boolean;
-  cowPrice: number;
-  buffaloEnabled: boolean;
-  buffaloPrice: number;
-};
+export type AddOwnerConfigInfoParams = Pick<
+  UpdateOwnerSettingsParams,
+  'dairyName' | 'cowEnabled' | 'cowPrice' | 'buffaloEnabled' | 'buffaloPrice'
+>;
 
-export type AddCustomerConfigInfoParams = {
-  morningCowQty: number;
-  morningBuffaloQty: number;
-  eveningCowQty: number;
-  eveningBuffaloQty: number;
-};
+export type AddCustomerConfigInfoParams = Pick<
+  UpdateCustomerSettingsParams,
+  'morningCowQty' | 'morningBuffaloQty' | 'eveningCowQty' | 'eveningBuffaloQty'
+>;
 
 export type UpdateCustomerSettingsParams = {
   fullName: string;
@@ -281,24 +276,6 @@ export type ValidateImageFileOptions = {
 export type UseCloudinaryImageUploadOptions = {
   initialImageUrl: string;
   fallbackImageUrl: string;
-};
-
-export type DeliverySession = {
-  type: 'Morning' | 'Evening';
-  time: string;
-  cow: number;
-  buffalo: number;
-  subtotal: number;
-};
-
-export type Delivery = {
-  id: number;
-  date: string;
-  day: string;
-  totalQty: number;
-  totalPrice: number;
-  status: 'Confirmed' | 'Pending' | 'Cancelled';
-  sessions: DeliverySession[];
 };
 
 export type OwnerCustomer = {
@@ -376,38 +353,10 @@ export type CustomerDeliveryHistoryResponse = {
   deliveries: OwnerCustomerDeliveryHistoryItem[];
 };
 
-export type CustomerDeliveryHistorySession = {
-  id: number;
-  shift: OwnerCustomerDeliveryShift;
-  cowQty: number;
-  buffaloQty: number;
-  totalAmount: number;
-  status: OwnerCustomerDeliveryStatus;
-  notes?: string | null;
-};
-
-export type CustomerDeliveryHistoryDay = {
-  date: string;
-  totalCowQty: number;
-  totalBuffaloQty: number;
-  totalLiters: number;
-  totalAmount: number;
-  status: OwnerCustomerDeliveryStatus;
-  sessions: CustomerDeliveryHistorySession[];
-};
-
 export type OwnerCustomerTab =
   | 'overview'
   | 'delivery-history'
   | 'billing-history';
-
-export type OwnerGenerateBillDailyRecord = {
-  day: number;
-  morningCow: number;
-  morningBuffalo: number;
-  eveningCow: number;
-  eveningBuffalo: number;
-};
 
 export type OwnerBillingStatus = 'paid' | 'pending';
 
@@ -469,7 +418,7 @@ export type DeliveryCalendarProps = {
   customerOwnerId?: number | null;
 };
 
-export type CustomerCalendarRecord = {
+export type BillPdfDailyRecord = {
   day: number;
   morningCow: number;
   morningBuffalo: number;
@@ -485,7 +434,7 @@ export type CustomerCalendarResponse = {
     eveningCow: number;
     eveningBuffalo: number;
   };
-  records: CustomerCalendarRecord[];
+  records: BillPdfDailyRecord[];
 };
 
 export type CustomerMonthlySummaryResponse = {
@@ -494,14 +443,6 @@ export type CustomerMonthlySummaryResponse = {
   totalBuffaloQty: number;
   totalLiters: number;
   totalAmount: number;
-};
-
-export type BillPdfDailyRecord = {
-  day: number;
-  morningCow: number;
-  morningBuffalo: number;
-  eveningCow: number;
-  eveningBuffalo: number;
 };
 
 export type BillPdfProps = {
@@ -574,4 +515,19 @@ export type UpcomingVacationItem = {
 export type UpcomingCustomerActivity = {
   extras: UpcomingExtraItem[];
   vacations: UpcomingVacationItem[];
+};
+
+export type DeliveryDayModalProps = {
+  open: boolean;
+  onClose: () => void;
+  selectedDate: Date | null;
+  record: BillPdfDailyRecord | null | undefined;
+  loading?: boolean;
+};
+
+export type EditDeliveryModalProps = {
+  open: boolean;
+  delivery: OwnerDelivery;
+  onClose: () => void;
+  onUpdated: (updated: OwnerDelivery) => void;
 };

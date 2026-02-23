@@ -1,13 +1,14 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import DeliveryDayModal from './DeliveryDayModal';
-import {
-  type CustomerCalendarRecord,
-  type DeliveryCalendarProps,
-} from '../../types';
+
 import Button from '../../components/ui/button';
+
+import type { BillPdfDailyRecord, DeliveryCalendarProps } from '../../types';
+
 import { getCustomerMonthlyCalendar } from '../../lib/daily-milk';
+
+import DeliveryDayModal from './DeliveryDayModal';
 import Loader from '../loader';
 
 const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -17,7 +18,7 @@ export default function DeliveryCalendar({
 }: DeliveryCalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [records, setRecords] = useState<CustomerCalendarRecord[]>([]);
+  const [records, setRecords] = useState<BillPdfDailyRecord[]>([]);
   const [calendarLoading, setCalendarLoading] = useState(true);
   const fetchCalendarRef = useRef(false);
 
@@ -100,7 +101,7 @@ export default function DeliveryCalendar({
   }, [customerOwnerId, daysInMonth, month, year]);
 
   const recordByDay = useMemo(() => {
-    const map = new Map<number, CustomerCalendarRecord>();
+    const map = new Map<number, BillPdfDailyRecord>();
     for (const record of records) {
       map.set(record.day, record);
     }

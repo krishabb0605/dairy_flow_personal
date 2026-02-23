@@ -1,14 +1,19 @@
 'use client';
+
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { toast } from 'react-toastify';
+
+import { UserContext } from '../../context/user-context';
+
 import ContentLayout from '../../../components/layout';
-import { OwnerDelivery, Slot } from '../../../types';
 import DashboardCustomer from '../../../components/admin/dashboard-customer';
 import Pagination from '../../../components/pagination';
 import Button from '../../../components/ui/button';
-import { UserContext } from '../../context/user-context';
-import { getOwnerDashboard } from '../../../lib/daily-milk';
-import { toast } from 'react-toastify';
 import Loader from '../../../components/loader';
+
+import { OwnerDelivery, Slot } from '../../../types';
+
+import { getOwnerDashboard } from '../../../lib/daily-milk';
 
 const Dashboard = () => {
   const { user } = useContext(UserContext);
@@ -101,8 +106,6 @@ const Dashboard = () => {
     }
     fetchDashboard();
   }, [fetchDashboard, user?.ownerSettings?.id]);
-
-  const slotDeliveries = deliveries;
 
   return (
     <ContentLayout
@@ -255,7 +258,7 @@ const Dashboard = () => {
                     </tr>
                   </thead>
                   <tbody className='divide-y divide-slate-100'>
-                    {slotDeliveries.length === 0 ? (
+                    {deliveries.length === 0 ? (
                       <tr>
                         <td
                           colSpan={7}
@@ -265,7 +268,7 @@ const Dashboard = () => {
                         </td>
                       </tr>
                     ) : (
-                      slotDeliveries.map((slotDeliverie, index) => (
+                      deliveries.map((slotDeliverie, index) => (
                         <DashboardCustomer
                           key={index}
                           slotDeliverie={slotDeliverie}
@@ -276,11 +279,14 @@ const Dashboard = () => {
                   </tbody>
                 </table>
               </div>
-              <Pagination
-                page={page}
-                totalPages={totalPages}
-                setPage={setPage}
-              />
+
+              {deliveries.length > 0 && (
+                <Pagination
+                  page={page}
+                  totalPages={totalPages}
+                  setPage={setPage}
+                />
+              )}
             </section>
           </div>
         )}
