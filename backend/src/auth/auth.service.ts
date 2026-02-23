@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-
 import { User } from '@prisma/client';
 
 import { BasicInfoDto } from './dto/basic-info.dto.js';
