@@ -3,11 +3,13 @@ import {
   HttpException,
   Injectable,
   InternalServerErrorException,
-  NotFoundException,
 } from '@nestjs/common';
+
 import { Prisma } from '../../generated/prisma/client.js';
-import { PrismaService } from '../prisma/prisma.service.js';
+
 import { CreateExtraMilkOrderDto } from './dto/create-extra-milk-order.dto.js';
+
+import { PrismaService } from '../prisma/prisma.service.js';
 
 @Injectable()
 export class ExtraMilkOrderRepository {
@@ -15,22 +17,6 @@ export class ExtraMilkOrderRepository {
 
   async createExtraMilkOrder(dto: CreateExtraMilkOrderDto): Promise<any> {
     try {
-      const customerOwner = await this.prisma.customerOwner.findUnique({
-        where: { id: dto.customerOwnerId },
-      });
-
-      if (!customerOwner) {
-        throw new NotFoundException(
-          `Customer-owner relation not found with id: ${dto.customerOwnerId}`,
-        );
-      }
-
-      if (!customerOwner.isActivated) {
-        throw new BadRequestException(
-          'Customer-owner relation is not active. Please activate first.',
-        );
-      }
-
       const cowQty = Number(dto.cowQty ?? 0);
       const buffaloQty = Number(dto.buffaloQty ?? 0);
 
@@ -40,7 +26,7 @@ export class ExtraMilkOrderRepository {
 
       return await this.prisma.extraMilkOrder.create({
         data: {
-          customerOwnerId: customerOwner.id,
+          customerOwnerId: dto.customerOwnerId,
           deliveryDate,
           slot: dto.slot === 'evening' ? 'EVENING' : 'MORNING',
           cowQty,
@@ -69,5 +55,38 @@ export class ExtraMilkOrderRepository {
 
       throw new InternalServerErrorException('Unexpected error');
     }
+  }
+
+  async findUpcomingByCustomerOwnerId(params: {
+    customerOwnerId: number;
+    today: Date;
+    take?: number;
+  }) {
+    const { customerOwnerId, today, take = 10 } = params;
+    return this.prisma.extraMilkOrder.findMany({
+      where: {
+        customerOwnerId,
+        deliveryDate: {
+          gte: today,
+        },
+      },
+      orderBy: [{ deliveryDate: 'asc' }, { slot: 'asc' }],
+      take,
+    });
+  }
+
+  async findByCustomerOwnerIdsAndDateSlot(params: {
+    customerOwnerIds: number[];
+    deliveryDate: Date;
+    slot: 'MORNING' | 'EVENING';
+  }) {
+    const { customerOwnerIds, deliveryDate, slot } = params;
+    return this.prisma.extraMilkOrder.findMany({
+      where: {
+        customerOwnerId: { in: customerOwnerIds },
+        deliveryDate,
+        slot,
+      },
+    });
   }
 }

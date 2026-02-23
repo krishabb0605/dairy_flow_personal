@@ -1,7 +1,17 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { DailyMilkRepository } from './daily-milk.repository.js';
+
 import { UpdateDailyMilkDto } from './dto/update-daily-milk.dto.js';
+
+import { CustomerOwnerRepository } from '../customer-owner/customer-owner.repositary.js';
+import { ExtraMilkOrderRepository } from '../extra-milk-order/extra-milk-order.repositary.js';
+import { VacationScheduleRepository } from '../vacation-schedule/vacation-schedule.repository.js';
+import { DailyMilkRepository } from './daily-milk.repository.js';
 
 const TIME_ZONE = process.env.CRON_TIMEZONE ?? process.env.TZ;
 const CRON_OPTIONS = TIME_ZONE ? { timeZone: TIME_ZONE } : undefined;
@@ -12,7 +22,12 @@ const SLOT_RANK = { MORNING: 0, EVENING: 1 } as const;
 export class DailyMilkService {
   private readonly logger = new Logger('DailyMilk');
 
-  constructor(private dailyMilkRepository: DailyMilkRepository) {}
+  constructor(
+    private dailyMilkRepository: DailyMilkRepository,
+    private customerOwnerRepository: CustomerOwnerRepository,
+    private extraMilkOrderRepository: ExtraMilkOrderRepository,
+    private vacationScheduleRepository: VacationScheduleRepository,
+  ) {}
 
   @Cron(CronExpression.EVERY_HOUR, CRON_OPTIONS)
   runEveryFiveMinite() {
@@ -35,18 +50,23 @@ export class DailyMilkService {
     const deliveryDate = this.getTodayDateOnly();
 
     const customerOwners =
-      await this.dailyMilkRepository.getActiveCustomerOwners();
+      await this.customerOwnerRepository.findActiveCustomerOwners();
 
     if (customerOwners.length === 0) return;
 
     const customerOwnerIds = customerOwners.map((item) => item.id);
 
-    const [extras, vacations] =
-      await this.dailyMilkRepository.getExtrasAndVacations({
+    const [extras, vacations] = await Promise.all([
+      this.extraMilkOrderRepository.findByCustomerOwnerIdsAndDateSlot({
         customerOwnerIds,
         deliveryDate,
         slot,
-      });
+      }),
+      this.vacationScheduleRepository.findActiveByCustomerOwnerIds({
+        customerOwnerIds,
+        deliveryDate,
+      }),
+    ]);
 
     const extrasByCustomer = new Map<number, (typeof extras)[number]>();
     for (const extra of extras) {
@@ -331,10 +351,61 @@ export class DailyMilkService {
     const { month } = params;
     const baseDate = this.resolveCalendarMonth(month);
 
-    return this.dailyMilkRepository.getCustomerMonthlyCalendar(
+    const customerOwner =
+      await this.customerOwnerRepository.findCustomerOwnerWithCustomer(
+        customerOwnerId,
+      );
+
+    if (!customerOwner) {
+      throw new NotFoundException(
+        `Customer-owner relation not found with id: ${customerOwnerId}`,
+      );
+    }
+
+    const year = baseDate.getUTCFullYear();
+    const monthIndex = baseDate.getUTCMonth();
+    const start = new Date(Date.UTC(year, monthIndex, 1));
+    const end = new Date(Date.UTC(year, monthIndex + 1, 0));
+
+    const deliveries = await this.dailyMilkRepository.listMonthlyDeliveries({
       customerOwnerId,
-      baseDate,
-    );
+      start,
+      end,
+    });
+
+    const daysInMonth = end.getUTCDate();
+    const records = Array.from({ length: daysInMonth }, (_, index) => ({
+      day: index + 1,
+      morningCow: 0,
+      morningBuffalo: 0,
+      eveningCow: 0,
+      eveningBuffalo: 0,
+    }));
+
+    for (const item of deliveries) {
+      const day = item.deliveryDate.getUTCDate();
+      const record = records[day - 1];
+      if (!record) continue;
+
+      if (item.slot === 'MORNING') {
+        record.morningCow = Number(item.cowQty);
+        record.morningBuffalo = Number(item.buffaloQty);
+      } else {
+        record.eveningCow = Number(item.cowQty);
+        record.eveningBuffalo = Number(item.buffaloQty);
+      }
+    }
+
+    return {
+      month: start.toISOString().slice(0, 10),
+      base: {
+        morningCow: Number(customerOwner.customer.morningCowQty ?? 0),
+        morningBuffalo: Number(customerOwner.customer.morningBuffaloQty ?? 0),
+        eveningCow: Number(customerOwner.customer.eveningCowQty ?? 0),
+        eveningBuffalo: Number(customerOwner.customer.eveningBuffaloQty ?? 0),
+      },
+      records,
+    };
   }
 
   async getCustomerMonthlySummary(
@@ -346,10 +417,37 @@ export class DailyMilkService {
     const { month } = params;
     const baseDate = this.resolveCalendarMonth(month);
 
-    return this.dailyMilkRepository.getCustomerMonthlySummary(
+    const customerOwner =
+      await this.customerOwnerRepository.findCustomerOwnerById(customerOwnerId);
+
+    if (!customerOwner) {
+      throw new NotFoundException(
+        `Customer-owner relation not found with id: ${customerOwnerId}`,
+      );
+    }
+
+    const year = baseDate.getUTCFullYear();
+    const monthIndex = baseDate.getUTCMonth();
+    const start = new Date(Date.UTC(year, monthIndex, 1));
+    const end = new Date(Date.UTC(year, monthIndex + 1, 0));
+
+    const totals = await this.dailyMilkRepository.aggregateMonthlyTotals({
       customerOwnerId,
-      baseDate,
-    );
+      start,
+      end,
+    });
+
+    const totalCowQty = Number(totals._sum.cowQty ?? 0);
+    const totalBuffaloQty = Number(totals._sum.buffaloQty ?? 0);
+    const totalAmount = Number(totals._sum.totalAmount ?? 0);
+
+    return {
+      month: start.toISOString().slice(0, 10),
+      totalCowQty,
+      totalBuffaloQty,
+      totalLiters: totalCowQty + totalBuffaloQty,
+      totalAmount,
+    };
   }
 
   private resolveCalendarMonth(value?: string): Date {
