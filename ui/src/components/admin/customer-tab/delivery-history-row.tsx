@@ -1,12 +1,16 @@
 import { useState } from 'react';
+
 import Button from '../../../components/ui/button';
-import EditDeliveryModal from '../../modal/admin/edit-delivery';
-import { updateDailyMilk } from '../../../lib/daily-milk';
+
 import type {
   OwnerCustomerDeliveryHistoryItem,
   OwnerCustomerDeliveryStatus,
   OwnerDelivery,
 } from '../../../types';
+
+import { updateDailyMilk } from '../../../lib/daily-milk';
+
+import EditDeliveryModal from '../../modal/admin/edit-delivery';
 
 const statusClasses: Record<OwnerCustomerDeliveryStatus, string> = {
   delivered: 'bg-emerald-100 text-emerald-700',
@@ -23,12 +27,13 @@ const formatDate = (dateValue: string) => {
   });
 };
 
-type DeliveryHistoryRowProps = {
+const DeliveryHistoryRow = ({
+  row,
+  onRowUpdated,
+}: {
   row: OwnerCustomerDeliveryHistoryItem;
   onRowUpdated: (updated: OwnerCustomerDeliveryHistoryItem) => void;
-};
-
-const DeliveryHistoryRow = ({ row, onRowUpdated }: DeliveryHistoryRowProps) => {
+}) => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [statusUpdating, setStatusUpdating] = useState(false);
 

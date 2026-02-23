@@ -1,15 +1,8 @@
 'use client';
 
-import Modal from '../modal';
-import type { CustomerCalendarRecord } from '../../types';
+import type { DeliveryDayModalProps } from '../../types';
 
-type DeliveryDayModalProps = {
-  open: boolean;
-  onClose: () => void;
-  selectedDate: Date | null;
-  record: CustomerCalendarRecord | null | undefined;
-  loading?: boolean;
-};
+import Modal from '../modal';
 
 const DeliveryDayModal = ({
   open,

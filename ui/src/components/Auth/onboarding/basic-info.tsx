@@ -1,10 +1,14 @@
 import { useContext, useState } from 'react';
-import OnboardingLayout from './layout';
 import { toast } from 'react-toastify';
-import { OnboardingStepProps } from '../../../types';
+
 import { UserContext } from '../../../app/context/user-context';
-import { createUser } from '../../../lib/users';
 import { Mandatory } from '../../../app/page';
+
+import { OnboardingStepProps } from '../../../types';
+
+import { createUser } from '../../../lib/users';
+
+import OnboardingLayout from './layout';
 
 const BasicInfo = ({ currentStep, setCurrentStep }: OnboardingStepProps) => {
   const { basicInfo, handleChange, setUser, user } = useContext(UserContext);

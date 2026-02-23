@@ -1,19 +1,23 @@
 'use client';
 
-import ContentLayout from '../../../components/layout';
-import Pagination from '../../../components/pagination';
-import { FALLBACK_CUSTOMER_PROFILE_IMAGE } from '../../../constants';
 import Link from 'next/link';
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import type { OwnerCustomer, OwnerCustomerStatusFilter } from '../../../types';
+import { toast } from 'react-toastify';
+
 import { UserContext } from '../../context/user-context';
+
+import ContentLayout from '../../../components/layout';
+import Pagination from '../../../components/pagination';
+import Loader from '../../../components/loader';
+import Button from '../../../components/ui/button';
+
+import { FALLBACK_CUSTOMER_PROFILE_IMAGE } from '../../../constants';
+import type { OwnerCustomer, OwnerCustomerStatusFilter } from '../../../types';
+
 import {
   createCustomerOwner,
   getOwnerCustomers,
 } from '../../../lib/customerOwner';
-import { toast } from 'react-toastify';
-import Loader from '../../../components/loader';
-import Button from '../../../components/ui/button';
 
 const ITEMS_PER_PAGE = 3;
 
@@ -398,7 +402,13 @@ const OwnerCustomersPage = () => {
               </table>
             </div>
 
-            <Pagination page={page} totalPages={totalPages} setPage={setPage} />
+            {customers.length > 0 && (
+              <Pagination
+                page={page}
+                totalPages={totalPages}
+                setPage={setPage}
+              />
+            )}
           </div>
         )}
       </div>

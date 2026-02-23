@@ -1,10 +1,12 @@
 'use client';
 
-import Pagination from '../../../components/pagination';
-import { billingHistory } from '../../../constants';
 import { useMemo, useState } from 'react';
-import type { BillingStatusFilter } from '../../../types';
+
+import Pagination from '../../../components/pagination';
 import Button from '../../../components/ui/button';
+
+import { billingHistory } from '../../../constants';
+import type { BillingStatusFilter } from '../../../types';
 
 const ITEMS_PER_PAGE = 4;
 
@@ -247,8 +249,9 @@ const CustomerBillingHistory = () => {
           </table>
         </div>
 
-        <div className='  text-xs text-slate-500 border-t border-slate-200' />
-        <Pagination page={page} totalPages={totalPages} setPage={setPage} />
+        {currentRows.length > 0 && (
+          <Pagination page={page} totalPages={totalPages} setPage={setPage} />
+        )}
       </div>
     </div>
   );

@@ -1,18 +1,22 @@
 'use client';
-import Modal from '../../../components/modal';
-import { milkPrices } from '../../../constants';
-import {
-  type AddExtraMilkDeliveryState,
-  type AddExtraMilkModalProps,
-  type CustomerOwner,
-  type MilkType,
-  type Slot,
-} from '../../../types';
+
 import { useContext, useMemo, useState } from 'react';
-import { createExtraMilkOrder } from '../../../lib/extra-milk-order';
-import { UserContext } from '../../../app/context/user-context';
 import { toast } from 'react-toastify';
+
+import { UserContext } from '../../../app/context/user-context';
+
+import Modal from '../../../components/modal';
 import Button from '../../../components/ui/button';
+
+import type {
+  AddExtraMilkDeliveryState,
+  AddExtraMilkModalProps,
+  CustomerOwner,
+  MilkType,
+  Slot,
+} from '../../../types';
+
+import { createExtraMilkOrder } from '../../../lib/extra-milk-order';
 
 const defaultState: AddExtraMilkDeliveryState = {
   morning: {
@@ -78,6 +82,11 @@ const AddExtraMilkModal = ({
   const [loading, setLoading] = useState<boolean>(false);
   const [delivery, setDelivery] =
     useState<AddExtraMilkDeliveryState>(defaultState);
+
+  const milkPrices = {
+    cow: Number(user?.currentActiveOwner?.cowPrice),
+    buffalo: Number(user?.currentActiveOwner?.buffaloPrice),
+  };
 
   const updateQty = (milk: MilkType, delta: number) => {
     setDelivery((prev) => {

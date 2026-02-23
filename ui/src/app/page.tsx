@@ -1,8 +1,10 @@
 'use client';
 
 import { useContext, useEffect } from 'react';
-import { UserContext } from './context/user-context';
 import { useRouter } from 'next/navigation';
+
+import { UserContext } from './context/user-context';
+
 import Loader from '../components/loader';
 
 export const Mandatory = () => {

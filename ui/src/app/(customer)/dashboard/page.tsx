@@ -1,16 +1,21 @@
 'use client';
+
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+
+import { UserContext } from '../../../app/context/user-context';
+
 import ContentLayout from '../../../components/layout';
 import DeliveryCalendar from '../../../components/Customer/calender';
-import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import AddExtraMilkModal from '../../../components/modal/customer/add-extra-milk';
 import ScheduleVacation from '../../../components/modal/customer/schedule-vacation';
-import { UserContext } from '../../../app/context/user-context';
 import DeActivateOwnerModal from '../../../components/modal/customer/deactivate-owner';
-import { getUpcomingCustomerActivity } from '../../../lib/customerOwner';
-import { getCustomerMonthlySummary } from '../../../lib/daily-milk';
-import type { UpcomingCustomerActivity } from '../../../types';
 import Loader from '../../../components/loader';
 import Button from '../../../components/ui/button';
+
+import type { UpcomingCustomerActivity } from '../../../types';
+
+import { getUpcomingCustomerActivity } from '../../../lib/customerOwner';
+import { getCustomerMonthlySummary } from '../../../lib/daily-milk';
 
 const defaultMilkSummary = {
   totalCowQty: 0,

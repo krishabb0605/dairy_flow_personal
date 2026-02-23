@@ -1,18 +1,21 @@
 'use client';
 
+import Link from 'next/link';
+import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
+import { toast } from 'react-toastify';
+
 import CustomerBillingHistory from '../../../../components/admin/customer-tab/billing-history';
 import CustomerDeliveryHistory from '../../../../components/admin/customer-tab/delivery-history';
 import CustomerOverView from '../../../../components/admin/customer-tab/overview';
 import ContentLayout from '../../../../components/layout';
-import { FALLBACK_CUSTOMER_PROFILE_IMAGE } from '../../../../constants';
-import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
-import type { OwnerCustomerProfile, OwnerCustomerTab } from '../../../../types';
 import Button from '../../../../components/ui/button';
-import { getCustomerProfile } from '../../../../lib/customerSettings';
-import { toast } from 'react-toastify';
 import Loader from '../../../../components/loader';
+
+import { FALLBACK_CUSTOMER_PROFILE_IMAGE } from '../../../../constants';
+import type { OwnerCustomerProfile, OwnerCustomerTab } from '../../../../types';
+
+import { getCustomerProfile } from '../../../../lib/customerSettings';
 
 const OwnerCustomerProfilePage = () => {
   const params = useParams<{ id: string }>();

@@ -1,10 +1,12 @@
 'use client';
 
 import { ReactNode, useContext, useEffect } from 'react';
-import { UserContext } from '../context/user-context';
 import { useRouter } from 'next/navigation';
-import Loader from '../../components/loader';
+
+import { UserContext } from '../context/user-context';
 import background from '../../assets/images/background.png';
+
+import Loader from '../../components/loader';
 
 const Layout = ({ children }: { children: ReactNode }) => {
   const { user, loading } = useContext(UserContext);

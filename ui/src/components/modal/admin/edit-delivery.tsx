@@ -2,16 +2,12 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
-import Modal from '../../modal';
-import type { OwnerDelivery } from '../../../types';
+
+import type { EditDeliveryModalProps, OwnerDelivery } from '../../../types';
+
 import { updateDailyMilk } from '../../../lib/daily-milk';
 
-type EditDeliveryModalProps = {
-  open: boolean;
-  delivery: OwnerDelivery;
-  onClose: () => void;
-  onUpdated: (updated: OwnerDelivery) => void;
-};
+import Modal from '../../modal';
 
 const statusOptions = [
   { value: 'PENDING', label: 'Pending' },

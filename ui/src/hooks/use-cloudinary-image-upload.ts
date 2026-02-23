@@ -1,6 +1,11 @@
 import { type ChangeEvent, useEffect, useRef, useState } from 'react';
-import { uploadImageToCloudinary, validateImageFile } from '../lib/cloudinary-upload';
+
 import type { UseCloudinaryImageUploadOptions } from '../types';
+
+import {
+  uploadImageToCloudinary,
+  validateImageFile,
+} from '../lib/cloudinary-upload';
 
 export const useCloudinaryImageUpload = (
   options: UseCloudinaryImageUploadOptions,

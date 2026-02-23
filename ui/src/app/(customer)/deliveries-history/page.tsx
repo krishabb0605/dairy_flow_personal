@@ -1,17 +1,23 @@
 'use client';
+
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+
+import { UserContext } from '../../../app/context/user-context';
+
 import Pagination from '../../../components/pagination';
 import ContentLayout from '../../../components/layout';
+import DeliveryHistoryRow from '../../../components/Customer/DeliveryHistoryRow';
+import Loader from '../../../components/loader';
+import Button from '../../../components/ui/button';
+
 import { deliveryFilters } from '../../../constants';
 import {
   deliveryFilter,
   OwnerCustomerDeliveryHistoryItem,
 } from '../../../types';
-import { useContext, useEffect, useMemo, useRef, useState } from 'react';
-import Button from '../../../components/ui/button';
-import DeliveryHistoryRow from '../../../components/Customer/DeliveryHistoryRow';
-import { UserContext } from '../../../app/context/user-context';
+
 import { getCustomerDeliveryHistory } from '../../../lib/customerSettings';
-import Loader from '../../../components/loader';
+
 const PAGE_SIZE = 3;
 
 const DeliveriesHistory = () => {
@@ -370,7 +376,9 @@ const DeliveriesHistory = () => {
             </table>
           </div>
 
-          <Pagination page={page} totalPages={totalPages} setPage={setPage} />
+          {rows.length > 0 && (
+            <Pagination page={page} totalPages={totalPages} setPage={setPage} />
+          )}
         </div>
 
         <div className='bg-blue-50 border border-blue-200 rounded-xl p-4 flex gap-4 items-start'>

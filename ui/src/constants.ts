@@ -1,4 +1,4 @@
-import type { Delivery, OwnerCustomer } from './types';
+import type { OwnerCustomer } from './types';
 
 export const API_URL =
   process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001';
@@ -15,11 +15,6 @@ export const deliveryFilters = [
   'Pending',
   'Cancelled',
 ];
-
-export const milkPrices = {
-  cow: 62,
-  buffalo: 78,
-};
 
 export const dailyDeliveriesHistory = [
   {

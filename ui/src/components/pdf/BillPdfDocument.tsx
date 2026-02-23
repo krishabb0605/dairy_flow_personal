@@ -5,6 +5,7 @@ import {
   Text,
   View,
 } from '@react-pdf/renderer';
+
 import type { BillPdfProps } from '../../types';
 
 const pdfStyles = StyleSheet.create({
