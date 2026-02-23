@@ -4,8 +4,7 @@ import {
   signInWithEmailAndPassword,
   signOut,
 } from 'firebase/auth';
-import { api } from '../lib/api';
-import { auth } from '../config/firebase-config';
+
 import type {
   AddCustomerConfigInfoParams,
   AddOwnerConfigInfoParams,
@@ -15,6 +14,9 @@ import type {
   UpdateOwnerSettingsParams,
   UserRoleType,
 } from '../types';
+
+import { api } from '../lib/api';
+import { auth } from '../config/firebase-config';
 
 export const getUser = async (firebaseUid: string) => {
   try {

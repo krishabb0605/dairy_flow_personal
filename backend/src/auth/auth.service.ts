@@ -1,13 +1,17 @@
 import { Injectable } from '@nestjs/common';
+
+import { User } from '@prisma/client';
+
 import { BasicInfoDto } from './dto/basic-info.dto.js';
 import { RoleDto } from './dto/role.dto.js';
 import { OwnerConfigDto } from './dto/owner-config.dto.js';
 import { CustomerConfigDto } from './dto/customer-config.dto.js';
 import { UpdateCustomerSettingsDto } from './dto/update-customer-settings.dto.js';
 import { UpdateOwnerSettingsDto } from './dto/update-owner-settings.dto.js';
+
 import { AuthRepository } from './auth.repositary.js';
+
 import { GetUserResponse } from './auth.repositary.types.js';
-import { User } from '@prisma/client';
 
 @Injectable()
 export class AuthService {

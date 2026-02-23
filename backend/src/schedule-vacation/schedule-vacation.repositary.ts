@@ -5,20 +5,27 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service.js';
+
 import { CreateVacationScheduleDto } from './dto/create-vacation-schedule.dto.js';
+
+import { CustomerOwnerRepository } from '../customer-owner/customer-owner.repositary.js';
+import { VacationScheduleRepository } from '../vacation-schedule/vacation-schedule.repository.js';
 
 const slotRank = { morning: 0, evening: 1 } as const;
 
 @Injectable()
 export class ScheduleVacationRepository {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private customerOwnerRepository: CustomerOwnerRepository,
+    private vacationScheduleRepository: VacationScheduleRepository,
+  ) {}
 
   async createVacationSchedule(dto: CreateVacationScheduleDto): Promise<any> {
     try {
-      const customerOwner = await this.prisma.customerOwner.findUnique({
-        where: { id: dto.customerOwnerId },
-      });
+      const customerOwner =
+        await this.customerOwnerRepository.findCustomerOwnerById(
+          dto.customerOwnerId,
+        );
 
       if (!customerOwner) {
         throw new NotFoundException(
@@ -41,22 +48,12 @@ export class ScheduleVacationRepository {
         throw new BadRequestException('End date/slot must be after start.');
       }
 
-      return await this.prisma.vacationSchedule.create({
-        data: {
-          customerOwnerId: customerOwner.id,
-          startDate,
-          startSlot,
-          endDate,
-          endSlot,
-        },
-        include: {
-          customerOwner: {
-            include: {
-              customer: true,
-              owner: true,
-            },
-          },
-        },
+      return await this.vacationScheduleRepository.createVacationSchedule({
+        customerOwnerId: customerOwner.id,
+        startDate,
+        startSlot,
+        endDate,
+        endSlot,
       });
     } catch (error: unknown) {
       if (error instanceof HttpException) throw error;

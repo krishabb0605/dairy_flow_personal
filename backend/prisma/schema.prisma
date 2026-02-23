@@ -163,6 +163,12 @@ enum DailyMilkSource {
   MANUAL
 }
 
+enum DailyMilkStatus {
+  PENDING
+  DELIVERED
+  CANCELLED
+}
+
 model DailyMilk {
   id Int @id @default(autoincrement())
 
@@ -181,6 +187,7 @@ model DailyMilk {
   totalAmount Decimal @db.Decimal(10, 2)
 
   source DailyMilkSource @default(CRON)
+  status DailyMilkStatus @default(PENDING)
   notes  String?
 
   createdAt DateTime @default(now())

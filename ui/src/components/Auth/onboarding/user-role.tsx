@@ -1,11 +1,16 @@
-import OnboardingLayout from './layout';
-import { OnboardingStepProps } from '../../../types';
-import { UserContext } from '../../../app/context/user-context';
 import { useContext, useState } from 'react';
 import { toast } from 'react-toastify';
+
+import { UserContext } from '../../../app/context/user-context';
+
+import { OnboardingStepProps } from '../../../types';
+
 import { addRole } from '../../../lib/users';
+
 import ownerOnboarding from '../../../assets/images/owner-onboarding.png';
 import customerOnboarding from '../../../assets/images/customer-onboarding.png';
+
+import OnboardingLayout from './layout';
 
 const UserRole = ({ currentStep, setCurrentStep }: OnboardingStepProps) => {
   const [saveLoading, setSaveLoading] = useState(false);

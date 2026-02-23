@@ -1,19 +1,23 @@
 'use client';
 
-import ContentLayout from '../../../components/layout';
-import Pagination from '../../../components/pagination';
-import { FALLBACK_CUSTOMER_PROFILE_IMAGE } from '../../../constants';
 import Link from 'next/link';
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import type { OwnerCustomer, OwnerCustomerStatusFilter } from '../../../types';
+import { toast } from 'react-toastify';
+
 import { UserContext } from '../../context/user-context';
+
+import ContentLayout from '../../../components/layout';
+import Pagination from '../../../components/pagination';
+import Loader from '../../../components/loader';
+import Button from '../../../components/ui/button';
+
+import { FALLBACK_CUSTOMER_PROFILE_IMAGE } from '../../../constants';
+import type { OwnerCustomer, OwnerCustomerStatusFilter } from '../../../types';
+
 import {
   createCustomerOwner,
   getOwnerCustomers,
 } from '../../../lib/customerOwner';
-import { toast } from 'react-toastify';
-import Loader from '../../../components/loader';
-import Button from '../../../components/ui/button';
 
 const ITEMS_PER_PAGE = 3;
 
@@ -218,7 +222,7 @@ const OwnerCustomersPage = () => {
         </div>
 
         <div className='flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between'>
-          <div className='flex-1 w-full lg:w-auto rounded-full bg-[#eef6ff] border border-[#d7e9ff] p-1 flex items-center overflow-hidden shadow-sm'>
+          <div className='flex-1 w-full lg:w-auto rounded-full bg-white border border-[#d7e9ff] p-1 flex items-center overflow-hidden shadow-sm'>
             <div className='pl-3 pr-2 text-[#6a97c8] flex items-center justify-center'>
               <span className='material-symbols-outlined text-[22px] leading-none'>
                 search
@@ -284,18 +288,18 @@ const OwnerCustomersPage = () => {
             <Loader />
           </div>
         ) : (
-          <div className='bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden'>
+          <div className='bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden'>
             <div className='overflow-x-auto'>
               <table className='w-full text-left border-collapse'>
                 <thead>
-                  <tr className='border-b border-primary/10 bg-slate-50'>
-                    <th className='px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500'>
+                  <tr className='border-b border-slate-200 bg-slate-50'>
+                    <th className='px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider'>
                       Name
                     </th>
-                    <th className='px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500'>
+                    <th className='px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider'>
                       Phone
                     </th>
-                    <th className='px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500 text-center'>
+                    <th className='px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center'>
                       <div className='flex flex-col gap-0.5'>
                         <p>Morning Qty</p>
                         <p className='font-semibold text-[9px]'>
@@ -303,7 +307,7 @@ const OwnerCustomersPage = () => {
                         </p>
                       </div>
                     </th>
-                    <th className='px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500 text-center'>
+                    <th className='px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center'>
                       <div className='flex flex-col gap-0.5'>
                         <p>Evening Qty</p>
                         <p className='font-semibold text-[9px]'>
@@ -311,10 +315,10 @@ const OwnerCustomersPage = () => {
                         </p>
                       </div>
                     </th>
-                    <th className='px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500'>
+                    <th className='px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider'>
                       Status
                     </th>
-                    <th className='px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500 text-right'>
+                    <th className='px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center'>
                       Actions
                     </th>
                   </tr>
@@ -398,7 +402,13 @@ const OwnerCustomersPage = () => {
               </table>
             </div>
 
-            <Pagination page={page} totalPages={totalPages} setPage={setPage} />
+            {customers.length > 0 && (
+              <Pagination
+                page={page}
+                totalPages={totalPages}
+                setPage={setPage}
+              />
+            )}
           </div>
         )}
       </div>

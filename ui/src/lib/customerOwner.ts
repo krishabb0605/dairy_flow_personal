@@ -1,10 +1,11 @@
-import { api } from '../lib/api';
 import type {
   CreateCustomerOwnerParams,
   GetOwnerCustomersParams,
   OwnerCustomersResponse,
   UpcomingCustomerActivity,
 } from '../types';
+
+import { api } from '../lib/api';
 
 export const createCustomerOwner = async (data: CreateCustomerOwnerParams) => {
   try {

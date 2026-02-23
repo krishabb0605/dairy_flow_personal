@@ -1,7 +1,17 @@
-import { Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { Prisma } from '@prisma/client';
-import { PrismaService } from '../prisma/prisma.service.js';
+
+import { UpdateDailyMilkDto } from './dto/update-daily-milk.dto.js';
+
+import { CustomerOwnerRepository } from '../customer-owner/customer-owner.repositary.js';
+import { ExtraMilkOrderRepository } from '../extra-milk-order/extra-milk-order.repositary.js';
+import { VacationScheduleRepository } from '../vacation-schedule/vacation-schedule.repository.js';
+import { DailyMilkRepository } from './daily-milk.repository.js';
 
 const TIME_ZONE = process.env.CRON_TIMEZONE ?? process.env.TZ;
 const CRON_OPTIONS = TIME_ZONE ? { timeZone: TIME_ZONE } : undefined;
@@ -12,9 +22,14 @@ const SLOT_RANK = { MORNING: 0, EVENING: 1 } as const;
 export class DailyMilkService {
   private readonly logger = new Logger('DailyMilk');
 
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private dailyMilkRepository: DailyMilkRepository,
+    private customerOwnerRepository: CustomerOwnerRepository,
+    private extraMilkOrderRepository: ExtraMilkOrderRepository,
+    private vacationScheduleRepository: VacationScheduleRepository,
+  ) {}
 
-  @Cron(CronExpression.EVERY_HOUR, CRON_OPTIONS)
+  @Cron(CronExpression.EVERY_5_MINUTES, CRON_OPTIONS)
   runEveryFiveMinite() {
     this.logger.log('Milk entry cron placeholder is running at every hour');
   }
@@ -25,7 +40,7 @@ export class DailyMilkService {
   //   await this.generateDailyMilk('MORNING');
   // }
 
-  // @Cron(CronExpression.EVERY_5_MINUTES, CRON_OPTIONS)
+  // @Cron(CronExpression.EVERY_DAY_AT_5PM, CRON_OPTIONS)
   // async handleEveningCron(): Promise<void> {
   //   this.logger.log('Milk entry cron placeholder is running at 5 pm');
   //   await this.generateDailyMilk('EVENING');
@@ -34,32 +49,22 @@ export class DailyMilkService {
   private async generateDailyMilk(slot: 'MORNING' | 'EVENING'): Promise<void> {
     const deliveryDate = this.getTodayDateOnly();
 
-    const customerOwners = await this.prisma.customerOwner.findMany({
-      where: { isActivated: true },
-      include: {
-        customer: true,
-        owner: true,
-      },
-    });
+    const customerOwners =
+      await this.customerOwnerRepository.findActiveCustomerOwners();
 
     if (customerOwners.length === 0) return;
 
     const customerOwnerIds = customerOwners.map((item) => item.id);
 
-    const [extras, vacations] = await this.prisma.$transaction([
-      this.prisma.extraMilkOrder.findMany({
-        where: {
-          customerOwnerId: { in: customerOwnerIds },
-          deliveryDate,
-          slot,
-        },
+    const [extras, vacations] = await Promise.all([
+      this.extraMilkOrderRepository.findByCustomerOwnerIdsAndDateSlot({
+        customerOwnerIds,
+        deliveryDate,
+        slot,
       }),
-      this.prisma.vacationSchedule.findMany({
-        where: {
-          customerOwnerId: { in: customerOwnerIds },
-          startDate: { lte: deliveryDate },
-          endDate: { gte: deliveryDate },
-        },
+      this.vacationScheduleRepository.findActiveByCustomerOwnerIds({
+        customerOwnerIds,
+        deliveryDate,
       }),
     ]);
 
@@ -75,9 +80,20 @@ export class DailyMilkService {
       vacationsByCustomer.set(vacation.customerOwnerId, list);
     }
 
-    const upserts: Prisma.PrismaPromise<unknown>[] = [];
+    const entries: Array<{
+      customerOwnerId: number;
+      deliveryDate: Date;
+      slot: 'MORNING' | 'EVENING';
+      cowQty: number;
+      buffaloQty: number;
+      cowPrice: number;
+      buffaloPrice: number;
+      totalAmount: number;
+      notes: string | null;
+    }> = [];
 
     for (const customerOwner of customerOwners) {
+      this.logger.log('Milk entry for customer ', customerOwner.id);
       const baseCowQty =
         slot === 'MORNING'
           ? Number(customerOwner.customer.morningCowQty)
@@ -106,39 +122,20 @@ export class DailyMilkService {
       const buffaloPrice = Number(customerOwner.owner.buffaloPrice);
       const totalAmount = cowQty * cowPrice + buffaloQty * buffaloPrice;
 
-      upserts.push(
-        this.prisma.dailyMilk.upsert({
-          where: {
-            customerOwnerId_deliveryDate_slot: {
-              customerOwnerId: customerOwner.id,
-              deliveryDate,
-              slot,
-            },
-          },
-          create: {
-            customerOwnerId: customerOwner.id,
-            deliveryDate,
-            slot,
-            cowQty,
-            buffaloQty,
-            cowPrice,
-            buffaloPrice,
-            totalAmount,
-            notes,
-          },
-          update: {
-            cowQty,
-            buffaloQty,
-            cowPrice,
-            buffaloPrice,
-            totalAmount,
-            notes,
-          },
-        }),
-      );
+      entries.push({
+        customerOwnerId: customerOwner.id,
+        deliveryDate,
+        slot,
+        cowQty,
+        buffaloQty,
+        cowPrice,
+        buffaloPrice,
+        totalAmount,
+        notes,
+      });
     }
 
-    await this.prisma.$transaction(upserts);
+    await this.dailyMilkRepository.upsertDailyMilkEntries(entries);
     this.logger.log(
       `Daily milk generated for ${slot} on ${deliveryDate.toISOString().slice(0, 10)}`,
     );
@@ -192,5 +189,281 @@ export class DailyMilkService {
   private getTodayDateOnly(): Date {
     const now = new Date();
     return new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+  }
+
+  async getOwnerDashboard(
+    ownerId: number,
+    params: {
+      date?: string;
+      page: number;
+      limit: number;
+      search?: string;
+      slot?: 'MORNING' | 'EVENING';
+    },
+  ) {
+    const deliveryDate = this.resolveDeliveryDate(params.date);
+    const page = Math.max(1, params.page || 1);
+    const limit = Math.max(1, params.limit || 10);
+    const slot = this.normalizeSlot(params.slot);
+
+    return this.dailyMilkRepository.getOwnerDashboard(ownerId, {
+      deliveryDate,
+      page,
+      limit,
+      search: params.search,
+      slot,
+    });
+  }
+
+  private normalizeSlot(slot?: string): 'MORNING' | 'EVENING' | undefined {
+    if (!slot) return undefined;
+    const upper = slot.toUpperCase();
+    if (upper === 'MORNING' || upper === 'EVENING') return upper;
+    throw new BadRequestException('Invalid slot value');
+  }
+
+  private resolveDeliveryDate(value?: string): Date {
+    if (!value) return this.getTodayDateOnly();
+
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) {
+      throw new BadRequestException('Invalid date format');
+    }
+
+    return new Date(
+      Date.UTC(
+        parsed.getUTCFullYear(),
+        parsed.getUTCMonth(),
+        parsed.getUTCDate(),
+      ),
+    );
+  }
+
+  async updateDailyMilk(dailyMilkId: number, dto: UpdateDailyMilkDto) {
+    const existing =
+      await this.dailyMilkRepository.getDailyMilkWithCustomer(dailyMilkId);
+
+    if (!existing) {
+      throw new BadRequestException('Daily milk entry not found');
+    }
+
+    const status = dto.status ?? existing.status;
+
+    const cowQty =
+      dto.cowQty !== undefined ? Number(dto.cowQty) : Number(existing.cowQty);
+    const buffaloQty =
+      dto.buffaloQty !== undefined
+        ? Number(dto.buffaloQty)
+        : Number(existing.buffaloQty);
+    const notes = dto.notes !== undefined ? dto.notes : existing.notes;
+
+    const totalAmount =
+      cowQty * Number(existing.cowPrice) +
+      buffaloQty * Number(existing.buffaloPrice);
+
+    const updated = await this.dailyMilkRepository.updateDailyMilk({
+      dailyMilkId,
+      cowQty,
+      buffaloQty,
+      notes,
+      status,
+      totalAmount,
+    });
+
+    return {
+      id: updated.id,
+      name: updated.customerOwner.customer.user.fullName,
+      profileImageUrl: updated.customerOwner.customer.user.profileImageUrl,
+      cowQty: Number(updated.cowQty),
+      buffaloQty: Number(updated.buffaloQty),
+      slot: updated.slot.toLowerCase(),
+      status: updated.status,
+      notes: updated.notes,
+    };
+  }
+
+  async getOwnerDeliveryHistory(
+    ownerId: number,
+    params: {
+      page: number;
+      limit: number;
+      search?: string;
+      slot?: string;
+      status?: string;
+      startDate?: string;
+      endDate?: string;
+    },
+  ) {
+    const page = Math.max(1, params.page || 1);
+    const limit = Math.max(1, params.limit || 10);
+    const slot = this.normalizeSlot(params.slot);
+    const status = this.normalizeStatus(params.status);
+    const startDate = params.startDate
+      ? this.parseDateOnly(params.startDate, 'startDate')
+      : undefined;
+    const endDate = params.endDate
+      ? this.parseDateOnly(params.endDate, 'endDate')
+      : undefined;
+
+    return this.dailyMilkRepository.getOwnerDeliveryHistory(ownerId, {
+      page,
+      limit,
+      search: params.search,
+      slot,
+      status,
+      startDate,
+      endDate,
+    });
+  }
+
+  private normalizeStatus(
+    status?: string,
+  ): 'PENDING' | 'DELIVERED' | 'CANCELLED' | undefined {
+    if (!status) return undefined;
+    const upper = status.toUpperCase();
+    if (upper === 'PENDING' || upper === 'DELIVERED' || upper === 'CANCELLED') {
+      return upper;
+    }
+    throw new BadRequestException('Invalid status value');
+  }
+
+  private parseDateOnly(value: string, label: string): Date {
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) {
+      throw new BadRequestException(`Invalid ${label} format`);
+    }
+
+    return new Date(
+      Date.UTC(
+        parsed.getUTCFullYear(),
+        parsed.getUTCMonth(),
+        parsed.getUTCDate(),
+      ),
+    );
+  }
+
+  async getCustomerMonthlyCalendar(
+    customerOwnerId: number,
+    params: {
+      month?: string;
+    },
+  ) {
+    const { month } = params;
+    const baseDate = this.resolveCalendarMonth(month);
+
+    const customerOwner =
+      await this.customerOwnerRepository.findCustomerOwnerWithCustomer(
+        customerOwnerId,
+      );
+
+    if (!customerOwner) {
+      throw new NotFoundException(
+        `Customer-owner relation not found with id: ${customerOwnerId}`,
+      );
+    }
+
+    const year = baseDate.getUTCFullYear();
+    const monthIndex = baseDate.getUTCMonth();
+    const start = new Date(Date.UTC(year, monthIndex, 1));
+    const end = new Date(Date.UTC(year, monthIndex + 1, 0));
+
+    const deliveries = await this.dailyMilkRepository.listMonthlyDeliveries({
+      customerOwnerId,
+      start,
+      end,
+    });
+
+    const daysInMonth = end.getUTCDate();
+    const records = Array.from({ length: daysInMonth }, (_, index) => ({
+      day: index + 1,
+      morningCow: 0,
+      morningBuffalo: 0,
+      eveningCow: 0,
+      eveningBuffalo: 0,
+    }));
+
+    for (const item of deliveries) {
+      const day = item.deliveryDate.getUTCDate();
+      const record = records[day - 1];
+      if (!record) continue;
+
+      if (item.slot === 'MORNING') {
+        record.morningCow = Number(item.cowQty);
+        record.morningBuffalo = Number(item.buffaloQty);
+      } else {
+        record.eveningCow = Number(item.cowQty);
+        record.eveningBuffalo = Number(item.buffaloQty);
+      }
+    }
+
+    return {
+      month: start.toISOString().slice(0, 10),
+      base: {
+        morningCow: Number(customerOwner.customer.morningCowQty ?? 0),
+        morningBuffalo: Number(customerOwner.customer.morningBuffaloQty ?? 0),
+        eveningCow: Number(customerOwner.customer.eveningCowQty ?? 0),
+        eveningBuffalo: Number(customerOwner.customer.eveningBuffaloQty ?? 0),
+      },
+      records,
+    };
+  }
+
+  async getCustomerMonthlySummary(
+    customerOwnerId: number,
+    params: {
+      month?: string;
+    },
+  ) {
+    const { month } = params;
+    const baseDate = this.resolveCalendarMonth(month);
+
+    const customerOwner =
+      await this.customerOwnerRepository.findCustomerOwnerById(customerOwnerId);
+
+    if (!customerOwner) {
+      throw new NotFoundException(
+        `Customer-owner relation not found with id: ${customerOwnerId}`,
+      );
+    }
+
+    const year = baseDate.getUTCFullYear();
+    const monthIndex = baseDate.getUTCMonth();
+    const start = new Date(Date.UTC(year, monthIndex, 1));
+    const end = new Date(Date.UTC(year, monthIndex + 1, 0));
+
+    const totals = await this.dailyMilkRepository.aggregateMonthlyTotals({
+      customerOwnerId,
+      start,
+      end,
+    });
+
+    const totalCowQty = Number(totals._sum.cowQty ?? 0);
+    const totalBuffaloQty = Number(totals._sum.buffaloQty ?? 0);
+    const totalAmount = Number(totals._sum.totalAmount ?? 0);
+
+    return {
+      month: start.toISOString().slice(0, 10),
+      totalCowQty,
+      totalBuffaloQty,
+      totalLiters: totalCowQty + totalBuffaloQty,
+      totalAmount,
+    };
+  }
+
+  private resolveCalendarMonth(value?: string): Date {
+    if (!value) return this.getTodayDateOnly();
+
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) {
+      throw new BadRequestException('Invalid month format');
+    }
+
+    return new Date(
+      Date.UTC(
+        parsed.getUTCFullYear(),
+        parsed.getUTCMonth(),
+        parsed.getUTCDate(),
+      ),
+    );
   }
 }

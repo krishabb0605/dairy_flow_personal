@@ -2,16 +2,19 @@
 
 import React, { createContext, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { useRouter } from 'next/navigation';
+
 import {
   BasicInfoState,
   User,
   UserContextType,
   UserRoleType,
 } from '../../types';
-import { auth } from '../../config/firebase-config';
+
 import { getUser } from '../../lib/users';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { useRouter } from 'next/navigation';
+
+import { auth } from '../../config/firebase-config';
 
 export const UserContext = createContext<UserContextType>(
   {} as UserContextType,

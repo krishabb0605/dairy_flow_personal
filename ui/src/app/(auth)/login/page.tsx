@@ -1,14 +1,17 @@
 'use client';
 
 import { useContext, useEffect, useState } from 'react';
-import { Mandatory } from '../../../app/page';
 import Link from 'next/link';
 import { toast } from 'react-toastify';
-import { login } from '../../../lib/users';
 import { useRouter } from 'next/navigation';
+
+import { Mandatory } from '../../../app/page';
 import { UserContext } from '../../../app/context/user-context';
+
 import Loader from '../../../components/loader';
 import Button from '../../../components/ui/button';
+
+import { login } from '../../../lib/users';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');

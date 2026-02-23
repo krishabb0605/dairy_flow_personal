@@ -1,5 +1,6 @@
-import { api } from './api';
 import type { CreateVacationScheduleParams } from '../types';
+
+import { api } from './api';
 
 export const createVacationSchedule = async (
   data: CreateVacationScheduleParams,

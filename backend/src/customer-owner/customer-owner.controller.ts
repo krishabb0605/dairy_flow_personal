@@ -8,9 +8,12 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
+
 import { ResponseHandler } from '../common/response.handler.js';
-import { CustomerOwnerService } from './customer-owner.service.js';
+
 import { CreateCustomerOwnerDto } from './dto/create-customer-owner.dto.js';
+
+import { CustomerOwnerService } from './customer-owner.service.js';
 
 @Controller('customer-owner')
 export class CustomerOwnerController {

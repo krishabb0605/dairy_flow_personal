@@ -1,28 +1,76 @@
 'use client';
 
+import Link from 'next/link';
+import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
+import { toast } from 'react-toastify';
+
 import CustomerBillingHistory from '../../../../components/admin/customer-tab/billing-history';
 import CustomerDeliveryHistory from '../../../../components/admin/customer-tab/delivery-history';
 import CustomerOverView from '../../../../components/admin/customer-tab/overview';
 import ContentLayout from '../../../../components/layout';
-import { ownerCustomers } from '../../../../constants';
-import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
-import { useState } from 'react';
-import type { OwnerCustomerTab } from '../../../../types';
 import Button from '../../../../components/ui/button';
+import Loader from '../../../../components/loader';
+
+import { FALLBACK_CUSTOMER_PROFILE_IMAGE } from '../../../../constants';
+import type { OwnerCustomerProfile, OwnerCustomerTab } from '../../../../types';
+
+import { getCustomerProfile } from '../../../../lib/customerSettings';
 
 const OwnerCustomerProfilePage = () => {
   const params = useParams<{ id: string }>();
-  const customerId = Number(params.id);
-  const customer = ownerCustomers.find((item) => item.id === customerId);
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<OwnerCustomerTab>('overview');
+  const [customer, setCustomer] = useState<OwnerCustomerProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const fetcheCustomerdRef = useRef(false);
+
+  useEffect(() => {
+    const loadCustomer = async () => {
+      const customerOwnerId = Number(params.id);
+
+      if (fetcheCustomerdRef.current) return;
+      fetcheCustomerdRef.current = true;
+
+      if (!Number.isFinite(customerOwnerId)) {
+        setLoadError('Invalid customer id.');
+        setCustomer(null);
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const data = await getCustomerProfile(customerOwnerId);
+        setCustomer(data ?? null);
+        setLoadError(null);
+      } catch (error: unknown) {
+        const message =
+          error instanceof Error ? error.message : 'Failed to load customer.';
+        setLoadError(message);
+        toast.error(message);
+        setCustomer(null);
+      } finally {
+        setLoading(false);
+        fetcheCustomerdRef.current = false;
+      }
+    };
+
+    loadCustomer();
+  }, [params.id]);
+
+  if (loading) {
+    return <Loader variant='screen' />;
+  }
 
   if (!customer) {
     return (
       <ContentLayout title='Customer Profile'>
         <div className='bg-white rounded-xl border border-primary/10 p-6 shadow-sm space-y-4'>
-          <p className='text-sm text-slate-600'>Customer not found.</p>
+          <p className='text-sm text-slate-600'>
+            {loadError || 'Customer not found.'}
+          </p>
           <Link
             href='/owner/customers'
             className='inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-white text-sm font-semibold hover:opacity-90'
@@ -53,7 +101,7 @@ const OwnerCustomerProfilePage = () => {
                     <div
                       className='w-24 h-24 rounded-2xl bg-slate-100 border-4 border-white shadow-sm bg-cover bg-center'
                       style={{
-                        backgroundImage: `url("${customer.avatar}")`,
+                        backgroundImage: `url("${customer.avatar || FALLBACK_CUSTOMER_PROFILE_IMAGE}")`,
                       }}
                     ></div>
                     <div className='absolute -bottom-2 -right-2 bg-primary text-white text-[10px] font-bold px-2 py-1 rounded-full border-2 border-white uppercase'>
@@ -65,9 +113,6 @@ const OwnerCustomerProfilePage = () => {
                       <h2 className='text-2xl font-bold text-slate-900'>
                         {customer.name}
                       </h2>
-                      <span className='bg-slate-100 text-slate-500 text-[10px] font-bold px-2 py-0.5 rounded border border-slate-200'>
-                        #CUST-{customer.id.toString().padStart(4, '0')}
-                      </span>
                     </div>
                     <div className='flex items-center gap-4 text-sm text-slate-500'>
                       <span className='flex items-center gap-1.5'>
@@ -133,8 +178,16 @@ const OwnerCustomerProfilePage = () => {
               Billing History
             </Button>
           </div>
-          {activeTab === 'overview' && <CustomerOverView />}
-          {activeTab === 'delivery-history' && <CustomerDeliveryHistory />}
+
+          {activeTab === 'overview' && (
+            <CustomerOverView
+              profile={customer}
+              customerOwnerId={customer.id}
+            />
+          )}
+          {activeTab === 'delivery-history' && (
+            <CustomerDeliveryHistory customerOwnerId={customer.id} />
+          )}
           {activeTab === 'billing-history' && <CustomerBillingHistory />}
         </main>
       </div>

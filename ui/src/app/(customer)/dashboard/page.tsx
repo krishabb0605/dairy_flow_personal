@@ -1,15 +1,28 @@
 'use client';
+
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+
+import { UserContext } from '../../../app/context/user-context';
+
 import ContentLayout from '../../../components/layout';
 import DeliveryCalendar from '../../../components/Customer/calender';
-import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import AddExtraMilkModal from '../../../components/modal/customer/add-extra-milk';
 import ScheduleVacation from '../../../components/modal/customer/schedule-vacation';
-import { UserContext } from '../../../app/context/user-context';
 import DeActivateOwnerModal from '../../../components/modal/customer/deactivate-owner';
-import { getUpcomingCustomerActivity } from '../../../lib/customerOwner';
-import type { UpcomingCustomerActivity } from '../../../types';
 import Loader from '../../../components/loader';
 import Button from '../../../components/ui/button';
+
+import type { UpcomingCustomerActivity } from '../../../types';
+
+import { getUpcomingCustomerActivity } from '../../../lib/customerOwner';
+import { getCustomerMonthlySummary } from '../../../lib/daily-milk';
+
+const defaultMilkSummary = {
+  totalCowQty: 0,
+  totalBuffaloQty: 0,
+  totalLiters: 0,
+  totalAmount: 0,
+};
 
 const Dashboard = () => {
   const { user } = useContext(UserContext);
@@ -17,7 +30,14 @@ const Dashboard = () => {
     extras: [],
     vacations: [],
   });
-  const [upcomingLoading, setUpcomingLoading] = useState(false);
+  const [upcomingLoading, setUpcomingLoading] = useState(true);
+  const [summaryLoading, setSummaryLoading] = useState(true);
+  const [dailyMilkSummary, setDailyMilkSummary] = useState<{
+    totalCowQty: number;
+    totalBuffaloQty: number;
+    totalLiters: number;
+    totalAmount: number;
+  }>(defaultMilkSummary);
 
   const [openExtraMilkModal, setOpenExtraMilkModal] = useState<boolean>(false);
   const [openScheduleVacation, setOpenScheduleVacation] =
@@ -45,12 +65,47 @@ const Dashboard = () => {
     }
   }, [user?.currentActiveOwner?.id]);
 
+  const fetchMonthlySummary = useCallback(async () => {
+    if (!user?.currentActiveOwner?.id) {
+      setDailyMilkSummary(defaultMilkSummary);
+      return;
+    }
+
+    setSummaryLoading(true);
+    try {
+      const now = new Date();
+      const monthValue = new Date(
+        Date.UTC(now.getFullYear(), now.getMonth(), 1),
+      )
+        .toISOString()
+        .slice(0, 10);
+
+      const data = await getCustomerMonthlySummary(user.currentActiveOwner.id, {
+        month: monthValue,
+      });
+
+      setDailyMilkSummary({
+        totalAmount: data.totalAmount ?? 0,
+        totalBuffaloQty: data.totalBuffaloQty ?? 0,
+        totalCowQty: data.totalCowQty ?? 0,
+        totalLiters: data.totalLiters ?? 0,
+      });
+    } catch (error) {
+      console.error('Failed to fetch monthly summary:', error);
+      setDailyMilkSummary(defaultMilkSummary);
+    } finally {
+      setSummaryLoading(false);
+    }
+  }, [user?.currentActiveOwner?.id]);
+
   useEffect(() => {
     const ownerId = user?.currentActiveOwner?.id ?? null;
 
     if (!ownerId) {
       lastAutoFetchedOwnerIdRef.current = null;
       setUpcoming({ extras: [], vacations: [] });
+      setDailyMilkSummary(defaultMilkSummary);
+
       return;
     }
 
@@ -60,7 +115,8 @@ const Dashboard = () => {
 
     lastAutoFetchedOwnerIdRef.current = ownerId;
     fetchUpcoming();
-  }, [fetchUpcoming, user?.currentActiveOwner?.id]);
+    fetchMonthlySummary();
+  }, [fetchMonthlySummary, fetchUpcoming, user?.currentActiveOwner?.id]);
 
   const formatDate = (value: string) =>
     new Date(`${value}T00:00:00`).toLocaleDateString('en-IN', {
@@ -71,6 +127,22 @@ const Dashboard = () => {
 
   const formatSlot = (slot: string | null) =>
     slot ? slot[0].toUpperCase() + slot.slice(1) : '-';
+
+  const formatCurrency = (value: number) =>
+    new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 2,
+    }).format(value);
+
+  const formatLiters = (value: number) =>
+    new Intl.NumberFormat('en-IN', {
+      maximumFractionDigits: 2,
+    }).format(value);
+
+  if (summaryLoading) {
+    return <Loader variant='screen' />;
+  }
 
   return (
     <ContentLayout title='Dashboard Overview'>
@@ -88,13 +160,21 @@ const Dashboard = () => {
                   </span>
                 </div>
               </div>
-              <p className='text-4xl font-bold'>48.5L</p>
-              <p className='text-sm text-primary font-semibold mt-2 flex items-center gap-1'>
-                <span className='material-symbols-outlined text-sm'>
-                  trending_up
-                </span>{' '}
-                +5.2% from last month
-              </p>
+              <div className='flex  justify-between items-center'>
+                <p className='text-4xl font-bold'>
+                  {`${formatLiters(dailyMilkSummary.totalLiters)}L`}
+                </p>
+                <div>
+                  <p className='text-sm text-slate-500'>
+                    Total cow qty:{' '}
+                    {`${formatLiters(dailyMilkSummary.totalCowQty)}L`}
+                  </p>
+                  <p className='text-sm text-slate-500'>
+                    Total buffalo qty:{' '}
+                    {`${formatLiters(dailyMilkSummary.totalBuffaloQty)}L`}
+                  </p>
+                </div>
+              </div>
             </div>
 
             <div className='bg-white  p-6 rounded-2xl border border-slate-200  shadow-sm'>
@@ -108,12 +188,16 @@ const Dashboard = () => {
                   </span>
                 </div>
               </div>
-              <p className='text-4xl font-bold'>₹2,910</p>
-              <p className='text-sm text-slate-500 mt-2'>Unpaid balance: ₹0</p>
+              <p className='text-4xl font-bold'>
+                {formatCurrency(dailyMilkSummary.totalAmount)}
+              </p>
             </div>
           </div>
 
-          <DeliveryCalendar customerSetting={user?.customerSettings} />
+          <DeliveryCalendar
+            customerSetting={user?.customerSettings}
+            customerOwnerId={user?.currentActiveOwner?.id}
+          />
         </div>
 
         <aside className='w-full xl:w-90 flex flex-col gap-6 shrink-0'>

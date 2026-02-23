@@ -1,22 +1,130 @@
 'use client';
+
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+
+import { UserContext } from '../../../app/context/user-context';
+
 import Pagination from '../../../components/pagination';
 import ContentLayout from '../../../components/layout';
-import { deliveries, deliveryFilters } from '../../../constants';
-import { deliveryFilter } from '../../../types';
-import { Fragment, useMemo, useState } from 'react';
+import DeliveryHistoryRow from '../../../components/Customer/DeliveryHistoryRow';
+import Loader from '../../../components/loader';
 import Button from '../../../components/ui/button';
-const PAGE_SIZE = 5;
+
+import { deliveryFilters } from '../../../constants';
+import {
+  deliveryFilter,
+  OwnerCustomerDeliveryHistoryItem,
+} from '../../../types';
+
+import { getCustomerDeliveryHistory } from '../../../lib/customerSettings';
+
+const PAGE_SIZE = 3;
 
 const DeliveriesHistory = () => {
-  const [openId, setOpenId] = useState<number | null>(null);
+  const { user } = useContext(UserContext);
   const [tab, setTab] = useState<deliveryFilter>('All Deliveries');
   const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [totalPages, setTotalPages] = useState(1);
+  const [rows, setRows] = useState<OwnerCustomerDeliveryHistoryItem[]>([]);
+  const [statusCounts, setStatusCounts] = useState({
+    delivered: 0,
+    pending: 0,
+    cancelled: 0,
+  });
+  const fetchDeliveriesRef = useRef(false);
+  const [selectedMonth, setSelectedMonth] = useState(() => {
+    const now = new Date();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    return `${now.getFullYear()}-${month}`;
+  });
 
-  // Filter
-  const filtered =
+  const customerOwnerId = user?.currentActiveOwner?.id ?? null;
+
+  const statusFilter =
     tab === 'All Deliveries'
-      ? deliveries
-      : deliveries.filter((d) => d.status === tab);
+      ? 'all'
+      : tab === 'Confirmed'
+        ? 'delivered'
+        : tab === 'Pending'
+          ? 'pending'
+          : 'cancelled';
+
+  const monthRange = useMemo(() => {
+    const [yearStr, monthStr] = selectedMonth.split('-');
+    const year = Number(yearStr);
+    const monthIndex = Number(monthStr) - 1;
+    if (!Number.isFinite(year) || !Number.isFinite(monthIndex)) {
+      return { startDate: undefined, endDate: undefined };
+    }
+    const start = new Date(Date.UTC(year, monthIndex, 1));
+    const end = new Date(Date.UTC(year, monthIndex + 1, 0));
+
+    return {
+      startDate: start.toISOString().slice(0, 10),
+      endDate: end.toISOString().slice(0, 10),
+    };
+  }, [selectedMonth]);
+
+  const monthLabel = useMemo(() => {
+    const [yearStr, monthStr] = selectedMonth.split('-');
+    const year = Number(yearStr);
+    const monthIndex = Number(monthStr) - 1;
+    if (!Number.isFinite(year) || !Number.isFinite(monthIndex)) {
+      return 'Selected Month';
+    }
+    return new Date(Date.UTC(year, monthIndex, 1)).toLocaleDateString('en-US', {
+      month: 'long',
+      year: 'numeric',
+    });
+  }, [selectedMonth]);
+
+  useEffect(() => {
+    const fetchDeliveries = async () => {
+      if (!customerOwnerId) {
+        setRows([]);
+        setTotalPages(1);
+        setStatusCounts({ delivered: 0, pending: 0, cancelled: 0 });
+        return;
+      }
+
+      if (fetchDeliveriesRef.current) return;
+      fetchDeliveriesRef.current = true;
+      setLoading(true);
+      try {
+        const data = await getCustomerDeliveryHistory(customerOwnerId, {
+          page,
+          limit: PAGE_SIZE,
+          status: statusFilter,
+          slot: 'all',
+          startDate: monthRange.startDate,
+          endDate: monthRange.endDate,
+        });
+
+        setTotalPages(data.totalPages);
+        setStatusCounts(
+          data.statusCounts ?? { delivered: 0, pending: 0, cancelled: 0 },
+        );
+        setRows(data.deliveries);
+      } catch (error) {
+        console.error('Failed to fetch delivery history:', error);
+        setRows([]);
+        setTotalPages(1);
+        setStatusCounts({ delivered: 0, pending: 0, cancelled: 0 });
+      } finally {
+        setLoading(false);
+        fetchDeliveriesRef.current = false;
+      }
+    };
+
+    fetchDeliveries();
+  }, [
+    customerOwnerId,
+    page,
+    statusFilter,
+    monthRange.startDate,
+    monthRange.endDate,
+  ]);
 
   const deliveriesTotalShiftQty = useMemo(() => {
     let morningShift = 0;
@@ -24,17 +132,15 @@ const DeliveriesHistory = () => {
     let morningQty = 0;
     let eveningQty = 0;
 
-    deliveries.forEach((delivery) => {
-      delivery.sessions.forEach((session) => {
-        if (session.type === 'Morning') {
-          morningShift++;
-          morningQty += session.cow + session.buffalo;
-        }
-        if (session.type === 'Evening') {
-          eveningShift++;
-          eveningQty += session.cow + session.buffalo;
-        }
-      });
+    rows.forEach((row) => {
+      if (row.shift === 'morning') {
+        morningShift++;
+        morningQty += row.cowQty + row.buffaloQty;
+      }
+      if (row.shift === 'evening') {
+        eveningShift++;
+        eveningQty += row.cowQty + row.buffaloQty;
+      }
     });
 
     return {
@@ -43,34 +149,41 @@ const DeliveriesHistory = () => {
       morningQty,
       eveningQty,
     };
-  }, []);
+  }, [rows]);
 
   const totalBill = useMemo(() => {
-    const total = deliveries.reduce(
-      (acc, deliverie) => acc + deliverie.totalPrice,
+    const total = rows.reduce(
+      (acc, deliverie) => acc + deliverie.totalAmount,
       0,
     );
     return total;
-  }, []);
+  }, [rows]);
 
-  const totalDeliveries: Record<'Confirmed' | 'Pending', number> =
-    useMemo(() => {
-      const confirmed = deliveries.filter(
-        (deliverie) => deliverie.status === 'Confirmed',
-      );
-      const pending = deliveries.filter(
-        (deliverie) => deliverie.status === 'Pending',
-      );
-      return {
-        Confirmed: confirmed.length,
-        Pending: pending.length,
-      };
-    }, []);
+  const totalVolume =
+    deliveriesTotalShiftQty.morningQty + deliveriesTotalShiftQty.eveningQty;
 
-  // Pagination
-  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  const milkTypeRatio = useMemo(() => {
+    const totalCow = rows.reduce((sum, row) => sum + row.cowQty, 0);
+    const totalBuffalo = rows.reduce((sum, row) => sum + row.buffaloQty, 0);
+    const total = totalCow + totalBuffalo;
+    const cowPercent = total > 0 ? Math.round((totalCow / total) * 100) : 0;
+    const buffaloPercent = total > 0 ? 100 - cowPercent : 0;
 
-  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+    return {
+      cowPercent,
+      buffaloPercent,
+    };
+  }, [rows]);
+
+  const totalDeliveries: Record<'Confirmed' | 'Pending' | 'Cancelled', number> =
+    useMemo(
+      () => ({
+        Confirmed: statusCounts.delivered,
+        Pending: statusCounts.pending,
+        Cancelled: statusCounts.cancelled,
+      }),
+      [statusCounts],
+    );
   return (
     <ContentLayout title='Delivery History'>
       <main className='flex-1 flex flex-col gap-6'>
@@ -81,59 +194,80 @@ const DeliveriesHistory = () => {
             </p>
             <p className='text-[#637588] text-sm font-normal'>
               Shift-based delivery records for{' '}
-              <span className='font-bold text-[#111418] '>October 2023</span>
+              <span className='font-bold text-[#111418] '>{monthLabel}</span>
             </p>
           </div>
 
           <div className='flex gap-2'>
-            <Button size='md' variant='neutral' className='flex items-center justify-center rounded-lg font-bold gap-2'>
-              <span className='material-symbols-outlined text-[20px]'>
+            <div className='relative'>
+              <span className='material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[20px] text-slate-500'>
                 calendar_month
               </span>
-              <span>October 2023</span>
-            </Button>
-            <Button variant='primary' size='md' className='flex items-center justify-center rounded-lg font-bold gap-2 shadow-md shadow-primary/20'>
+              <input
+                type='month'
+                value={selectedMonth}
+                onChange={(e) => {
+                  setSelectedMonth(e.target.value);
+                  setPage(1);
+                }}
+                className='h-10 rounded-lg border border-slate-200 bg-white pl-10 pr-3 text-sm font-bold text-slate-700 shadow-sm outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20'
+              />
+            </div>
+            <Button
+              variant='primary'
+              size='md'
+              className='flex items-center justify-center rounded-lg font-bold gap-2 shadow-md shadow-primary/20'
+            >
               <span className='material-symbols-outlined text-[20px]'>
                 download
               </span>
-              <span>Export CSV</span>
+              <span>Export PDF</span>
             </Button>
           </div>
         </div>
 
         <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-          <div className='flex flex-col gap-2 rounded-xl p-6 bg-white  border border-[#dce0e5]  shadow-sm'>
+          <div className='flex flex-col gap-2 rounded-xl p-6 bg-white border border-[#dce0e5] shadow-sm'>
             <div className='flex justify-between items-start'>
-              <p className='text-[#637588] text-sm font-medium'>
-                Morning Deliveries
-              </p>
-              <span className='material-symbols-outlined text-amber-500'>
-                wb_sunny
+              <p className='text-[#637588] text-sm font-medium'>Total Volume</p>
+              <span className='material-symbols-outlined text-primary'>
+                water_drop
               </span>
             </div>
-            <p className='text-[#111418]  text-2xl font-bold'>
-              {deliveriesTotalShiftQty.morningShift} Shifts
-            </p>
-            <p className='text-[#078838] text-xs font-bold bg-[#078838]/10 px-2 py-0.5 rounded-full self-start'>
-              {deliveriesTotalShiftQty.morningQty}L Total This Week
+            <p className='text-[#111418] text-2xl font-bold'>
+              {totalVolume} Liters
             </p>
           </div>
 
-          <div className='flex flex-col gap-2 rounded-xl p-6 bg-white  border border-[#dce0e5]  shadow-sm'>
+          <div className='flex flex-col gap-2 rounded-xl p-6 bg-white border border-[#dce0e5] shadow-sm'>
             <div className='flex justify-between items-start'>
               <p className='text-[#637588] text-sm font-medium'>
-                Evening Deliveries
+                Milk Type Ratio
               </p>
-              <span className='material-symbols-outlined text-indigo-400'>
-                dark_mode
+              <span className='material-symbols-outlined text-primary'>
+                pie_chart
               </span>
             </div>
-            <p className='text-[#111418]  text-2xl font-bold'>
-              {deliveriesTotalShiftQty.eveningShift} Shifts
-            </p>
-            <p className='text-primary text-xs font-bold bg-primary/10 px-2 py-0.5 rounded-full self-start'>
-              {deliveriesTotalShiftQty.eveningQty}L Total This Week
-            </p>
+            <div className='flex flex-col gap-2 mt-2'>
+              <div className='flex justify-between text-xs font-bold'>
+                <span className='text-blue-500'>
+                  {milkTypeRatio.cowPercent}% Cow
+                </span>
+                <span className='text-purple-500'>
+                  {milkTypeRatio.buffaloPercent}% Buffalo
+                </span>
+              </div>
+              <div className='w-full h-2 bg-gray-100 rounded-full overflow-hidden flex'>
+                <div
+                  className='h-full bg-blue-500'
+                  style={{ width: `${milkTypeRatio.cowPercent}%` }}
+                ></div>
+                <div
+                  className='h-full bg-purple-500'
+                  style={{ width: `${milkTypeRatio.buffaloPercent}%` }}
+                ></div>
+              </div>
+            </div>
           </div>
 
           <div className='flex flex-col gap-2 rounded-xl p-6 bg-white  border border-[#dce0e5]  shadow-sm'>
@@ -145,13 +279,7 @@ const DeliveriesHistory = () => {
                 payments
               </span>
             </div>
-            <p className='text-[#111418]  text-2xl font-bold'>${totalBill}</p>
-            <p className='text-[#637588] text-xs font-medium'>
-              Current Total for{' '}
-              {deliveriesTotalShiftQty.morningShift +
-                deliveriesTotalShiftQty.eveningShift}{' '}
-              shifts
-            </p>
+            <p className='text-[#111418]  text-2xl font-bold'>₹{totalBill}</p>
           </div>
         </div>
 
@@ -175,7 +303,14 @@ const DeliveriesHistory = () => {
                 <p className='text-sm font-bold whitespace-nowrap'>
                   {deliveryFilter === 'All Deliveries'
                     ? deliveryFilter
-                    : `${deliveryFilter} (${totalDeliveries[deliveryFilter as 'Confirmed' | 'Pending']})`}
+                    : `${deliveryFilter} (${
+                        totalDeliveries[
+                          deliveryFilter as
+                            | 'Confirmed'
+                            | 'Pending'
+                            | 'Cancelled'
+                        ]
+                      })`}
                 </p>
               </Button>
             ))}
@@ -188,152 +323,62 @@ const DeliveriesHistory = () => {
             <table className='w-full text-left border-collapse'>
               <thead>
                 <tr className='bg-gray-50 '>
-                  <th className='px-6 py-4 text-[#637588] text-xs font-bold uppercase tracking-wider w-8'></th>
-                  <th className='px-6 py-4 text-[#637588] text-xs font-bold uppercase tracking-wider'>
+                  <th className='px-6 py-4 text-[#637588] text-xs font-bold uppercase tracking-wider text-center'>
                     Date &amp; Day
                   </th>
-                  <th className='px-6 py-4 text-[#637588] text-xs font-bold uppercase tracking-wider text-right'>
+                  <th className='px-6 py-4 text-[#637588] text-xs font-bold uppercase tracking-wider text-center'>
+                    Shift
+                  </th>
+                  <th className='px-6 py-4 text-[#637588] text-xs font-bold uppercase tracking-wider text-center'>
+                    Cow Qty
+                  </th>
+                  <th className='px-6 py-4 text-[#637588] text-xs font-bold uppercase tracking-wider text-center'>
+                    Buffalo Qty
+                  </th>
+                  <th className='px-6 py-4 text-[#637588] text-xs font-bold uppercase tracking-wider text-center'>
                     Total Qty
                   </th>
-                  <th className='px-6 py-4 text-[#637588] text-xs font-bold uppercase tracking-wider text-right'>
+                  <th className='px-6 py-4 text-[#637588] text-xs font-bold uppercase tracking-wider text-center'>
                     Total Price
                   </th>
                   <th className='px-6 py-4 text-[#637588] text-xs font-bold uppercase tracking-wider text-center'>
                     Status
                   </th>
-                  <th className='px-6 py-4'></th>
                 </tr>
               </thead>
               <tbody className='divide-y divide-[#dce0e5] '>
-                {paginated.map((delivery, index) => (
-                  <Fragment key={index}>
-                    <tr
-                      className='hover:bg-primary/5 transition-colors cursor-pointer group'
-                      key={index}
-                      onClick={() =>
-                        setOpenId(openId === delivery.id ? null : delivery.id)
-                      }
+                {loading ? (
+                  <tr>
+                    <td
+                      colSpan={8}
+                      className='px-6 py-8 text-center text-slate-500 text-sm'
                     >
-                      <td className='px-6 py-4 whitespace-nowrap'>
-                        <span
-                          className={`material-symbols-outlined text-primary text-[20px]  transition-transform select-none ${
-                            openId === delivery.id ? 'rotate-90' : ''
-                          }`}
-                        >
-                          chevron_right
-                        </span>
-                      </td>
-                      <td className='px-6 py-4 whitespace-nowrap'>
-                        <div className='flex flex-col'>
-                          <span className='text-sm font-bold text-[#111418]'>
-                            {delivery.date}
-                          </span>
-                          <span className='text-xs text-[#637588]'>
-                            {delivery.day}
-                          </span>
-                        </div>
-                      </td>
-                      <td className='px-6 py-4 text-sm text-right font-medium'>
-                        {delivery.totalQty} L
-                      </td>
-                      <td className='px-6 py-4 text-sm text-right font-bold text-[#111418]'>
-                        $ {delivery.totalPrice}
-                      </td>
-                      <td className='px-6 py-4 text-center'>
-                        {delivery.status === 'Confirmed' ? (
-                          <span className='inline-flex items-center gap-1.5 py-1 px-3 rounded-full bg-primary/10 text-primary text-xs font-bold'>
-                            <span className='material-symbols-outlined text-[14px]'>
-                              check_circle
-                            </span>
-                            Confirmed
-                          </span>
-                        ) : (
-                          <span className='inline-flex items-center gap-1.5 py-1 px-3 rounded-full bg-amber-100 text-amber-600 text-xs font-bold'>
-                            <span className='material-symbols-outlined text-[14px]'>
-                              schedule
-                            </span>
-                            Pending
-                          </span>
-                        )}
-                      </td>
-                      <td className='px-6 py-4 text-right'>
-                        <Button variant='link-muted'>
-                          <span className='material-symbols-outlined'>
-                            more_vert
-                          </span>
-                        </Button>
-                      </td>
-                    </tr>
-                    {/* ACCORDION */}
-                    {openId === delivery.id && (
-                      <tr className='bg-gray-50/50 border-b border-gray-100'>
-                        <td className='px-0 py-0' colSpan={6}>
-                          <div className='px-20 py-4 flex flex-col gap-4'>
-                            {delivery.sessions.map((session, i) => (
-                              <div
-                                className={`flex items-center justify-between pb-3 ${delivery.sessions.length - 1 === i ? '' : 'border-b border-gray-200'}`}
-                                key={i}
-                              >
-                                <div className='flex items-center gap-4'>
-                                  {session.type === 'Morning' ? (
-                                    <div className='flex items-center justify-center w-10 h-10 rounded-full bg-amber-50 text-amber-600'>
-                                      <span className='material-symbols-outlined text-[20px]'>
-                                        light_mode
-                                      </span>
-                                    </div>
-                                  ) : (
-                                    <div className='flex items-center justify-center w-10 h-10 rounded-full bg-indigo-50 text-indigo-600'>
-                                      <span className='material-symbols-outlined text-[20px]'>
-                                        dark_mode
-                                      </span>
-                                    </div>
-                                  )}
-                                  <div>
-                                    <p className='text-sm font-bold'>
-                                      {session.type} Delivery
-                                    </p>
-                                    <p className='text-xs text-[#637588]'>
-                                      Delivered at {session.time}
-                                    </p>
-                                  </div>
-                                </div>
-                                <div className='flex flex-col items-end'>
-                                  <p className='text-xs text-[#637588] uppercase font-bold tracking-tight'>
-                                    Cow Milk
-                                  </p>
-                                  <p className='text-sm font-medium'>
-                                    {session.cow} L
-                                  </p>
-                                </div>
-                                <div className='flex flex-col items-end'>
-                                  <p className='text-xs text-[#637588] uppercase font-bold tracking-tight'>
-                                    Buffalo Milk
-                                  </p>
-                                  <p className='text-sm font-medium'>
-                                    {session.buffalo} L
-                                  </p>
-                                </div>
-                                <div className='flex flex-col items-end min-w-[60px]'>
-                                  <p className='text-xs text-[#637588] uppercase font-bold tracking-tight'>
-                                    Subtotal
-                                  </p>
-                                  <p className='text-sm font-bold text-primary'>
-                                    ${session.subtotal}
-                                  </p>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </td>
-                      </tr>
-                    )}
-                  </Fragment>
-                ))}
+                      <div className='flex justify-center'>
+                        <Loader />
+                      </div>
+                    </td>
+                  </tr>
+                ) : rows.length === 0 ? (
+                  <tr>
+                    <td
+                      className='px-6 py-8 text-center text-sm text-slate-500'
+                      colSpan={6}
+                    >
+                      No deliveries found.
+                    </td>
+                  </tr>
+                ) : (
+                  rows.map((row) => (
+                    <DeliveryHistoryRow key={row.id} row={row} />
+                  ))
+                )}
               </tbody>
             </table>
           </div>
 
-          <Pagination page={page} totalPages={totalPages} setPage={setPage} />
+          {rows.length > 0 && (
+            <Pagination page={page} totalPages={totalPages} setPage={setPage} />
+          )}
         </div>
 
         <div className='bg-blue-50 border border-blue-200 rounded-xl p-4 flex gap-4 items-start'>
@@ -343,12 +388,8 @@ const DeliveriesHistory = () => {
               New: Nested Row View
             </p>
             <p className='text-xs text-blue-700 leading-relaxed'>
-              {` We've updated our view to group deliveries by date. Click the`}
-              arrow{' '}
-              <span className='material-symbols-outlined text-[14px] align-middle'>
-                chevron_right
-              </span>{' '}
-              to see a detailed breakdown of morning and evening sessions.
+              Showing delivery history as individual shifts for easier tracking
+              and filtering.
             </p>
           </div>
         </div>

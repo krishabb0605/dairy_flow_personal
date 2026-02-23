@@ -1,11 +1,15 @@
 import { useContext, useState } from 'react';
-import OnboardingLayout from './layout';
-import { MilkConfig, OnboardingStepProps } from '../../../types';
-import { UserContext } from '../../../app/context/user-context';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
-import { addOwnerConfigInfo } from '../../../lib/users';
+
+import { UserContext } from '../../../app/context/user-context';
 import { Mandatory } from '../../../app/page';
+
+import { MilkConfig, OnboardingStepProps } from '../../../types';
+
+import { addOwnerConfigInfo } from '../../../lib/users';
+
+import OnboardingLayout from './layout';
 
 const OwnerConfiguration = ({
   currentStep,

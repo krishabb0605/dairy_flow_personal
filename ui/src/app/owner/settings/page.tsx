@@ -1,20 +1,26 @@
 'use client';
+
 import { type FormEvent, useContext, useEffect, useState } from 'react';
-import { Mandatory } from '../../../app/page';
-import ContentLayout from '../../../components/layout';
-import {
-  type OwnerSettingsFormData,
-  type OwnerSettingsFormErrors,
-  type OwnerSettingsMilkConfigState,
-  type User,
-} from '../../../types';
-import { FALLBACK_OWNER_PROFILE_IMAGE } from '../../../constants';
-import { UserContext } from '../../../app/context/user-context';
-import { useCloudinaryImageUpload } from '../../../hooks/use-cloudinary-image-upload';
-import { updateOwnerSettings } from '../../../lib/users';
 import { toast } from 'react-toastify';
+
+import { Mandatory } from '../../../app/page';
+import { UserContext } from '../../../app/context/user-context';
+
+import ContentLayout from '../../../components/layout';
 import Loader from '../../../components/loader';
 import Button from '../../../components/ui/button';
+
+import type {
+  OwnerSettingsFormData,
+  OwnerSettingsFormErrors,
+  OwnerSettingsMilkConfigState,
+  User,
+} from '../../../types';
+import { FALLBACK_OWNER_PROFILE_IMAGE } from '../../../constants';
+
+import { updateOwnerSettings } from '../../../lib/users';
+
+import { useCloudinaryImageUpload } from '../../../hooks/use-cloudinary-image-upload';
 
 const buildInitialFormData = (user: User | null): OwnerSettingsFormData => ({
   fullName: user?.fullName ?? '',
