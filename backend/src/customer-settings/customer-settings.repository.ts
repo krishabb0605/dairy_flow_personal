@@ -4,26 +4,81 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+
+import {
+  DailyMilkStatus,
+  ExtraMilkSlot,
+} from '../../generated/prisma/enums.js';
+
+import { CustomerOwnerRepository } from '../customer-owner/customer-owner.repositary.js';
+import { DailyMilkRepository } from '../daily-milk/daily-milk.repository.js';
+
 import { PrismaService } from '../prisma/prisma.service.js';
-import { DailyMilkStatus, ExtraMilkSlot } from '../../generated/prisma/enums.js';
 
 @Injectable()
 export class CustomerSettingsRepository {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private customerOwnerRepository: CustomerOwnerRepository,
+    private dailyMilkRepository: DailyMilkRepository,
+  ) {}
+
+  async findByUserId(userId: number) {
+    return this.prisma.customerSettings.findUnique({
+      where: { userId },
+    });
+  }
+
+  async createCustomerSettings(params: {
+    userId: number;
+    morningCowQty: number;
+    morningBuffaloQty: number;
+    eveningCowQty: number;
+    eveningBuffaloQty: number;
+  }) {
+    return this.prisma.customerSettings.create({
+      data: {
+        userId: params.userId,
+        morningCowQty: params.morningCowQty,
+        morningBuffaloQty: params.morningBuffaloQty,
+        eveningCowQty: params.eveningCowQty,
+        eveningBuffaloQty: params.eveningBuffaloQty,
+      },
+    });
+  }
+
+  async updateCustomerSettingsByUserId(params: {
+    userId: number;
+    morningCowQty: number;
+    morningBuffaloQty: number;
+    eveningCowQty: number;
+    eveningBuffaloQty: number;
+  }) {
+    const {
+      userId,
+      morningCowQty,
+      morningBuffaloQty,
+      eveningCowQty,
+      eveningBuffaloQty,
+    } = params;
+
+    return this.prisma.customerSettings.update({
+      where: { userId },
+      data: {
+        morningCowQty,
+        morningBuffaloQty,
+        eveningCowQty,
+        eveningBuffaloQty,
+      },
+    });
+  }
 
   async getCustomerProfile(customerOwnerId: number): Promise<any> {
     try {
-      const customerOwner = await this.prisma.customerOwner.findUnique({
-        where: { id: customerOwnerId },
-        include: {
-          customer: {
-            include: {
-              user: true,
-            },
-          },
-          vacationSchedules: true,
-        },
-      });
+      const customerOwner =
+        await this.customerOwnerRepository.findCustomerOwnerProfile(
+          customerOwnerId,
+        );
 
       if (!customerOwner) {
         throw new NotFoundException(
@@ -84,9 +139,10 @@ export class CustomerSettingsRepository {
     },
   ): Promise<any> {
     try {
-      const customerOwner = await this.prisma.customerOwner.findUnique({
-        where: { id: customerOwnerId },
-      });
+      const customerOwner =
+        await this.customerOwnerRepository.findCustomerOwnerById(
+          customerOwnerId,
+        );
 
       if (!customerOwner) {
         throw new NotFoundException(
@@ -143,35 +199,22 @@ export class CustomerSettingsRepository {
           : {}),
       };
 
-      const totalItems = await this.prisma.dailyMilk.count({
-        where,
-      });
+      const totalItems =
+        await this.dailyMilkRepository.countCustomerDeliveryHistory(where);
       const totalPages = Math.max(1, Math.ceil(totalItems / safeLimit));
       const offset = (safePage - 1) * safeLimit;
 
-      const history = await this.prisma.dailyMilk.findMany({
-        where,
-        orderBy: [{ deliveryDate: 'desc' }, { slot: 'asc' }],
-        take: safeLimit,
-        skip: offset,
-        include: {
-          customerOwner: {
-            include: {
-              customer: {
-                include: {
-                  user: true,
-                },
-              },
-            },
-          },
-        },
-      });
+      const history =
+        await this.dailyMilkRepository.listCustomerDeliveryHistory({
+          where,
+          take: safeLimit,
+          skip: offset,
+        });
 
-      const statusCounts = await this.prisma.dailyMilk.groupBy({
-        by: ['status'],
-        where: baseWhere,
-        _count: { status: true },
-      });
+      const statusCounts =
+        await this.dailyMilkRepository.groupCustomerDeliveryHistoryStatus(
+          baseWhere,
+        );
 
       const counts = {
         delivered:

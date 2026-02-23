@@ -5,18 +5,141 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service.js';
+
 import { CreateCustomerOwnerDto } from './dto/create-customer-owner.dto.js';
+
+import { OwnerSettingsRepository } from '../owner-settings/owner-settings.repository.js';
+import { UserRepository } from '../user/user.repository.js';
+import { ExtraMilkOrderRepository } from '../extra-milk-order/extra-milk-order.repositary.js';
+import { VacationScheduleRepository } from '../vacation-schedule/vacation-schedule.repository.js';
+
+import { PrismaService } from '../prisma/prisma.service.js';
 
 @Injectable()
 export class CustomerOwnerRepository {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private ownerSettingsRepository: OwnerSettingsRepository,
+    private userRepository: UserRepository,
+    private extraMilkOrderRepository: ExtraMilkOrderRepository,
+    private vacationScheduleRepository: VacationScheduleRepository,
+  ) {}
+
+  async findCustomerOwnerById(customerOwnerId: number) {
+    return this.prisma.customerOwner.findUnique({
+      where: { id: customerOwnerId },
+    });
+  }
+
+  async findCustomerOwnerProfile(customerOwnerId: number) {
+    return this.prisma.customerOwner.findUnique({
+      where: { id: customerOwnerId },
+      include: {
+        customer: {
+          include: {
+            user: true,
+          },
+        },
+        vacationSchedules: true,
+      },
+    });
+  }
+
+  async findCustomerOwnerWithCustomer(customerOwnerId: number) {
+    return this.prisma.customerOwner.findUnique({
+      where: { id: customerOwnerId },
+      include: {
+        customer: true,
+      },
+    });
+  }
+
+  async findActiveCustomerOwners() {
+    return this.prisma.customerOwner.findMany({
+      where: { isActivated: true },
+      include: {
+        customer: true,
+        owner: true,
+      },
+    });
+  }
+
+  async findCurrentActiveOwnerWithOwnerUser(customerId: number) {
+    return this.prisma.customerOwner.findFirst({
+      where: {
+        customerId,
+        isActivated: true,
+      },
+      orderBy: {
+        updatedAt: 'desc',
+      },
+      include: {
+        owner: {
+          include: {
+            user: true,
+          },
+        },
+      },
+    });
+  }
+
+  async getCustomerProfile(customerOwnerId: number): Promise<any> {
+    try {
+      const customerOwner =
+        await this.findCustomerOwnerProfile(customerOwnerId);
+
+      if (!customerOwner) {
+        throw new NotFoundException(
+          `Customer-owner relation not found with id: ${customerOwnerId}`,
+        );
+      }
+
+      const today = new Date();
+      today.setUTCHours(0, 0, 0, 0);
+
+      const isPaused = customerOwner.vacationSchedules.some((vacation) => {
+        const startDate = new Date(vacation.startDate);
+        startDate.setUTCHours(0, 0, 0, 0);
+
+        const endDate = new Date(vacation.endDate);
+        endDate.setUTCHours(0, 0, 0, 0);
+
+        return today >= startDate && today <= endDate;
+      });
+
+      return {
+        id: customerOwner.id,
+        name: customerOwner.customer.user.fullName,
+        phone: customerOwner.customer.user.mobileNumber,
+        email: customerOwner.customer.user.email,
+        address: customerOwner.customer.user.address,
+        morningCowQty: Number(customerOwner.customer.morningCowQty),
+        morningBuffaloQty: Number(customerOwner.customer.morningBuffaloQty),
+        eveningCowQty: Number(customerOwner.customer.eveningCowQty),
+        eveningBuffaloQty: Number(customerOwner.customer.eveningBuffaloQty),
+        status: isPaused ? 'paused' : 'active',
+        avatar: customerOwner.customer.user.profileImageUrl,
+      };
+    } catch (error: unknown) {
+      if (error instanceof HttpException) throw error;
+
+      if (error instanceof Error) {
+        throw new InternalServerErrorException({
+          success: false,
+          message: 'Error while fetching customer profile',
+          error: error.message,
+        });
+      }
+
+      throw new InternalServerErrorException('Unexpected error');
+    }
+  }
 
   async createCustomerOwner(dto: CreateCustomerOwnerDto): Promise<any> {
     try {
-      const ownerUser = await this.prisma.ownerSettings.findUnique({
-        where: { id: dto.ownerId },
-      });
+      const ownerUser = await this.ownerSettingsRepository.findById(
+        dto.ownerId,
+      );
 
       if (!ownerUser) {
         throw new NotFoundException(
@@ -24,12 +147,10 @@ export class CustomerOwnerRepository {
         );
       }
 
-      const customerUser = await this.prisma.user.findUnique({
-        where: { mobileNumber: dto.mobileNumber, role: 'CUSTOMER' },
-        include: {
-          customerSettings: true,
-        },
-      });
+      const customerUser =
+        await this.userRepository.findCustomerByMobileWithSettings(
+          dto.mobileNumber,
+        );
 
       if (!customerUser) {
         throw new NotFoundException(
@@ -165,34 +286,15 @@ export class CustomerOwnerRepository {
       const today = new Date();
       today.setUTCHours(0, 0, 0, 0);
 
-      const [extras, vacations] = await this.prisma.$transaction([
-        this.prisma.extraMilkOrder.findMany({
-          where: {
-            customerOwnerId,
-            deliveryDate: {
-              gte: today,
-            },
-          },
-          orderBy: [{ deliveryDate: 'asc' }, { slot: 'asc' }],
+      const [extras, vacations] = await Promise.all([
+        this.extraMilkOrderRepository.findUpcomingByCustomerOwnerId({
+          customerOwnerId,
+          today,
           take: 10,
         }),
-        this.prisma.vacationSchedule.findMany({
-          where: {
-            customerOwnerId,
-            OR: [
-              {
-                startDate: {
-                  gte: today,
-                },
-              },
-              {
-                endDate: {
-                  gte: today,
-                },
-              },
-            ],
-          },
-          orderBy: [{ startDate: 'asc' }, { startSlot: 'asc' }],
+        this.vacationScheduleRepository.findUpcomingByCustomerOwnerIds({
+          customerOwnerId,
+          today,
           take: 10,
         }),
       ]);
@@ -247,9 +349,7 @@ export class CustomerOwnerRepository {
       const normalizedSearch = (params.search ?? '').trim().toLowerCase();
       const normalizedStatus = (params.status ?? 'all').toLowerCase();
 
-      const owner = await this.prisma.ownerSettings.findUnique({
-        where: { id: ownerId },
-      });
+      const owner = await this.ownerSettingsRepository.findById(ownerId);
 
       if (!owner) {
         throw new NotFoundException(`Owner not found with id: ${ownerId}`);

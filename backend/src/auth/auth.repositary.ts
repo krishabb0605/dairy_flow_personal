@@ -5,17 +5,26 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+
 import {
   Prisma,
   type User,
   type UserRole,
 } from '../../generated/prisma/client.js';
-import { PrismaService } from '../prisma/prisma.service.js';
+
 import { BasicInfoDto } from './dto/basic-info.dto.js';
 import { CustomerConfigDto } from './dto/customer-config.dto.js';
 import { OwnerConfigDto } from './dto/owner-config.dto.js';
 import { UpdateCustomerSettingsDto } from './dto/update-customer-settings.dto.js';
 import { UpdateOwnerSettingsDto } from './dto/update-owner-settings.dto.js';
+
+import { CustomerOwnerRepository } from '../customer-owner/customer-owner.repositary.js';
+import { CustomerSettingsRepository } from '../customer-settings/customer-settings.repository.js';
+import { OwnerSettingsRepository } from '../owner-settings/owner-settings.repository.js';
+import { UserRepository } from '../user/user.repository.js';
+
+import { PrismaService } from '../prisma/prisma.service.js';
+
 import type {
   CurrentActiveOwner,
   CustomerOwnerWithOwnerUser,
@@ -25,17 +34,17 @@ import type {
 
 @Injectable()
 export class AuthRepository {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private userRepository: UserRepository,
+    private customerOwnerRepository: CustomerOwnerRepository,
+    private ownerSettingsRepository: OwnerSettingsRepository,
+    private customerSettingsRepository: CustomerSettingsRepository,
+  ) {}
 
   async getUser(firebaseUid: string): Promise<GetUserResponse> {
-    const user = await this.prisma.user.findUnique({
-      where: { firebaseUid },
-
-      include: {
-        ownerSettings: true,
-        customerSettings: true,
-      },
-    });
+    const user =
+      await this.userRepository.findByFirebaseUidWithSettings(firebaseUid);
 
     if (!user) {
       throw new NotFoundException('User not found');
@@ -67,22 +76,9 @@ export class AuthRepository {
   private async fetchCurrentActiveOwner(
     customerId: number,
   ): Promise<CustomerOwnerWithOwnerUser | null> {
-    return this.prisma.customerOwner.findFirst({
-      where: {
-        customerId,
-        isActivated: true,
-      },
-      orderBy: {
-        updatedAt: 'desc',
-      },
-      include: {
-        owner: {
-          include: {
-            user: true,
-          },
-        },
-      },
-    });
+    return this.customerOwnerRepository.findCurrentActiveOwnerWithOwnerUser(
+      customerId,
+    );
   }
 
   private mapCurrentActiveOwner(
@@ -120,12 +116,9 @@ export class AuthRepository {
   async createUser(userBasicInfo: BasicInfoDto): Promise<User> {
     const { firebaseUid, ...userInfo } = userBasicInfo;
     try {
-      return await this.prisma.user.upsert({
-        where: {
-          firebaseUid,
-        },
-        update: { ...userInfo },
-        create: { ...userBasicInfo },
+      return await this.userRepository.upsertByFirebaseUid(firebaseUid, {
+        firebaseUid,
+        ...userInfo,
       });
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -147,13 +140,7 @@ export class AuthRepository {
 
   async updateRole(userId: number, role: UserRole): Promise<User> {
     try {
-      return await this.prisma.user.update({
-        where: { id: userId },
-        data: {
-          role,
-          onboardingStep: 2,
-        },
-      });
+      return await this.userRepository.updateRole(userId, role);
     } catch (error: unknown) {
       if (error instanceof HttpException) throw error;
 
@@ -170,15 +157,13 @@ export class AuthRepository {
     dto: OwnerConfigDto,
   ): Promise<GetUserResponse> {
     try {
-      await this.prisma.ownerSettings.create({
-        data: {
-          userId,
-          dairyName: dto.dairyName,
-          cowEnabled: dto.cowEnabled,
-          cowPrice: dto.cowPrice,
-          buffaloEnabled: dto.buffaloEnabled,
-          buffaloPrice: dto.buffaloPrice,
-        },
+      await this.ownerSettingsRepository.createOwnerSettings({
+        userId,
+        dairyName: dto.dairyName,
+        cowEnabled: dto.cowEnabled,
+        cowPrice: dto.cowPrice,
+        buffaloEnabled: dto.buffaloEnabled,
+        buffaloPrice: dto.buffaloPrice,
       });
 
       const userInfo = await this.finishOnboarding(userId);
@@ -200,15 +185,12 @@ export class AuthRepository {
     dto: CustomerConfigDto,
   ): Promise<GetUserResponse> {
     try {
-      await this.prisma.customerSettings.create({
-        data: {
-          userId,
-          morningCowQty: dto.morningCowQty,
-          morningBuffaloQty: dto.morningBuffaloQty,
-
-          eveningCowQty: dto.eveningCowQty,
-          eveningBuffaloQty: dto.eveningBuffaloQty,
-        },
+      await this.customerSettingsRepository.createCustomerSettings({
+        userId,
+        morningCowQty: dto.morningCowQty,
+        morningBuffaloQty: dto.morningBuffaloQty,
+        eveningCowQty: dto.eveningCowQty,
+        eveningBuffaloQty: dto.eveningBuffaloQty,
       });
 
       const userInfo = await this.finishOnboarding(userId);
@@ -230,9 +212,7 @@ export class AuthRepository {
     dto: UpdateCustomerSettingsDto,
   ): Promise<GetUserResponse> {
     try {
-      const existingUser = await this.prisma.user.findUnique({
-        where: { id: userId },
-      });
+      const existingUser = await this.userRepository.findById(userId);
 
       if (!existingUser) {
         throw new NotFoundException('User not found');
@@ -244,33 +224,27 @@ export class AuthRepository {
         );
       }
 
-      await this.prisma.$transaction([
-        this.prisma.user.update({
-          where: { id: userId },
-          data: {
+      await this.prisma.$transaction(async (tx) => {
+        await this.userRepository.updateProfile(
+          {
+            userId,
             fullName: dto.fullName,
             address: dto.address,
             profileImageUrl: dto.profileImageUrl ?? null,
           },
-        }),
-        this.prisma.customerSettings.update({
-          where: { userId },
-          data: {
-            morningCowQty: dto.morningCowQty,
-            morningBuffaloQty: dto.morningBuffaloQty,
-            eveningCowQty: dto.eveningCowQty,
-            eveningBuffaloQty: dto.eveningBuffaloQty,
-          },
-        }),
-      ]);
-
-      const updatedUser = await this.prisma.user.findUnique({
-        where: { id: userId },
-        include: {
-          ownerSettings: true,
-          customerSettings: true,
-        },
+          tx,
+        );
+        await this.customerSettingsRepository.updateCustomerSettingsByUserId({
+          userId,
+          morningCowQty: dto.morningCowQty,
+          morningBuffaloQty: dto.morningBuffaloQty,
+          eveningCowQty: dto.eveningCowQty,
+          eveningBuffaloQty: dto.eveningBuffaloQty,
+        });
       });
+
+      const updatedUser =
+        await this.userRepository.findByIdWithSettings(userId);
 
       if (!updatedUser) {
         throw new NotFoundException('User not found');
@@ -293,9 +267,7 @@ export class AuthRepository {
     dto: UpdateOwnerSettingsDto,
   ): Promise<GetUserResponse> {
     try {
-      const existingUser = await this.prisma.user.findUnique({
-        where: { id: userId },
-      });
+      const existingUser = await this.userRepository.findById(userId);
 
       if (!existingUser) {
         throw new NotFoundException('User not found');
@@ -305,18 +277,19 @@ export class AuthRepository {
         throw new BadRequestException('Only owner can update these settings');
       }
 
-      await this.prisma.$transaction([
-        this.prisma.user.update({
-          where: { id: userId },
-          data: {
+      await this.prisma.$transaction(async (tx) => {
+        await this.userRepository.updateProfile(
+          {
+            userId,
             fullName: dto.fullName,
             address: dto.address,
             profileImageUrl: dto.profileImageUrl ?? null,
           },
-        }),
-        this.prisma.ownerSettings.update({
-          where: { userId },
-          data: {
+          tx,
+        );
+        await this.ownerSettingsRepository.updateOwnerSettingsByUserId(
+          {
+            userId,
             cowEnabled: dto.cowEnabled,
             cowPrice: dto.cowPrice,
             buffaloEnabled: dto.buffaloEnabled,
@@ -330,16 +303,12 @@ export class AuthRepository {
             accountNumber: dto.accountNumber ?? null,
             ifscCode: dto.ifscCode ?? null,
           },
-        }),
-      ]);
-
-      const updatedUser = await this.prisma.user.findUnique({
-        where: { id: userId },
-        include: {
-          ownerSettings: true,
-          customerSettings: true,
-        },
+          tx,
+        );
       });
+
+      const updatedUser =
+        await this.userRepository.findByIdWithSettings(userId);
 
       if (!updatedUser) {
         throw new NotFoundException('User not found');
@@ -378,19 +347,7 @@ export class AuthRepository {
 
   async finishOnboarding(userId: number): Promise<UserWithSettings> {
     try {
-      const user = await this.prisma.user.update({
-        where: { id: userId },
-        data: {
-          onboarded: true,
-          onboardingStep: 3,
-        },
-        include: {
-          ownerSettings: true,
-          customerSettings: true,
-        },
-      });
-
-      return user;
+      return await this.userRepository.updateOnboarding(userId);
     } catch (error: unknown) {
       if (error instanceof HttpException) throw error;
 

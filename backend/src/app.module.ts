@@ -1,9 +1,14 @@
 import { Module } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
-import { AppController } from './app.controller.js';
+
+import { UserRepository } from './user/user.repository.js';
+
 import { AppService } from './app.service.js';
-import { AuthModule } from './auth/auth.module.js';
+
+import { AppController } from './app.controller.js';
+
 import { PrismaModule } from './prisma/prisma.module.js';
+import { AuthModule } from './auth/auth.module.js';
 import { CustomerOwnerModule } from './customer-owner/customer-owner.module.js';
 import { ExtraMilkOrderModule } from './extra-milk-order/extra-milk-order.module.js';
 import { ScheduleVacationModule } from './schedule-vacation/schedule-vacation.module.js';
@@ -22,6 +27,6 @@ import { CustomerSettingsModule } from './customer-settings/customer-settings.mo
     CustomerSettingsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, UserRepository],
 })
 export class AppModule {}

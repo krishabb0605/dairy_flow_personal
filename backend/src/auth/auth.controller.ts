@@ -1,11 +1,14 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { AuthService } from './auth.service.js';
+
 import { BasicInfoDto } from './dto/basic-info.dto.js';
 import { CustomerConfigDto } from './dto/customer-config.dto.js';
 import { OwnerConfigDto } from './dto/owner-config.dto.js';
 import { RoleDto } from './dto/role.dto.js';
 import { UpdateCustomerSettingsDto } from './dto/update-customer-settings.dto.js';
 import { UpdateOwnerSettingsDto } from './dto/update-owner-settings.dto.js';
+
+import { AuthService } from './auth.service.js';
+
 import { ResponseHandler } from '../../src/common/response.handler.js';
 
 @Controller('auth')

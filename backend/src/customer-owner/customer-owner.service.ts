@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { CustomerOwnerRepository } from './customer-owner.repositary.js';
+
 import { CreateCustomerOwnerDto } from './dto/create-customer-owner.dto.js';
+
+import { CustomerOwnerRepository } from './customer-owner.repositary.js';
 
 @Injectable()
 export class CustomerOwnerService {

@@ -1,44 +1,48 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+
 import { Prisma } from '../../generated/prisma/client.js';
+
 import { PrismaService } from '../prisma/prisma.service.js';
 
 @Injectable()
 export class DailyMilkRepository {
   constructor(private prisma: PrismaService) {}
 
-  async getActiveCustomerOwners() {
-    return this.prisma.customerOwner.findMany({
-      where: { isActivated: true },
+  async countCustomerDeliveryHistory(where: Prisma.DailyMilkWhereInput) {
+    return this.prisma.dailyMilk.count({ where });
+  }
+
+  async listCustomerDeliveryHistory(params: {
+    where: Prisma.DailyMilkWhereInput;
+    take: number;
+    skip: number;
+  }) {
+    const { where, take, skip } = params;
+    return this.prisma.dailyMilk.findMany({
+      where,
+      orderBy: [{ deliveryDate: 'desc' }, { slot: 'asc' }],
+      take,
+      skip,
       include: {
-        customer: true,
-        owner: true,
+        customerOwner: {
+          include: {
+            customer: {
+              include: {
+                user: true,
+              },
+            },
+          },
+        },
       },
     });
   }
 
-  async getExtrasAndVacations(params: {
-    customerOwnerIds: number[];
-    deliveryDate: Date;
-    slot: 'MORNING' | 'EVENING';
-  }) {
-    const { customerOwnerIds, deliveryDate, slot } = params;
-
-    return this.prisma.$transaction([
-      this.prisma.extraMilkOrder.findMany({
-        where: {
-          customerOwnerId: { in: customerOwnerIds },
-          deliveryDate,
-          slot,
-        },
-      }),
-      this.prisma.vacationSchedule.findMany({
-        where: {
-          customerOwnerId: { in: customerOwnerIds },
-          startDate: { lte: deliveryDate },
-          endDate: { gte: deliveryDate },
-        },
-      }),
-    ]);
+  async groupCustomerDeliveryHistoryStatus(where: Prisma.DailyMilkWhereInput) {
+    return this.prisma.dailyMilk.groupBy({
+      by: ['status'],
+      where,
+      _count: { status: true },
+    });
   }
 
   async upsertDailyMilkEntries(
@@ -328,26 +332,13 @@ export class DailyMilkRepository {
     };
   }
 
-  async getCustomerMonthlyCalendar(customerOwnerId: number, monthDate: Date) {
-    const customerOwner = await this.prisma.customerOwner.findUnique({
-      where: { id: customerOwnerId },
-      include: {
-        customer: true,
-      },
-    });
-
-    if (!customerOwner) {
-      throw new NotFoundException(
-        `Customer-owner relation not found with id: ${customerOwnerId}`,
-      );
-    }
-
-    const year = monthDate.getUTCFullYear();
-    const month = monthDate.getUTCMonth();
-    const start = new Date(Date.UTC(year, month, 1));
-    const end = new Date(Date.UTC(year, month + 1, 0));
-
-    const deliveries = await this.prisma.dailyMilk.findMany({
+  async listMonthlyDeliveries(params: {
+    customerOwnerId: number;
+    start: Date;
+    end: Date;
+  }) {
+    const { customerOwnerId, start, end } = params;
+    return this.prisma.dailyMilk.findMany({
       where: {
         customerOwnerId,
         deliveryDate: {
@@ -363,59 +354,15 @@ export class DailyMilkRepository {
       },
       orderBy: [{ deliveryDate: 'asc' }, { slot: 'asc' }],
     });
-
-    const daysInMonth = end.getUTCDate();
-    const records = Array.from({ length: daysInMonth }, (_, index) => ({
-      day: index + 1,
-      morningCow: 0,
-      morningBuffalo: 0,
-      eveningCow: 0,
-      eveningBuffalo: 0,
-    }));
-
-    for (const item of deliveries) {
-      const day = item.deliveryDate.getUTCDate();
-      const record = records[day - 1];
-      if (!record) continue;
-
-      if (item.slot === 'MORNING') {
-        record.morningCow = Number(item.cowQty);
-        record.morningBuffalo = Number(item.buffaloQty);
-      } else {
-        record.eveningCow = Number(item.cowQty);
-        record.eveningBuffalo = Number(item.buffaloQty);
-      }
-    }
-
-    return {
-      month: start.toISOString().slice(0, 10),
-      base: {
-        morningCow: Number(customerOwner.customer.morningCowQty ?? 0),
-        morningBuffalo: Number(customerOwner.customer.morningBuffaloQty ?? 0),
-        eveningCow: Number(customerOwner.customer.eveningCowQty ?? 0),
-        eveningBuffalo: Number(customerOwner.customer.eveningBuffaloQty ?? 0),
-      },
-      records,
-    };
   }
 
-  async getCustomerMonthlySummary(customerOwnerId: number, monthDate: Date) {
-    const customerOwner = await this.prisma.customerOwner.findUnique({
-      where: { id: customerOwnerId },
-    });
-
-    if (!customerOwner) {
-      throw new NotFoundException(
-        `Customer-owner relation not found with id: ${customerOwnerId}`,
-      );
-    }
-
-    const year = monthDate.getUTCFullYear();
-    const month = monthDate.getUTCMonth();
-    const start = new Date(Date.UTC(year, month, 1));
-    const end = new Date(Date.UTC(year, month + 1, 0));
-
-    const totals = await this.prisma.dailyMilk.aggregate({
+  async aggregateMonthlyTotals(params: {
+    customerOwnerId: number;
+    start: Date;
+    end: Date;
+  }) {
+    const { customerOwnerId, start, end } = params;
+    return this.prisma.dailyMilk.aggregate({
       where: {
         customerOwnerId,
         deliveryDate: {
@@ -429,17 +376,5 @@ export class DailyMilkRepository {
         totalAmount: true,
       },
     });
-
-    const totalCowQty = Number(totals._sum.cowQty ?? 0);
-    const totalBuffaloQty = Number(totals._sum.buffaloQty ?? 0);
-    const totalAmount = Number(totals._sum.totalAmount ?? 0);
-
-    return {
-      month: start.toISOString().slice(0, 10),
-      totalCowQty,
-      totalBuffaloQty,
-      totalLiters: totalCowQty + totalBuffaloQty,
-      totalAmount,
-    };
   }
 }

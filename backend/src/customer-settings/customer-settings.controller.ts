@@ -1,5 +1,7 @@
 import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
+
 import { ResponseHandler } from '../common/response.handler.js';
+
 import { CustomerSettingsService } from './customer-settings.service.js';
 
 @Controller('customer-settings')
