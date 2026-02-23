@@ -228,16 +228,13 @@ export class AuthRepository {
           },
           tx,
         );
-        await this.customerSettingsRepository.updateCustomerSettingsByUserId(
-          {
-            userId,
-            morningCowQty: dto.morningCowQty,
-            morningBuffaloQty: dto.morningBuffaloQty,
-            eveningCowQty: dto.eveningCowQty,
-            eveningBuffaloQty: dto.eveningBuffaloQty,
-          },
-          tx,
-        );
+        await this.customerSettingsRepository.updateCustomerSettingsByUserId({
+          userId,
+          morningCowQty: dto.morningCowQty,
+          morningBuffaloQty: dto.morningBuffaloQty,
+          eveningCowQty: dto.eveningCowQty,
+          eveningBuffaloQty: dto.eveningBuffaloQty,
+        });
       });
 
       const updatedUser =
