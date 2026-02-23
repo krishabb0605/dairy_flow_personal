@@ -1,4 +1,4 @@
-import type { Prisma } from '../../generated/prisma/client.js';
+import { Prisma } from '@prisma/client';
 
 export type UserWithSettings = Prisma.UserGetPayload<{
   include: {

@@ -4,11 +4,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-
-import {
-  DailyMilkStatus,
-  ExtraMilkSlot,
-} from '../../generated/prisma/enums.js';
+import { DailyMilkStatus, ExtraMilkSlot } from '@prisma/client';
 
 import { CustomerOwnerRepository } from '../customer-owner/customer-owner.repositary.js';
 import { DailyMilkRepository } from '../daily-milk/daily-milk.repository.js';
