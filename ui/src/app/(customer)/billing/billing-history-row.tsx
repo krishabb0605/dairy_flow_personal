@@ -12,12 +12,16 @@ type BillingHistoryRowProps = {
     bill: CustomerBillingRecord,
     method: 'STRIPE' | 'COD',
   ) => void;
+  selected: boolean;
+  onSelectChange: (bill: CustomerBillingRecord, checked: boolean) => void;
 };
 
 export const BillingHistoryRow = ({
   bill,
   onOpenPanel: _onOpenPanel,
   onPaymentMethodChange,
+  selected,
+  onSelectChange,
 }: BillingHistoryRowProps) => {
   const [selectPaymentMethod, setSelectedPaymentMethod] = useState<
     'STRIPE' | 'COD'
@@ -29,8 +33,9 @@ export const BillingHistoryRow = ({
         <input
           className='rounded border-slate-300 text-primary focus:ring-primary w-4 h-4 bg-transparent disabled:cursor-not-allowed disabled:opacity-70'
           type='checkbox'
-          checked={bill.status === 'UNPAID'}
+          checked={selected}
           disabled={bill.status !== 'UNPAID'}
+          onChange={(e) => onSelectChange(bill, e.target.checked)}
         />
       </td>
       <td className='px-6 py-5'>

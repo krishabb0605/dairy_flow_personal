@@ -31,6 +31,7 @@ const MonthlyBiling = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [years, setYears] = useState<string[]>([]);
   const [year, setYear] = useState('all');
+  const [selectedInvoiceIds, setSelectedInvoiceIds] = useState<number[]>([]);
 
   const fetchBillingRef = useRef(false);
 
@@ -103,6 +104,12 @@ const MonthlyBiling = () => {
     fetchBilling();
   }, [fetchBilling]);
 
+  useEffect(() => {
+    setSelectedInvoiceIds(
+      rows.filter((row) => row.status === 'UNPAID').map((row) => row.invoiceId),
+    );
+  }, [rows]);
+
   const handlePaymentMethodChange = async (
     bill: CustomerBillingRecord,
     method: 'STRIPE' | 'COD',
@@ -123,6 +130,27 @@ const MonthlyBiling = () => {
       toast.error(message);
     }
   };
+
+  const handleSelectChange = (
+    bill: CustomerBillingRecord,
+    checked: boolean,
+  ) => {
+    setSelectedInvoiceIds((prev) => {
+      if (checked) {
+        if (prev.includes(bill.invoiceId)) return prev;
+        return [...prev, bill.invoiceId];
+      }
+      return prev.filter((id) => id !== bill.invoiceId);
+    });
+  };
+
+  const selectableIds = rows
+    .filter((row) => row.status === 'UNPAID')
+    .map((row) => row.invoiceId);
+
+  const isAllSelected =
+    selectableIds.length > 0 &&
+    selectableIds.every((id) => selectedInvoiceIds.includes(id));
 
   const visibleDays = showAllDays
     ? dailyDeliveriesHistory
@@ -229,6 +257,14 @@ const MonthlyBiling = () => {
                         <input
                           className='rounded border-slate-300 text-primary focus:ring-primary w-4 h-4 bg-transparent'
                           type='checkbox'
+                          checked={isAllSelected}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedInvoiceIds(selectableIds);
+                            } else {
+                              setSelectedInvoiceIds([]);
+                            }
+                          }}
                         />
                       </th>
                       <th className='px-6 py-4'>Billing Month</th>
@@ -263,6 +299,8 @@ const MonthlyBiling = () => {
                           bill={bill}
                           onOpenPanel={() => setOpenPanel(true)}
                           onPaymentMethodChange={handlePaymentMethodChange}
+                          selected={selectedInvoiceIds.includes(bill.invoiceId)}
+                          onSelectChange={handleSelectChange}
                         />
                       ))
                     )}
