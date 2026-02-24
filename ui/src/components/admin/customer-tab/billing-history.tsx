@@ -7,6 +7,7 @@ import Button from '../../../components/ui/button';
 
 import { billingHistory } from '../../../constants';
 import type { BillingStatusFilter } from '../../../types';
+import Badge from '@/components/ui/badge';
 
 const ITEMS_PER_PAGE = 4;
 
@@ -183,22 +184,17 @@ const CustomerBillingHistory = () => {
                     {item.amount}
                   </td>
                   <td className='px-6 py-4 text-center'>
-                    <span
-                      className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold tracking-wider capitalize ${
+                    <Badge
+                      variant={
                         normalizeStatus(item.status) === 'paid'
-                          ? 'bg-green-100 text-green-700'
-                          : 'bg-red-100 text-red-600'
-                      }`}
+                          ? 'success'
+                          : 'danger'
+                      }
+                      className='capitalize'
+                      icon
                     >
-                      <span
-                        className={`h-1.5 w-1.5 rounded-full ${
-                          normalizeStatus(item.status) === 'paid'
-                            ? 'bg-green-500'
-                            : 'bg-rose-500'
-                        }`}
-                      />
-                      {item.status}
-                    </span>
+                      {normalizeStatus(item.status)}
+                    </Badge>
                   </td>
                   <td className='px-6 py-4 text-right'>
                     <div className='flex justify-end items-center gap-2'>

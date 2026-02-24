@@ -1,4 +1,5 @@
-import type { OwnerCustomer } from './types';
+import { BadgeVariant } from './components/ui/badge';
+import type { OwnerBillingApiStatus, OwnerCustomer } from './types';
 
 export const API_URL =
   process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001';
@@ -52,49 +53,49 @@ export const billingHistory = [
     range: 'Sep 01 - Sep 30',
     qty: '42.0 Liters',
     amount: '₹2,180.00',
-    status: 'Paid',
+    status: 'PAID',
   },
   {
     month: 'August 2023',
     range: 'Aug 01 - Aug 31',
     qty: '45.5 Liters',
     amount: '₹2,360.00',
-    status: 'Paid',
+    status: 'PAID',
   },
   {
     month: 'July 2023',
     range: 'Jul 01 - Jul 31',
     qty: '38.0 Liters',
     amount: '₹1,950.00',
-    status: 'pending',
+    status: 'UNPAID',
   },
   {
     month: 'June 2023',
     range: 'June 01 - June 30',
     qty: '22.0 Liters',
     amount: '₹2,580.00',
-    status: 'Paid',
+    status: 'PAID',
   },
   {
     month: 'May 2023',
     range: 'May 01 - May 31',
     qty: '15.5 Liters',
     amount: '₹1,360.00',
-    status: 'pending',
+    status: 'UNPAID',
   },
   {
     month: 'April 2023',
     range: 'April 01 - April 31',
     qty: '48.0 Liters',
     amount: '₹2,950.00',
-    status: 'pending',
+    status: 'UNPAID',
   },
   {
     month: 'January 2024',
     range: 'Jan 01 - Jan 31',
     qty: '25.0 Liters',
     amount: '₹1,951.00',
-    status: 'Paid',
+    status: 'PAID',
   },
 ];
 
@@ -188,3 +189,15 @@ export const ownerCustomers: OwnerCustomer[] = [
     avatar: 'https://i.pravatar.cc/120?img=47',
   },
 ];
+
+
+export const getBillingStatusVariant = (status: OwnerBillingApiStatus): BadgeVariant => {
+  if (status === 'UNPAID') {
+    return 'warning';
+  } else if (status === 'FAILED') {
+    return 'danger';
+  } else if (status === 'PENDING_COD') {
+    return 'gray';
+  }
+  return 'success';
+};

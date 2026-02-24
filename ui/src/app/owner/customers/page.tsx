@@ -18,6 +18,7 @@ import {
   createCustomerOwner,
   getOwnerCustomers,
 } from '../../../lib/customerOwner';
+import Badge from '@/components/ui/badge';
 
 const ITEMS_PER_PAGE = 3;
 
@@ -365,15 +366,16 @@ const OwnerCustomersPage = () => {
                         </td>
 
                         <td className='px-6 py-4'>
-                          <span
-                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                          <Badge
+                            variant={
                               customer.status === 'active'
-                                ? 'bg-primary/20 text-primary'
-                                : 'bg-orange-100 text-orange-600'
-                            }`}
+                                ? 'primary'
+                                : 'warning'
+                            }
+                            className='capitalize'
                           >
                             {customer.status}
-                          </span>
+                          </Badge>
                         </td>
                         <td className='px-6 py-4 text-right'>
                           <Link

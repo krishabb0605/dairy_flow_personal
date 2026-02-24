@@ -7,9 +7,14 @@ import ContentLayout from '../../../components/layout';
 import Pagination from '../../../components/pagination';
 import Button from '../../../components/ui/button';
 
-import { billingHistory, dailyDeliveriesHistory } from '../../../constants';
+import {
+  billingHistory,
+  dailyDeliveriesHistory,
+  getBillingStatusVariant,
+} from '../../../constants';
 
 import pieChart from '../../../assets/images/pie-chart.png';
+import Badge from '@/components/ui/badge';
 
 const ITEMS_PER_PAGE = 3;
 
@@ -244,23 +249,12 @@ const MonthlyBiling = () => {
                         </td>
 
                         <td className='px-6 py-5'>
-                          <span
-                            className={`inline-flex items-center gap-1.5 py-1 px-3 rounded-full text-xs font-bold
-                            ${
-                              bill.status === 'Paid'
-                                ? 'bg-green-100 text-green-700'
-                                : 'bg-red-100 text-red-700'
-                            }`}
+                          <Badge
+                            variant={getBillingStatusVariant(bill.status)}
+                            icon
                           >
-                            <span
-                              className={`size-1.5 rounded-full ${
-                                bill.status === 'Paid'
-                                  ? 'bg-green-600'
-                                  : 'bg-red-600'
-                              }`}
-                            />
                             {bill.status}
-                          </span>
+                          </Badge>
                         </td>
 
                         <td className='px-6 py-5 text-right'>
@@ -341,9 +335,7 @@ const MonthlyBiling = () => {
                       >
                         <div className='flex justify-between items-start mb-2'>
                           <span className='font-bold text-sm'>{day.date}</span>
-                          <span className='text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded'>
-                            {day.status}
-                          </span>
+                          <Badge variant='success'>{day.status}</Badge>
                         </div>
 
                         <div className='grid grid-cols-2 gap-4 text-xs'>

@@ -10,6 +10,7 @@ import { updateDailyMilk } from '../../lib/daily-milk';
 
 import Button from '../ui/button';
 import EditDeliveryModal from '../modal/admin/edit-delivery';
+import Badge from '../ui/badge';
 
 const OwnerDeliveryRow = ({
   delivery,
@@ -92,17 +93,18 @@ const OwnerDeliveryRow = ({
         </td>
 
         <td className='px-6 py-4 whitespace-nowrap text-center'>
-          <span
-            className={`px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider ${
-              delivery.status.toLowerCase() === 'cancelled'
-                ? 'bg-red-100 text-red-700'
-                : delivery.status.toLowerCase() === 'pending'
-                  ? 'bg-amber-100 text-amber-700'
-                  : 'bg-primary/20 text-slate-700'
-            }`}
+          <Badge
+            variant={
+              delivery.status.toLowerCase() === 'pending'
+                ? 'warning'
+                : delivery.status.toLowerCase() === 'cancelled'
+                  ? 'danger'
+                  : 'primary'
+            }
+            className='capitalize'
           >
-            {delivery.status.toLowerCase()}
-          </span>
+            {delivery.status}
+          </Badge>
         </td>
 
         <td className='px-6 py-4 text-center'>
