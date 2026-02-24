@@ -92,8 +92,8 @@ export class InvoiceService {
         customerOwnerId: entry.customerOwnerId,
         billYear,
         billMonth,
-        cowMilkTotal: Number(entry._sum.cowQty ?? 0),
-        buffaloMilkTotal: Number(entry._sum.buffaloQty ?? 0),
+        cowMilkQtyTotal: Number(entry._sum.cowQty ?? 0),
+        buffaloMilkQtyTotal: Number(entry._sum.buffaloQty ?? 0),
         totalAmount: Number(entry._sum.totalAmount ?? 0),
         paymentMethod: 'STRIPE' as const,
         status: 'UNPAID' as const,
@@ -107,6 +107,29 @@ export class InvoiceService {
     this.logger.log(
       `Monthly invoices generated for ${billYear}-${String(billMonth).padStart(2, '0')}: ${entries.length}`,
     );
+  }
+
+  async getOwnerBilling(
+    ownerId: number,
+    params: {
+      page: number;
+      limit: number;
+      search: string;
+      status: string;
+      year: string;
+    },
+  ) {
+    return this.invoiceRepository.getOwnerBilling(ownerId, params);
+  }
+
+  async updateInvoice(
+    invoiceId: number,
+    params: {
+      status?: string;
+      notes?: string | null;
+    },
+  ) {
+    return this.invoiceRepository.updateInvoice(invoiceId, params);
   }
 
   /**

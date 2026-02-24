@@ -358,16 +358,56 @@ export type OwnerCustomerTab =
   | 'delivery-history'
   | 'billing-history';
 
-export type OwnerBillingStatus = 'paid' | 'pending';
+export type OwnerBillingApiStatus =
+  | 'UNPAID'
+  | 'PENDING_COD'
+  | 'PAID'
+  | 'FAILED';
+
+export type OwnerBillingApiItem = {
+  id: number;
+  billYear: number;
+  billMonth: number;
+  cowMilkQtyTotal: number;
+  buffaloMilkQtyTotal: number;
+  totalAmount: number;
+  status: OwnerBillingApiStatus;
+  customerName: string;
+  customerMobile: string;
+  notes?: string | null;
+};
+
+export type OwnerBillingResponse = {
+  invoices: OwnerBillingApiItem[];
+  page: number;
+  limit: number;
+  totalPages: number;
+  totalItems: number;
+  totalPending: number;
+  totalCollected: number;
+  totalLitersDelivered: number;
+  years: number[];
+};
 
 export type OwnerBillingRecord = {
+  invoiceId: number;
   id: string;
   customerName: string;
   mobile: string;
   month: string;
   qty: number;
   amount: number;
-  status: OwnerBillingStatus;
+  status: OwnerBillingApiStatus;
+  notes?: string | null;
+};
+
+export type GetOwnerBillingParams = {
+  ownerId: number;
+  page: number;
+  limit: number;
+  search?: string;
+  status?: 'all' | OwnerBillingApiStatus;
+  year?: string;
 };
 
 export type OwnerSettingsFormData = {

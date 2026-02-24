@@ -1,142 +1,155 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { toast } from 'react-toastify';
+
+import { UserContext } from '../../context/user-context';
 
 import ContentLayout from '../../../components/layout';
 import Pagination from '../../../components/pagination';
 import Button from '../../../components/ui/button';
+import Loader from '../../../components/loader';
+import BillingTableRow from './billing-table-row';
 
-import type { OwnerBillingRecord, OwnerBillingStatus } from '../../../types';
+import type {
+  OwnerBillingApiStatus,
+  OwnerBillingRecord,
+  OwnerBillingResponse,
+} from '../../../types';
 
-const OWNER_BILLING_DATA: OwnerBillingRecord[] = [
-  {
-    id: 'INV-1001',
-    customerName: 'John Doe',
-    mobile: '+91 98765 43210',
-    month: 'January 2024',
-    qty: 42,
-    amount: 2180,
-    status: 'paid',
-  },
-  {
-    id: 'INV-1002',
-    customerName: 'Sarah Smith',
-    mobile: '+91 98765 43211',
-    month: 'January 2024',
-    qty: 35.5,
-    amount: 1960,
-    status: 'pending',
-  },
-  {
-    id: 'INV-1003',
-    customerName: 'Mike Ross',
-    mobile: '+91 98765 43212',
-    month: 'January 2024',
-    qty: 28,
-    amount: 1470,
-    status: 'pending',
-  },
-  {
-    id: 'INV-1004',
-    customerName: 'Emma Wilson',
-    mobile: '+91 98765 43213',
-    month: 'December 2023',
-    qty: 48,
-    amount: 2600,
-    status: 'paid',
-  },
-  {
-    id: 'INV-1005',
-    customerName: 'Arjun Patel',
-    mobile: '+91 98765 43214',
-    month: 'December 2023',
-    qty: 31,
-    amount: 1680,
-    status: 'pending',
-  },
-  {
-    id: 'INV-1006',
-    customerName: 'Neha Verma',
-    mobile: '+91 98765 43215',
-    month: 'December 2023',
-    qty: 29.5,
-    amount: 1590,
-    status: 'paid',
-  },
-  {
-    id: 'INV-1007',
-    customerName: 'Ravi Kumar',
-    mobile: '+91 98765 43216',
-    month: 'November 2023',
-    qty: 50,
-    amount: 2790,
-    status: 'pending',
-  },
-  {
-    id: 'INV-1008',
-    customerName: 'Priya Nair',
-    mobile: '+91 98765 43217',
-    month: 'November 2023',
-    qty: 22.5,
-    amount: 1200,
-    status: 'paid',
-  },
-];
+import { getOwnerBilling, updateInvoice } from '../../../lib/invoice';
 
 const ITEMS_PER_PAGE = 5;
 
 const formatCurrency = (amount: number) =>
   `₹${amount.toLocaleString('en-IN', { maximumFractionDigits: 2 })}`;
 
-const extractYear = (month: string) => month.split(' ').at(-1) ?? '';
-
 const OwnerBillingPage = () => {
+  const { user } = useContext(UserContext);
   const [page, setPage] = useState(1);
-  const [rows, setRows] = useState<OwnerBillingRecord[]>(OWNER_BILLING_DATA);
-  const [search, setSearch] = useState('');
-  const [status, setStatus] = useState<'all' | OwnerBillingStatus>('all');
+  const [rows, setRows] = useState<OwnerBillingRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalPending, setTotalPending] = useState(0);
+  const [totalCollected, setTotalCollected] = useState(0);
+  const [totalLitersDelivered, setTotalLitersDelivered] = useState(0);
+  const [years, setYears] = useState<string[]>([]);
+
+  const [searchInput, setSearchInput] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const [status, setStatus] = useState<'all' | OwnerBillingApiStatus>('all');
   const [year, setYear] = useState('all');
 
-  const years = useMemo(() => {
-    const unique = new Set(rows.map((item) => extractYear(item.month)));
-    return Array.from(unique).sort((a, b) => Number(b) - Number(a));
-  }, [rows]);
+  const fetchBillingRef = useRef(false);
 
-  const filteredRows = useMemo(() => {
-    const query = search.trim().toLowerCase();
-    return rows.filter((item) => {
-      const matchesSearch =
-        !query ||
-        item.customerName.toLowerCase().includes(query) ||
-        item.mobile.toLowerCase().includes(query) ||
-        item.id.toLowerCase().includes(query);
+  const handleSearch = () => {
+    setPage(1);
+    setSearchQuery(searchInput.trim());
+  };
 
-      if (!matchesSearch) return false;
-      if (status !== 'all' && item.status !== status) return false;
-      if (year !== 'all' && extractYear(item.month) !== year) return false;
+  const ownerId = user?.ownerSettings?.id;
 
-      return true;
-    });
-  }, [rows, search, status, year]);
+  const formatMonthLabel = (billYear: number, billMonth: number) =>
+    new Intl.DateTimeFormat('en-US', {
+      month: 'long',
+      year: 'numeric',
+    }).format(new Date(Date.UTC(billYear, billMonth - 1, 1)));
 
-  const totalPages = Math.max(
-    1,
-    Math.ceil(filteredRows.length / ITEMS_PER_PAGE),
-  );
-  const start = (page - 1) * ITEMS_PER_PAGE;
-  const currentRows = filteredRows.slice(start, start + ITEMS_PER_PAGE);
-  const totalPending = filteredRows.reduce(
-    (sum, row) => (row.status !== 'paid' ? sum + row.amount : sum),
-    0,
-  );
-  const totalCollected = filteredRows.reduce(
-    (sum, row) => (row.status === 'paid' ? sum + row.amount : sum),
-    0,
-  );
-  const totalLitersDelivered = filteredRows.reduce(
-    (sum, row) => sum + row.qty,
-    0,
-  );
+  const fetchBilling = useCallback(async () => {
+    if (!ownerId) {
+      setRows([]);
+      setTotalPages(1);
+      setTotalPending(0);
+      setTotalCollected(0);
+      setTotalLitersDelivered(0);
+      setYears([]);
+      setLoading(false);
+      return;
+    }
+
+    if (fetchBillingRef.current) return;
+    fetchBillingRef.current = true;
+
+    try {
+      setLoading(true);
+      const data: OwnerBillingResponse = await getOwnerBilling({
+        ownerId,
+        page,
+        limit: ITEMS_PER_PAGE,
+        search: searchQuery,
+        status,
+        year,
+      });
+
+      const mapped = data.invoices.map((invoice) => ({
+        invoiceId: invoice.id,
+        id: `INV-${invoice.id}`,
+        customerName: invoice.customerName,
+        mobile: invoice.customerMobile,
+        month: formatMonthLabel(invoice.billYear, invoice.billMonth),
+        qty: invoice.cowMilkQtyTotal + invoice.buffaloMilkQtyTotal,
+        amount: invoice.totalAmount,
+        status: invoice.status,
+        notes: invoice.notes ?? null,
+      }));
+
+      setRows(mapped);
+      setTotalPages(data.totalPages);
+      setTotalPending(data.totalPending);
+      setTotalCollected(data.totalCollected);
+      setTotalLitersDelivered(data.totalLitersDelivered);
+      setYears(data.years.map((item) => String(item)));
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : 'Failed to fetch billing.';
+      toast.error(message);
+      setRows([]);
+      setTotalPages(1);
+      setTotalPending(0);
+      setTotalCollected(0);
+      setTotalLitersDelivered(0);
+      setYears([]);
+    } finally {
+      setLoading(false);
+      fetchBillingRef.current = false;
+    }
+  }, [ownerId, page, searchQuery, status, year]);
+
+  useEffect(() => {
+    fetchBilling();
+  }, [fetchBilling]);
+
+  const handleSaveNotes = async (row: OwnerBillingRecord, notes: string) => {
+    const payload = notes.trim();
+    try {
+      await updateInvoice(row.invoiceId, {
+        notes: payload.length > 0 ? payload : null,
+      });
+      fetchBilling();
+      toast.success('Notes updated.');
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : 'Failed to update notes.';
+      toast.error(message);
+    }
+  };
+
+  const handleStatusChange = async (
+    row: OwnerBillingRecord,
+    nextStatus: OwnerBillingApiStatus,
+  ) => {
+    if (row.status === nextStatus) return;
+    try {
+      await updateInvoice(row.invoiceId, { status: nextStatus });
+      fetchBilling();
+      toast.success('Invoice status updated.');
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : 'Failed to update status.';
+      toast.error(message);
+    }
+  };
 
   return (
     <ContentLayout title='Billing Management'>
@@ -173,82 +186,82 @@ const OwnerBillingPage = () => {
             </div>
           </div>
         </div>
-        <div className='bg-white rounded-xl border border-primary/10 shadow-sm p-4'>
-          <div className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3'>
-            <div className='xl:col-span-2'>
-              <label className='block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1'>
-                Search
-              </label>
-              <div className='relative'>
-                <span className='material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400'>
-                  search
-                </span>
-                <input
-                  type='text'
-                  value={search}
-                  onChange={(e) => {
-                    setSearch(e.target.value);
-                    setPage(1);
-                  }}
-                  placeholder='Search customer, mobile or invoice id...'
-                  className='w-full h-10 pl-10 pr-4 bg-slate-50 border-slate-200 font-medium rounded-lg text-sm focus:ring-primary focus:border-primary focus-visible:outline-primary/50'
-                />
-              </div>
+        <div className='flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between'>
+          <div className='flex-1 w-full lg:w-auto rounded-full bg-white border border-[#d7e9ff] p-1 flex items-center overflow-hidden shadow-sm'>
+            <div className='pl-3 pr-2 text-[#6a97c8] flex items-center justify-center'>
+              <span className='material-symbols-outlined text-[22px] leading-none'>
+                search
+              </span>
             </div>
+            <input
+              className='flex-1 bg-transparent py-2.5 pr-2 text-sm text-slate-700 placeholder:text-[#84a8ce] outline-none'
+              placeholder='Search by name or phone number...'
+              type='text'
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleSearch();
+                }
+              }}
+            />
+            <Button
+              variant='gradient'
+              className='px-6 py-2.5 rounded-full text-sm font-medium transition-opacity shadow-[0_6px_14px_rgba(33,116,230,0.32)]'
+              onClick={handleSearch}
+            >
+              Search
+            </Button>
+          </div>
 
-            <div>
-              <label className='block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1'>
-                Status
-              </label>
-              <select
-                value={status}
-                onChange={(e) => {
-                  setStatus(e.target.value as 'all' | OwnerBillingStatus);
-                  setPage(1);
-                }}
-                className='w-full h-10 bg-slate-50 border-slate-200 rounded-lg text-sm font-medium px-3 focus:ring-primary focus:border-primary focus-visible:outline-primary/50'
-              >
-                <option value='all'>All Status</option>
-                <option value='paid'>Paid</option>
-                <option value='pending'>Pending</option>
-              </select>
-            </div>
+          <div className='flex flex-wrap items-center gap-2 justify-between w-full lg:w-auto'>
+            <select
+              value={status}
+              onChange={(e) => {
+                setStatus(e.target.value as 'all' | OwnerBillingApiStatus);
+                setPage(1);
+              }}
+              className='px-3 py-2.5 bg-white border border-primary/20 rounded-xl text-sm font-medium focus:ring-2 focus:ring-primary/20 focus-visible:outline-primary/50 cursor-pointer hover:opacity-90'
+            >
+              <option value='all'>All status</option>
+              <option value='UNPAID'>Unpaid</option>
+              <option value='PENDING_COD'>Pending COD</option>
+              <option value='PAID'>Paid</option>
+              <option value='FAILED'>Failed</option>
+            </select>
 
-            <div>
-              <label className='block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1'>
-                Year
-              </label>
-              <select
-                value={year}
-                onChange={(e) => {
-                  setYear(e.target.value);
-                  setPage(1);
-                }}
-                className='w-full h-10 bg-slate-50 border-slate-200 rounded-lg text-sm font-medium px-3 focus:ring-primary focus:border-primary focus-visible:outline-primary/50'
-              >
-                <option value='all'>All Years</option>
-                {years.map((item) => (
-                  <option key={item} value={item}>
-                    {item}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <select
+              value={year}
+              onChange={(e) => {
+                setYear(e.target.value);
+                setPage(1);
+              }}
+              className='px-3 py-2.5 bg-white border border-primary/20 rounded-xl text-sm font-medium focus:ring-2 focus:ring-primary/20 focus-visible:outline-primary/50 cursor-pointer hover:opacity-90'
+            >
+              <option value='all'>All Years</option>
+              {years.map((item) => (
+                <option key={item} value={item}>
+                  {item}
+                </option>
+              ))}
+            </select>
 
-            <div className='flex items-end'>
-              <Button
-                variant='soft'
-                className='h-10 w-full px-4 font-bold rounded-lg transition-colors'
-                onClick={() => {
-                  setSearch('');
-                  setStatus('all');
-                  setYear('all');
-                  setPage(1);
-                }}
-              >
-                Reset
-              </Button>
-            </div>
+            <Button
+              variant='outline'
+              className='flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium hover:opacity-90 transition-colors h-10'
+              onClick={() => {
+                setSearchInput('');
+                setSearchQuery('');
+                setStatus('all');
+                setYear('all');
+                setPage(1);
+              }}
+            >
+              <span className='material-symbols-outlined text-sm'>
+                restart_alt
+              </span>
+              Reset
+            </Button>
           </div>
         </div>
 
@@ -273,6 +286,9 @@ const OwnerBillingPage = () => {
                     Amount
                   </th>
                   <th className='px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center'>
+                    Notes
+                  </th>
+                  <th className='px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center'>
                     Status
                   </th>
                   <th className='px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center'>
@@ -281,76 +297,44 @@ const OwnerBillingPage = () => {
                 </tr>
               </thead>
               <tbody className='divide-y divide-primary/5'>
-                {currentRows.map((row) => (
-                  <tr
-                    key={row.id}
-                    className='hover:bg-primary/5 transition-colors'
-                  >
-                    <td className='px-6 py-4 text-sm font-bold text-slate-800'>
-                      {row.id}
-                    </td>
-                    <td className='px-6 py-4 text-sm font-medium text-slate-700'>
-                      <div>{row.customerName}</div>
-                      <div className='text-xs text-slate-400'>{row.mobile}</div>
-                    </td>
-                    <td className='px-6 py-4 text-sm text-center text-slate-700'>
-                      {row.month}
-                    </td>
-                    <td className='px-6 py-4 text-sm text-center text-slate-700'>
-                      {row.qty.toFixed(1)} L
-                    </td>
-                    <td className='px-6 py-4 text-sm text-center font-semibold text-slate-800'>
-                      {formatCurrency(row.amount)}
-                    </td>
-                    <td className='px-6 py-4 text-center'>
-                      <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                          row.status === 'paid'
-                            ? 'bg-primary/20 text-primary'
-                            : 'bg-amber-100 text-amber-700'
-                        }`}
-                      >
-                        {row.status}
-                      </span>
-                    </td>
-                    <td className='px-6 py-4 text-center'>
-                      {row.status === 'pending' ? (
-                        <Button
-                          variant='success-soft'
-                          className='px-3 py-1 text-xs font-bold rounded transition-all'
-                          onClick={() =>
-                            setRows((prev) =>
-                              prev.map((item) =>
-                                item.id === row.id
-                                  ? { ...item, status: 'paid' }
-                                  : item,
-                              ),
-                            )
-                          }
-                        >
-                          Mark as Paid
-                        </Button>
-                      ) : (
-                        <span className='text-xs text-slate-400'>-</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-                {currentRows.length === 0 && (
+                {loading ? (
                   <tr>
                     <td
-                      colSpan={7}
-                      className='px-6 py-10 text-center text-sm text-slate-500'
+                      colSpan={8}
+                      className='px-6 py-8 text-center text-slate-500 text-sm'
+                    >
+                      <div className='flex justify-center'>
+                        <Loader />
+                      </div>
+                    </td>
+                  </tr>
+                ) : rows.length === 0 ? (
+                  <tr>
+                    <td
+                      className='px-6 py-8 text-center text-sm text-slate-500'
+                      colSpan={6}
                     >
                       No billing records found for selected filters.
                     </td>
                   </tr>
+                ) : (
+                  rows.map((row) => (
+                    <BillingTableRow
+                      key={row.id}
+                      row={row}
+                      onSaveNotes={handleSaveNotes}
+                      onStatusChange={handleStatusChange}
+                      formatCurrency={formatCurrency}
+                    />
+                  ))
                 )}
               </tbody>
             </table>
           </div>
 
-          <Pagination page={page} totalPages={totalPages} setPage={setPage} />
+          {rows.length > 0 && (
+            <Pagination page={page} totalPages={totalPages} setPage={setPage} />
+          )}
         </div>
       </div>
     </ContentLayout>

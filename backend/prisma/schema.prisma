@@ -219,8 +219,8 @@ model Invoice {
   billYear  Int
   billMonth Int // 1-12
 
-  cowMilkTotal     Decimal @default(0) @db.Decimal(10, 2)
-  buffaloMilkTotal Decimal @default(0) @db.Decimal(10, 2)
+  cowMilkQtyTotal     Decimal @default(0) @db.Decimal(10, 2)
+  buffaloMilkQtyTotal Decimal @default(0) @db.Decimal(10, 2)
   totalAmount      Decimal @db.Decimal(10, 2)
 
   status        InvoiceStatus @default(UNPAID)
