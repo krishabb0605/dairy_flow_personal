@@ -122,10 +122,22 @@ export class InvoiceService {
     return this.invoiceRepository.getOwnerBilling(ownerId, params);
   }
 
+  async getCustomerBilling(
+    customerOwnerId: number,
+    params: {
+      page: number;
+      limit: number;
+      year: string;
+    },
+  ) {
+    return this.invoiceRepository.getCustomerBilling(customerOwnerId, params);
+  }
+
   async updateInvoice(
     invoiceId: number,
     params: {
       status?: string;
+      paymentMethod?: string;
       notes?: string | null;
     },
   ) {

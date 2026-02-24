@@ -25,7 +25,6 @@ const BillingDetailsAside = ({
   showAllDays,
   onToggleShowAllDays,
 }: BillingDetailsAsideProps) => {
-  console.log('object');
   return (
     <>
       {open && (

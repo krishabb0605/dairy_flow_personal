@@ -1,4 +1,9 @@
-import type { GetOwnerBillingParams, OwnerBillingResponse } from '../types';
+import type {
+  CustomerBillingResponse,
+  GetCustomerBillingParams,
+  GetOwnerBillingParams,
+  OwnerBillingResponse,
+} from '../types';
 
 import { api } from '../lib/api';
 
@@ -24,7 +29,7 @@ export const getOwnerBilling = async (
 
 export const updateInvoice = async (
   invoiceId: number,
-  body: { status?: string; notes?: string | null },
+  body: { status?: string; paymentMethod?: string; notes?: string | null },
 ) => {
   try {
     return await api(`/invoice/${invoiceId}`, {
@@ -33,6 +38,24 @@ export const updateInvoice = async (
     });
   } catch (error) {
     console.error('Error while updating invoice:', error);
+    throw error;
+  }
+};
+
+export const getCustomerBilling = async (
+  params: GetCustomerBillingParams,
+): Promise<CustomerBillingResponse> => {
+  try {
+    const searchParams = new URLSearchParams({
+      page: String(params.page),
+      limit: String(params.limit),
+      year: params.year ?? 'all',
+    });
+    return await api(
+      `/invoice/customer/${params.customerOwnerId}?${searchParams.toString()}`,
+    );
+  } catch (error) {
+    console.error('Error while fetching customer billing:', error);
     throw error;
   }
 };

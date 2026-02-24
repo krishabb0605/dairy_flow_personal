@@ -1,20 +1,38 @@
+'use client';
+import { useEffect, useState } from 'react';
 import Badge from '../../../components/ui/badge';
 import Button from '../../../components/ui/button';
-import { billingHistory, getBillingStatusVariant } from '../../../constants';
-
-type BillingHistoryItem = (typeof billingHistory)[number];
+import { getBillingStatusVariant } from '../../../constants';
+import type { CustomerBillingRecord } from '../../../types';
 
 type BillingHistoryRowProps = {
-  bill: BillingHistoryItem;
+  bill: CustomerBillingRecord;
   onOpenPanel: () => void;
+  onPaymentMethodChange: (
+    bill: CustomerBillingRecord,
+    method: 'STRIPE' | 'COD',
+  ) => void;
 };
 
 export const BillingHistoryRow = ({
   bill,
-  onOpenPanel,
+  onOpenPanel: _onOpenPanel,
+  onPaymentMethodChange,
 }: BillingHistoryRowProps) => {
+  const [selectPaymentMethod, setSelectedPaymentMethod] = useState<
+    'STRIPE' | 'COD'
+  >(bill.paymentMethod);
+
   return (
     <tr className='hover:bg-background-light/30 transition'>
+      <td className='pl-6 pr-2 py-4'>
+        <input
+          className='rounded border-slate-300 text-primary focus:ring-primary w-4 h-4 bg-transparent disabled:cursor-not-allowed disabled:opacity-70'
+          type='checkbox'
+          checked={bill.status === 'UNPAID'}
+          disabled={bill.status !== 'UNPAID'}
+        />
+      </td>
       <td className='px-6 py-5'>
         <div className='flex flex-col'>
           <span className='text-[#111418] font-semibold'>{bill.month}</span>
@@ -24,7 +42,7 @@ export const BillingHistoryRow = ({
 
       <td className='px-6 py-5 text-[#111418] font-medium'>{bill.qty}</td>
 
-      <td className='px-6 py-5 text-[#111418] font-bold'>{bill.amount}</td>
+      <td className='px-6 py-5 text-[#111418] font-bold'>₹ {bill.amount}</td>
 
       <td className='px-6 py-5'>
         <Badge variant={getBillingStatusVariant(bill.status)} icon>
@@ -33,24 +51,53 @@ export const BillingHistoryRow = ({
       </td>
 
       <td className='px-6 py-5 text-right'>
-        <div className='flex justify-end gap-2'>
-          <Button
+        <div className='flex justify-end items-center gap-2'>
+          {bill.status === 'PAID' ? (
+            <Button
+              variant='ghost-muted'
+              className='p-2 rounded-lg transition'
+              title='Invoice Download'
+            >
+              <span className='material-symbols-outlined' data-icon='download'>
+                download
+              </span>
+            </Button>
+          ) : (
+            <div className='relative'>
+              <select
+                value={selectPaymentMethod}
+                onChange={(e) => {
+                  const nextMethod = e.target.value as 'STRIPE' | 'COD';
+                  setSelectedPaymentMethod(nextMethod);
+                  onPaymentMethodChange(bill, nextMethod);
+                }}
+                className='appearance-none border border-slate-200 bg-white text-slate-700 text-xs font-medium rounded-full pl-3 pr-8 py-1.5 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition disabled:opacity-50'
+              >
+                <option value='STRIPE'>Pay With Stripe</option>
+                <option value='COD'>Cash On Delivery</option>
+              </select>
+              <span className='pointer-events-none absolute right-2 top-[45%] -translate-y-1/2 text-slate-400 text-base leading-none'>
+                ▾
+              </span>
+            </div>
+          )}
+
+          {bill.status !== 'PAID' && selectPaymentMethod === 'STRIPE' && (
+            <Button
+              variant='primary'
+              className='flex-1 md:flex-none min-w-30 font-bold py-2.5 px-6 rounded-lg transition shadow-lg shadow-primary/20'
+            >
+              Pay Now
+            </Button>
+          )}
+
+          {/* <Button
             onClick={onOpenPanel}
             variant='ghost-primary'
             className='p-2 rounded-lg transition cursor-pointer text-primary'
           >
             <span className='material-symbols-outlined'>visibility</span>
-          </Button>
-
-          <Button
-            variant='ghost-muted'
-            className='p-2 rounded-lg transition'
-            title='Download'
-          >
-            <span className='material-symbols-outlined' data-icon='download'>
-              download
-            </span>
-          </Button>
+          </Button> */}
         </div>
       </td>
     </tr>

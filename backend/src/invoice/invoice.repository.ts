@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 
 import { PrismaService } from '../prisma/prisma.service.js';
-import { InvoiceStatus } from '@prisma/client';
+import { InvoiceStatus, PaymentMethod } from '@prisma/client';
 
 @Injectable()
 export class InvoiceRepository {
@@ -11,10 +11,15 @@ export class InvoiceRepository {
     invoiceId: number,
     params: {
       status?: string;
+      paymentMethod?: string;
       notes?: string | null;
     },
   ) {
-    const data: { status?: InvoiceStatus; notes?: string | null } = {};
+    const data: {
+      status?: InvoiceStatus;
+      paymentMethod?: PaymentMethod;
+      notes?: string | null;
+    } = {};
 
     if (typeof params.status === 'string') {
       const normalizedStatus = params.status.trim().toUpperCase();
@@ -28,6 +33,18 @@ export class InvoiceRepository {
         throw new BadRequestException('Invalid invoice status');
       }
       data.status = normalizedStatus as InvoiceStatus;
+    }
+
+    if (typeof params.paymentMethod === 'string') {
+      const normalizedMethod = params.paymentMethod.trim().toUpperCase();
+      const allowedMethods = new Set(['STRIPE', 'COD']);
+      if (!allowedMethods.has(normalizedMethod)) {
+        throw new BadRequestException('Invalid payment method');
+      }
+      data.paymentMethod = normalizedMethod as PaymentMethod;
+      if (!data.status && normalizedMethod === 'COD') {
+        data.status = 'PENDING_COD';
+      }
     }
 
     if (params.notes !== undefined) {
@@ -48,6 +65,7 @@ export class InvoiceRepository {
       select: {
         id: true,
         status: true,
+        paymentMethod: true,
         notes: true,
       },
     });
@@ -170,6 +188,75 @@ export class InvoiceRepository {
       totalPending,
       totalCollected,
       totalLitersDelivered,
+      years: availableYears,
+    };
+  }
+
+  async getCustomerBilling(
+    customerOwnerId: number,
+    params: {
+      page: number;
+      limit: number;
+      year: string;
+    },
+  ) {
+    const safePage = Number.isFinite(params.page)
+      ? Math.max(1, params.page)
+      : 1;
+    const safeLimit = Number.isFinite(params.limit)
+      ? Math.max(1, params.limit)
+      : 10;
+    const normalizedYear = params.year.trim();
+
+    const invoices = await this.prisma.invoice.findMany({
+      where: {
+        customerOwnerId,
+      },
+      orderBy: [{ billYear: 'desc' }, { billMonth: 'desc' }, { id: 'desc' }],
+      select: {
+        id: true,
+        billYear: true,
+        billMonth: true,
+        cowMilkQtyTotal: true,
+        buffaloMilkQtyTotal: true,
+        totalAmount: true,
+        status: true,
+        paymentMethod: true,
+      },
+    });
+
+    const mappedInvoices = invoices.map((invoice) => ({
+      id: invoice.id,
+      billYear: invoice.billYear,
+      billMonth: invoice.billMonth,
+      cowMilkQtyTotal: Number(invoice.cowMilkQtyTotal),
+      buffaloMilkQtyTotal: Number(invoice.buffaloMilkQtyTotal),
+      totalAmount: Number(invoice.totalAmount),
+      status: invoice.status,
+      paymentMethod: invoice.paymentMethod,
+    }));
+
+    const availableYears = Array.from(
+      new Set(mappedInvoices.map((invoice) => invoice.billYear)),
+    ).sort((a, b) => b - a);
+
+    const filtered = mappedInvoices.filter((invoice) => {
+      if (normalizedYear === 'all') return true;
+      return String(invoice.billYear) === normalizedYear;
+    });
+
+    const totalItems = filtered.length;
+    const totalPages = Math.max(1, Math.ceil(totalItems / safeLimit));
+    const safePageNumber = Math.min(safePage, totalPages);
+    const offset = (safePageNumber - 1) * safeLimit;
+    const paginatedInvoices = filtered.slice(offset, offset + safeLimit);
+
+    return {
+      invoices: paginatedInvoices,
+      page: safePageNumber,
+      limit: safeLimit,
+      totalPages,
+      totalItems,
       years: availableYears,
     };
   }

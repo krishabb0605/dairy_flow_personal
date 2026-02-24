@@ -377,6 +377,17 @@ export type OwnerBillingApiItem = {
   notes?: string | null;
 };
 
+export type CustomerBillingApiItem = {
+  id: number;
+  billYear: number;
+  billMonth: number;
+  cowMilkQtyTotal: number;
+  buffaloMilkQtyTotal: number;
+  totalAmount: number;
+  status: OwnerBillingApiStatus;
+  paymentMethod: 'STRIPE' | 'COD';
+};
+
 export type OwnerBillingResponse = {
   invoices: OwnerBillingApiItem[];
   page: number;
@@ -386,6 +397,15 @@ export type OwnerBillingResponse = {
   totalPending: number;
   totalCollected: number;
   totalLitersDelivered: number;
+  years: number[];
+};
+
+export type CustomerBillingResponse = {
+  invoices: CustomerBillingApiItem[];
+  page: number;
+  limit: number;
+  totalPages: number;
+  totalItems: number;
   years: number[];
 };
 
@@ -401,12 +421,29 @@ export type OwnerBillingRecord = {
   notes?: string | null;
 };
 
+export type CustomerBillingRecord = {
+  invoiceId: number;
+  month: string;
+  range: string;
+  qty: number;
+  amount: number;
+  status: OwnerBillingApiStatus;
+  paymentMethod: 'STRIPE' | 'COD';
+};
+
 export type GetOwnerBillingParams = {
   ownerId: number;
   page: number;
   limit: number;
   search?: string;
   status?: 'all' | OwnerBillingApiStatus;
+  year?: string;
+};
+
+export type GetCustomerBillingParams = {
+  customerOwnerId: number;
+  page: number;
+  limit: number;
   year?: string;
 };
 

@@ -48,13 +48,7 @@ export const dailyDeliveriesHistory = [
 ];
 
 export const billingHistory = [
-  {
-    month: 'September 2023',
-    range: 'Sep 01 - Sep 30',
-    qty: '42.0 Liters',
-    amount: '₹2,180.00',
-    status: 'PAID',
-  },
+  
   {
     month: 'August 2023',
     range: 'Aug 01 - Aug 31',
@@ -74,27 +68,13 @@ export const billingHistory = [
     range: 'June 01 - June 30',
     qty: '22.0 Liters',
     amount: '₹2,580.00',
-    status: 'PAID',
+    status: 'UNPAID',
   },
   {
     month: 'May 2023',
     range: 'May 01 - May 31',
     qty: '15.5 Liters',
     amount: '₹1,360.00',
-    status: 'UNPAID',
-  },
-  {
-    month: 'April 2023',
-    range: 'April 01 - April 31',
-    qty: '48.0 Liters',
-    amount: '₹2,950.00',
-    status: 'UNPAID',
-  },
-  {
-    month: 'January 2024',
-    range: 'Jan 01 - Jan 31',
-    qty: '25.0 Liters',
-    amount: '₹1,951.00',
     status: 'PAID',
   },
 ];
@@ -190,8 +170,9 @@ export const ownerCustomers: OwnerCustomer[] = [
   },
 ];
 
-
-export const getBillingStatusVariant = (status: OwnerBillingApiStatus): BadgeVariant => {
+export const getBillingStatusVariant = (
+  status: OwnerBillingApiStatus,
+): BadgeVariant => {
   if (status === 'UNPAID') {
     return 'warning';
   } else if (status === 'FAILED') {

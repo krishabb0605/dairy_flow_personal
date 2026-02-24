@@ -39,12 +39,29 @@ export class InvoiceController {
     );
   }
 
+  @Get('customer/:customerOwnerId')
+  getCustomerBilling(
+    @Param('customerOwnerId', ParseIntPipe) customerOwnerId: number,
+    @Query('page') page = '1',
+    @Query('limit') limit = '10',
+    @Query('year') year = 'all',
+  ) {
+    return this.responseHandler.sendResponse(
+      this.invoiceService.getCustomerBilling(customerOwnerId, {
+        page: Number(page),
+        limit: Number(limit),
+        year,
+      }),
+    );
+  }
+
   @Patch(':invoiceId')
   updateInvoice(
     @Param('invoiceId', ParseIntPipe) invoiceId: number,
     @Body()
     body: {
       status?: string;
+      paymentMethod?: string;
       notes?: string | null;
     },
   ) {
