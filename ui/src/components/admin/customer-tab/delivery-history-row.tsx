@@ -11,7 +11,7 @@ import type {
 import { updateDailyMilk } from '../../../lib/daily-milk';
 
 import EditDeliveryModal from '../../modal/admin/edit-delivery';
-import Badge from '@/components/ui/badge';
+import Badge from '../../../components/ui/badge';
 
 const formatDate = (dateValue: string) => {
   const date = new Date(dateValue);

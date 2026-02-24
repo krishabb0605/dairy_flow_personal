@@ -8,7 +8,7 @@ import { Table, TableBody, TableHead } from '../../../components/ui/table';
 
 import { billingHistory } from '../../../constants';
 import type { BillingStatusFilter } from '../../../types';
-import Badge from '@/components/ui/badge';
+import Badge from '../../../components/ui/badge';
 
 const ITEMS_PER_PAGE = 4;
 

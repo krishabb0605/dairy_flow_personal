@@ -19,7 +19,7 @@ import {
   createCustomerOwner,
   getOwnerCustomers,
 } from '../../../lib/customerOwner';
-import Badge from '@/components/ui/badge';
+import Badge from '../../../components/ui/badge';
 
 const ITEMS_PER_PAGE = 3;
 
