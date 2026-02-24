@@ -9,6 +9,7 @@ import ContentLayout from '../../../components/layout';
 import Pagination from '../../../components/pagination';
 import Button from '../../../components/ui/button';
 import Loader from '../../../components/loader';
+import { Table, TableBody, TableHead } from '../../../components/ui/table';
 import OwnerDeliveryRow from '../../../components/admin/owner-delivery-row';
 
 import type {
@@ -259,8 +260,8 @@ const Deliveries = () => {
         {/* Table */}
         <div className='bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden'>
           <div className='overflow-x-auto'>
-            <table className='w-full text-left border-collapse'>
-              <thead>
+            <Table>
+              <TableHead className=''>
                 <tr className='bg-slate-50 border-b border-slate-200'>
                   <th className='px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider'>
                     Date
@@ -287,8 +288,8 @@ const Deliveries = () => {
                     Actions
                   </th>
                 </tr>
-              </thead>
-              <tbody className='divide-y divide-primary/5'>
+              </TableHead>
+              <TableBody>
                 {loading ? (
                   <tr>
                     <td
@@ -322,8 +323,8 @@ const Deliveries = () => {
                     />
                   ))
                 )}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
 
           {deliveries.length > 0 && (

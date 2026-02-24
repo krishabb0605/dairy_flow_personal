@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 
 import Pagination from '../../../components/pagination';
 import Button from '../../../components/ui/button';
+import { Table, TableBody, TableHead } from '../../../components/ui/table';
 
 import { billingHistory } from '../../../constants';
 import type { BillingStatusFilter } from '../../../types';
@@ -156,8 +157,8 @@ const CustomerBillingHistory = () => {
 
       <div className='overflow-hidden rounded-xl bg-white'>
         <div className='overflow-x-auto'>
-          <table className='w-full text-left text-sm'>
-            <thead className='bg-primary/5 text-xs font-bold uppercase tracking-wider text-slate-500 '>
+          <Table className='text-sm'>
+            <TableHead className='bg-primary/5 text-xs font-bold uppercase tracking-wider text-slate-500'>
               <tr className='border-b border-slate-200'>
                 <th className='px-6 py-4'>Month</th>
                 <th className='px-6 py-4'>Range</th>
@@ -166,8 +167,8 @@ const CustomerBillingHistory = () => {
                 <th className='px-6 py-4 text-center'>Status</th>
                 <th className='px-6 py-4 text-right'>Actions</th>
               </tr>
-            </thead>
-            <tbody className='divide-y divide-primary/5'>
+            </TableHead>
+            <TableBody>
               {currentRows.map((item, index) => (
                 <tr
                   className='group hover:bg-primary/5 transition-colors'
@@ -241,8 +242,8 @@ const CustomerBillingHistory = () => {
                   </td>
                 </tr>
               )}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
 
         {currentRows.length > 0 && (

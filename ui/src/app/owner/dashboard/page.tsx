@@ -10,6 +10,7 @@ import DashboardCustomer from '../../../components/admin/dashboard-customer';
 import Pagination from '../../../components/pagination';
 import Button from '../../../components/ui/button';
 import Loader from '../../../components/loader';
+import { Table, TableBody, TableHead } from '../../../components/ui/table';
 
 import { OwnerDelivery, Slot } from '../../../types';
 
@@ -231,8 +232,8 @@ const Dashboard = () => {
           <div className='space-y-8'>
             <section className='bg-white border border-slate-200 rounded-xl  shadow-sm overflow-hidden'>
               <div className='overflow-auto'>
-                <table className='w-full text-left'>
-                  <thead className='bg-slate-50 border-b border-slate-200'>
+                <Table>
+                  <TableHead>
                     <tr>
                       <th className='px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider'>
                         Customer Name
@@ -256,8 +257,8 @@ const Dashboard = () => {
                         Actions
                       </th>
                     </tr>
-                  </thead>
-                  <tbody className='divide-y divide-slate-100'>
+                  </TableHead>
+                  <TableBody className='divide-slate-100'>
                     {deliveries.length === 0 ? (
                       <tr>
                         <td
@@ -276,8 +277,8 @@ const Dashboard = () => {
                         />
                       ))
                     )}
-                  </tbody>
-                </table>
+                  </TableBody>
+                </Table>
               </div>
 
               {deliveries.length > 0 && (

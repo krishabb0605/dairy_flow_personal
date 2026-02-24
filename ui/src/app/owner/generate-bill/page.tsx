@@ -6,6 +6,7 @@ import { pdf } from '@react-pdf/renderer';
 import ContentLayout from '../../../components/layout';
 import BillPdfDocument from '../../../components/pdf/BillPdfDocument';
 import Button from '../../../components/ui/button';
+import { Table, TableBody, TableHead } from '../../../components/ui/table';
 
 import { ownerCustomers } from '../../../constants';
 import type { BillPdfDailyRecord } from '../../../types';
@@ -293,8 +294,8 @@ const GenerateBillPage = () => {
           </div>
 
           <div className='overflow-x-auto'>
-            <table className='w-full border-collapse'>
-              <thead>
+            <Table>
+              <TableHead className='bg-transparent border-b-0'>
                 <tr className='bg-slate-100 border-b border-slate-200'>
                   <th className='px-3 py-2 text-xs font-bold uppercase text-slate-600'>
                     Day
@@ -357,8 +358,8 @@ const GenerateBillPage = () => {
                     Buf
                   </th>
                 </tr>
-              </thead>
-              <tbody>
+              </TableHead>
+              <TableBody className='divide-y-0'>
                 {Array.from({ length: maxRows }).map((_, index) => {
                   const left = leftRows[index];
                   const right = rightRows[index];
@@ -398,8 +399,8 @@ const GenerateBillPage = () => {
                     </tr>
                   );
                 })}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
 
           <div className='grid grid-cols-1 md:grid-cols-5 border-t border-slate-200'>

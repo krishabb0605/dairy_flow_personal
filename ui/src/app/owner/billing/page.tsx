@@ -10,6 +10,7 @@ import Pagination from '../../../components/pagination';
 import Button from '../../../components/ui/button';
 import Loader from '../../../components/loader';
 import BillingTableRow from './billing-table-row';
+import { Table, TableBody, TableHead } from '../../../components/ui/table';
 
 import type {
   OwnerBillingApiStatus,
@@ -267,9 +268,9 @@ const OwnerBillingPage = () => {
 
         <div className='bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden'>
           <div className='overflow-x-auto'>
-            <table className='w-full text-left border-collapse'>
-              <thead>
-                <tr className='bg-slate-50 border-b border-slate-200'>
+                <Table>
+                  <TableHead>
+                    <tr className='bg-slate-50 border-b border-slate-200'>
                   <th className='px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider'>
                     Invoice
                   </th>
@@ -295,8 +296,8 @@ const OwnerBillingPage = () => {
                     Actions
                   </th>
                 </tr>
-              </thead>
-              <tbody className='divide-y divide-primary/5'>
+                  </TableHead>
+                  <TableBody>
                 {loading ? (
                   <tr>
                     <td
@@ -328,8 +329,8 @@ const OwnerBillingPage = () => {
                     />
                   ))
                 )}
-              </tbody>
-            </table>
+                  </TableBody>
+                </Table>
           </div>
 
           {rows.length > 0 && (

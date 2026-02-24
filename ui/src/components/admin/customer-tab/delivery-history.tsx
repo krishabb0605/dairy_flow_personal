@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from 'react';
 import Pagination from '../../../components/pagination';
 import Button from '../../../components/ui/button';
 import Loader from '../../../components/loader';
+import { Table, TableBody, TableHead } from '../../../components/ui/table';
 
 import type {
   DeliveryShiftFilter,
@@ -219,8 +220,8 @@ const CustomerDeliveryHistory = ({
       </div>
 
       <div className='overflow-x-auto'>
-        <table className='w-full border-collapse'>
-          <thead>
+        <Table>
+          <TableHead className=''>
             <tr className='bg-slate-50 border-y border-slate-200'>
               <th className='px-6 py-4 text-left text-xs font-bold uppercase tracking-widest text-slate-500'>
                 Date
@@ -244,9 +245,9 @@ const CustomerDeliveryHistory = ({
                 Actions
               </th>
             </tr>
-          </thead>
+          </TableHead>
 
-          <tbody className='divide-y divide-slate-100'>
+          <TableBody className='divide-slate-100'>
             {loading ? (
               <tr>
                 <td
@@ -285,8 +286,8 @@ const CustomerDeliveryHistory = ({
                 />
               ))
             )}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
 
       {rows.length > 0 && (

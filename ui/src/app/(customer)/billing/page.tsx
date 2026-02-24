@@ -6,6 +6,7 @@ import { useState } from 'react';
 import ContentLayout from '../../../components/layout';
 import Pagination from '../../../components/pagination';
 import Button from '../../../components/ui/button';
+import { Table, TableBody, TableHead } from '../../../components/ui/table';
 
 import {
   billingHistory,
@@ -213,8 +214,8 @@ const MonthlyBiling = () => {
             </div>
             <div className='bg-white  border border-[#f0f2f4]  rounded-xl shadow-sm overflow-hidden'>
               <div className='overflow-x-auto'>
-                <table className='w-full text-left border-collapse'>
-                  <thead>
+                <Table>
+                  <TableHead>
                     <tr className='bg-slate-50 text-[#637588]  text-xs font-semibold uppercase tracking-wider'>
                       <th className='px-6 py-4'>Billing Month</th>
                       <th className='px-6 py-4'>Total Qty</th>
@@ -222,8 +223,8 @@ const MonthlyBiling = () => {
                       <th className='px-6 py-4'>Status</th>
                       <th className='px-6 py-4 text-right'>Actions</th>
                     </tr>
-                  </thead>
-                  <tbody className='divide-y divide-[#f0f2f4]'>
+                  </TableHead>
+                  <TableBody className='divide-[#f0f2f4]'>
                     {paginatedBills.map((bill, index) => (
                       <tr
                         key={index}
@@ -285,8 +286,8 @@ const MonthlyBiling = () => {
                         </td>
                       </tr>
                     ))}
-                  </tbody>
-                </table>
+                  </TableBody>
+                </Table>
               </div>
 
               {openPanel && (

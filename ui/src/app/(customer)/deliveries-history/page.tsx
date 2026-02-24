@@ -9,6 +9,7 @@ import ContentLayout from '../../../components/layout';
 import DeliveryHistoryRow from '../../../components/Customer/DeliveryHistoryRow';
 import Loader from '../../../components/loader';
 import Button from '../../../components/ui/button';
+import { Table, TableBody, TableHead } from '../../../components/ui/table';
 
 import { deliveryFilters } from '../../../constants';
 import {
@@ -320,8 +321,8 @@ const DeliveriesHistory = () => {
         {/* Table Info */}
         <div className='bg-white border border-[#dce0e5]  rounded-b-xl shadow-sm overflow-hidden'>
           <div className='overflow-x-auto'>
-            <table className='w-full text-left border-collapse'>
-              <thead>
+            <Table>
+              <TableHead className='bg-gray-50 border-b-0'>
                 <tr className='bg-gray-50 '>
                   <th className='px-6 py-4 text-[#637588] text-xs font-bold uppercase tracking-wider text-center'>
                     Date &amp; Day
@@ -345,8 +346,8 @@ const DeliveriesHistory = () => {
                     Status
                   </th>
                 </tr>
-              </thead>
-              <tbody className='divide-y divide-[#dce0e5] '>
+              </TableHead>
+              <TableBody className='divide-[#dce0e5]'>
                 {loading ? (
                   <tr>
                     <td
@@ -372,8 +373,8 @@ const DeliveriesHistory = () => {
                     <DeliveryHistoryRow key={row.id} row={row} />
                   ))
                 )}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
 
           {rows.length > 0 && (
