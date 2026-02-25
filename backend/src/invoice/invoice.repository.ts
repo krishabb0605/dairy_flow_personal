@@ -197,6 +197,7 @@ export class InvoiceRepository {
     params: {
       page: number;
       limit: number;
+      status: string;
       year: string;
     },
   ) {
@@ -206,7 +207,18 @@ export class InvoiceRepository {
     const safeLimit = Number.isFinite(params.limit)
       ? Math.max(1, params.limit)
       : 10;
+    const normalizedStatus = params.status.trim().toUpperCase();
     const normalizedYear = params.year.trim();
+    const allowedStatuses = new Set([
+      'UNPAID',
+      'PENDING_COD',
+      'PAID',
+      'FAILED',
+    ]);
+
+    const statusFilter = allowedStatuses.has(normalizedStatus)
+      ? normalizedStatus
+      : 'all';
 
     const invoices = await this.prisma.invoice.findMany({
       where: {
@@ -240,7 +252,14 @@ export class InvoiceRepository {
       new Set(mappedInvoices.map((invoice) => invoice.billYear)),
     ).sort((a, b) => b - a);
 
-    const filtered = mappedInvoices.filter((invoice) => {
+    const baseFiltered = mappedInvoices.filter((invoice) => {
+      if (statusFilter !== 'all' && invoice.status !== statusFilter) {
+        return false;
+      }
+      return true;
+    });
+
+    const filtered = baseFiltered.filter((invoice) => {
       if (normalizedYear === 'all') return true;
       return String(invoice.billYear) === normalizedYear;
     });
@@ -250,9 +269,13 @@ export class InvoiceRepository {
     const safePageNumber = Math.min(safePage, totalPages);
     const offset = (safePageNumber - 1) * safeLimit;
     const paginatedInvoices = filtered.slice(offset, offset + safeLimit);
+    const alertInvoices = filtered
+      .filter((invoice) => invoice.status !== 'PAID')
+      .slice(0, 2);
 
     return {
       invoices: paginatedInvoices,
+      alertInvoices,
       page: safePageNumber,
       limit: safeLimit,
       totalPages,

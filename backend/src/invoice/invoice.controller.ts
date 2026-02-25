@@ -48,12 +48,14 @@ export class InvoiceController {
     @Param('customerOwnerId', ParseIntPipe) customerOwnerId: number,
     @Query('page') page = '1',
     @Query('limit') limit = '10',
+    @Query('status') status = 'all',
     @Query('year') year = 'all',
   ) {
     return this.responseHandler.sendResponse(
       this.invoiceService.getCustomerBilling(customerOwnerId, {
         page: Number(page),
         limit: Number(limit),
+        status,
         year,
       }),
     );

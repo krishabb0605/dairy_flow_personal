@@ -12,8 +12,6 @@ type BillingHistoryRowProps = {
     bill: CustomerBillingRecord,
     method: 'STRIPE' | 'COD',
   ) => void;
-  selected: boolean;
-  onSelectChange: (bill: CustomerBillingRecord, checked: boolean) => void;
   onPayStripe: (bill: CustomerBillingRecord) => void;
   isPaying: boolean;
 };
@@ -22,8 +20,6 @@ export const BillingHistoryRow = ({
   bill,
   onOpenPanel: _onOpenPanel,
   onPaymentMethodChange,
-  selected,
-  onSelectChange,
   onPayStripe,
   isPaying,
 }: BillingHistoryRowProps) => {
@@ -33,15 +29,8 @@ export const BillingHistoryRow = ({
 
   return (
     <tr className='hover:bg-background-light/30 transition'>
-      <td className='pl-6 pr-2 py-4'>
-        <input
-          className='rounded border-slate-300 text-primary focus:ring-primary w-4 h-4 bg-transparent disabled:cursor-not-allowed disabled:opacity-70'
-          type='checkbox'
-          checked={selected}
-          disabled={bill.status !== 'UNPAID'}
-          onChange={(e) => onSelectChange(bill, e.target.checked)}
-        />
-      </td>
+      <td className='px-6 py-4 text-sm font-bold text-slate-800'>{bill.id}</td>
+
       <td className='px-6 py-5'>
         <div className='flex flex-col'>
           <span className='text-[#111418] font-semibold'>{bill.month}</span>

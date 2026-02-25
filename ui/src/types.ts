@@ -402,6 +402,7 @@ export type OwnerBillingResponse = {
 
 export type CustomerBillingResponse = {
   invoices: CustomerBillingApiItem[];
+  alertInvoices: CustomerBillingApiItem[];
   page: number;
   limit: number;
   totalPages: number;
@@ -423,6 +424,7 @@ export type OwnerBillingRecord = {
 
 export type CustomerBillingRecord = {
   invoiceId: number;
+  id: string;
   month: string;
   range: string;
   qty: number;
@@ -444,6 +446,7 @@ export type GetCustomerBillingParams = {
   customerOwnerId: number;
   page: number;
   limit: number;
+  status?: 'all' | OwnerBillingApiStatus;
   year?: string;
 };
 

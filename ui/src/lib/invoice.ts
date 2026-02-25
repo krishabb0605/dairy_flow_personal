@@ -49,6 +49,7 @@ export const getCustomerBilling = async (
     const searchParams = new URLSearchParams({
       page: String(params.page),
       limit: String(params.limit),
+      status: params.status ?? 'all',
       year: params.year ?? 'all',
     });
     return await api(

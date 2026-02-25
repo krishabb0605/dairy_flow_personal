@@ -21,6 +21,7 @@ import {
 import type {
   CustomerBillingRecord,
   CustomerBillingResponse,
+  OwnerBillingApiStatus,
 } from '../../../types';
 
 const ITEMS_PER_PAGE = 3;
@@ -31,11 +32,14 @@ const MonthlyBiling = () => {
   const [showAllDays, setShowAllDays] = useState(false);
   const [page, setPage] = useState(1);
   const [rows, setRows] = useState<CustomerBillingRecord[]>([]);
+  const [alertInvoices, setAlertInvoices] = useState<CustomerBillingRecord[]>(
+    [],
+  );
   const [loading, setLoading] = useState(true);
   const [totalPages, setTotalPages] = useState(1);
   const [years, setYears] = useState<string[]>([]);
   const [year, setYear] = useState('all');
-  const [selectedInvoiceIds, setSelectedInvoiceIds] = useState<number[]>([]);
+  const [status, setStatus] = useState<'all' | OwnerBillingApiStatus>('all');
   const [payingInvoiceId, setPayingInvoiceId] = useState<number | null>(null);
 
   const fetchBillingRef = useRef(false);
@@ -48,6 +52,13 @@ const MonthlyBiling = () => {
       year: 'numeric',
     }).format(new Date(Date.UTC(billYear, billMonth - 1, 1)));
 
+  const formatCurrency = (amount: number) =>
+    new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 2,
+    }).format(amount);
+
   const formatMonthRange = (billYear: number, billMonth: number) => {
     const start = new Date(Date.UTC(billYear, billMonth - 1, 1));
     const end = new Date(Date.UTC(billYear, billMonth, 0));
@@ -58,9 +69,23 @@ const MonthlyBiling = () => {
     return `${formatter.format(start)} - ${formatter.format(end)}`;
   };
 
+  const mapInvoice = (
+    invoice: CustomerBillingResponse['invoices'][number],
+  ) => ({
+    invoiceId: invoice.id,
+    id: `INV-${invoice.id}`,
+    month: formatMonthLabel(invoice.billYear, invoice.billMonth),
+    range: formatMonthRange(invoice.billYear, invoice.billMonth),
+    qty: invoice.cowMilkQtyTotal + invoice.buffaloMilkQtyTotal,
+    amount: invoice.totalAmount,
+    status: invoice.status,
+    paymentMethod: invoice.paymentMethod,
+  });
+
   const fetchBilling = useCallback(async () => {
     if (!customerOwnerId) {
       setRows([]);
+      setAlertInvoices([]);
       setTotalPages(1);
       setYears([]);
       setLoading(false);
@@ -76,20 +101,12 @@ const MonthlyBiling = () => {
         customerOwnerId,
         page,
         limit: ITEMS_PER_PAGE,
+        status,
         year,
       });
 
-      const mapped = data.invoices.map((invoice) => ({
-        invoiceId: invoice.id,
-        month: formatMonthLabel(invoice.billYear, invoice.billMonth),
-        range: formatMonthRange(invoice.billYear, invoice.billMonth),
-        qty: invoice.cowMilkQtyTotal + invoice.buffaloMilkQtyTotal,
-        amount: invoice.totalAmount,
-        status: invoice.status,
-        paymentMethod: invoice.paymentMethod,
-      }));
-
-      setRows(mapped);
+      setRows(data.invoices.map(mapInvoice));
+      setAlertInvoices(data.alertInvoices.map(mapInvoice));
       setTotalPages(data.totalPages);
       setYears(data.years.map((item) => String(item)));
     } catch (error: unknown) {
@@ -97,23 +114,18 @@ const MonthlyBiling = () => {
         error instanceof Error ? error.message : 'Failed to fetch billing.';
       toast.error(message);
       setRows([]);
+      setAlertInvoices([]);
       setTotalPages(1);
       setYears([]);
     } finally {
       setLoading(false);
       fetchBillingRef.current = false;
     }
-  }, [customerOwnerId, page, year]);
+  }, [customerOwnerId, page, status, year]);
 
   useEffect(() => {
     fetchBilling();
   }, [fetchBilling]);
-
-  useEffect(() => {
-    setSelectedInvoiceIds(
-      rows.filter((row) => row.status === 'UNPAID').map((row) => row.invoiceId),
-    );
-  }, [rows]);
 
   const handlePaymentMethodChange = async (
     bill: CustomerBillingRecord,
@@ -160,26 +172,16 @@ const MonthlyBiling = () => {
     }
   };
 
-  const handleSelectChange = (
-    bill: CustomerBillingRecord,
-    checked: boolean,
-  ) => {
-    setSelectedInvoiceIds((prev) => {
-      if (checked) {
-        if (prev.includes(bill.invoiceId)) return prev;
-        return [...prev, bill.invoiceId];
+  const handleAlertPay = async (bill: CustomerBillingRecord) => {
+    try {
+      if (bill.paymentMethod !== 'STRIPE') {
+        await handlePaymentMethodChange(bill, 'STRIPE');
       }
-      return prev.filter((id) => id !== bill.invoiceId);
-    });
+      await handleStripePay(bill);
+    } catch {
+      // Errors are surfaced in the called handlers.
+    }
   };
-
-  const selectableIds = rows
-    .filter((row) => row.status === 'UNPAID')
-    .map((row) => row.invoiceId);
-
-  const isAllSelected =
-    selectableIds.length > 0 &&
-    selectableIds.every((id) => selectedInvoiceIds.includes(id));
 
   const visibleDays = showAllDays
     ? dailyDeliveriesHistory
@@ -192,64 +194,90 @@ const MonthlyBiling = () => {
     >
       <main className='flex-1 flex flex-col overflow-y-auto'>
         <div className='mx-auto w-full flex flex-col gap-6'>
-          <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
-            <div className='col-span-1 md:col-span-2 bg-linear-to-br from-red-50 to-white p-6 rounded-2xl border border-red-100 shadow-sm flex flex-col md:flex-row justify-between items-center gap-6'>
-              <div className='flex-1'>
-                <div className='flex items-center gap-2 text-red-600 mb-2'>
-                  <span className='material-symbols-outlined font-bold'>
-                    error_outline
+          {alertInvoices.length > 0 ? (
+            <div className='flex flex-col gap-4'>
+              <div className='flex items-center justify-between px-2'>
+                <h3 className='text-[#111418] text-lg font-bold tracking-tight'>
+                  Payment Alerts
+                </h3>
+                <button
+                  type='button'
+                  onClick={() => {
+                    setStatus('UNPAID');
+                    setPage(1);
+                  }}
+                  className='inline-flex items-center gap-1.5 text-sm font-semibold text-red-600 hover:text-red-700 transition-colors'
+                >
+                  <span className='material-symbols-outlined text-base leading-none'>
+                    visibility
                   </span>
-                  <span className='text-sm font-bold uppercase tracking-tight'>
-                    Action Required
+                  View all Unpaid
+                </button>
+              </div>
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                {alertInvoices.map((bill) => {
+                  const statusLabel =
+                    bill.status === 'FAILED' ? 'Payment Failed' : 'Overdue';
+                  const description =
+                    bill.status === 'FAILED'
+                      ? `Invoice #${bill.id} for ${formatCurrency(
+                          bill.amount,
+                        )} has a failed payment.`
+                      : `Invoice #${bill.id} for ${formatCurrency(
+                          bill.amount,
+                        )} is overdue.`;
+
+                  return (
+                    <div
+                      key={bill.invoiceId}
+                      className='bg-white p-5 rounded-xl border-l-4 border-l-red-500 border-y border-r border-slate-200 shadow-sm flex items-start gap-4'
+                    >
+                      <div className='bg-red-50 p-2.5 rounded-lg text-red-600'>
+                        <span className='material-symbols-outlined'>
+                          priority_high
+                        </span>
+                      </div>
+                      <div className='flex-1'>
+                        <h4 className='font-bold text-slate-900 leading-tight'>
+                          {statusLabel} {bill.month} Bill
+                        </h4>
+                        <p className='text-xs text-slate-500 mt-1 mb-4 leading-relaxed'>
+                          {description}
+                        </p>
+                        <button
+                          onClick={() => handleAlertPay(bill)}
+                          className='w-full sm:w-auto px-6 py-2 bg-primary hover:bg-primary/90 text-white text-xs font-bold rounded-lg transition-colors shadow-sm disabled:opacity-60'
+                          disabled={payingInvoiceId === bill.invoiceId}
+                        >
+                          {payingInvoiceId === bill.invoiceId
+                            ? 'Processing...'
+                            : `Pay ${formatCurrency(bill.amount)} Now`}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ) : (
+            <div className='bg-emerald-50 border border-emerald-200 rounded-2xl overflow-hidden shadow-sm'>
+              <div className='p-6 md:p-8 flex flex-col md:flex-row items-center gap-6 md:gap-10'>
+                <div className='w-20 h-20 shrink-0 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600'>
+                  <span className='material-symbols-outlined text-5xl'>
+                    verified
                   </span>
                 </div>
-                <h3 className='text-3xl font-black text-slate-900'>
-                  ₹4,530.00{' '}
-                  <span className='text-sm font-normal text-slate-500'>
-                    Overdue
-                  </span>
-                </h3>
-                <p className='text-sm text-slate-600 mt-1'>
-                  Outstanding balance from June and July cycles.
-                </p>
-              </div>
-              <button className='w-full md:w-auto px-8 py-4 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold shadow-lg shadow-red-200 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2'>
-                <span className='material-symbols-outlined'>payments</span>
-                Pay All Overdue
-              </button>
-            </div>
-            <div className='bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between'>
-              <div>
-                <span className='text-[10px] font-bold text-slate-400 uppercase tracking-wider'>
-                  August Cycle
-                </span>
-                <h3 className='text-2xl font-bold text-slate-900 mt-1'>
-                  ₹2,360.00
-                </h3>
-              </div>
-              <div className='flex items-center justify-between mt-4'>
-                <span className='px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded uppercase'>
-                  PAID
-                </span>
-                <span className='text-[10px] text-slate-400'>Aug 01</span>
+                <div className='flex-1 text-center md:text-left'>
+                  <h3 className='text-2xl md:text-3xl font-bold text-slate-900 mb-2'>
+                    Payment Status: All Clear!
+                  </h3>
+                  <p className='text-slate-600 text-sm md:text-base leading-relaxed'>
+                    {`You're all caught up on your payments. Your accounts are in perfect standing, and your financial wellness score is improving.`}
+                  </p>
+                </div>
               </div>
             </div>
-            <div className='bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between'>
-              <div>
-                <span className='text-[10px] font-bold text-slate-400 uppercase tracking-wider'>
-                  Projected Sept
-                </span>
-                <h3 className='text-2xl font-bold text-slate-900 mt-1'>
-                  $1320.00
-                </h3>
-              </div>
-              <div className='flex items-center justify-between mt-4'>
-                <span className='text-[10px] text-slate-500'>
-                  Due in 22 days
-                </span>
-              </div>
-            </div>
-          </div>
+          )}
 
           <div className='flex flex-col gap-4'>
             <div className='flex items-center justify-between px-2'>
@@ -260,6 +288,22 @@ const MonthlyBiling = () => {
                 <span className='material-symbols-outlined text-lg text-[#637588]'>
                   filter_list
                 </span>
+
+                <select
+                  value={status}
+                  onChange={(e) => {
+                    setStatus(e.target.value as 'all' | OwnerBillingApiStatus);
+                    setPage(1);
+                  }}
+                  className='border border-slate-200 bg-white text-slate-700 text-sm font-medium rounded-lg px-3 py-1.5 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition'
+                >
+                  <option value='all'>All Status</option>
+                  <option value='UNPAID'>Unpaid</option>
+                  <option value='PENDING_COD'>Pending COD</option>
+                  <option value='PAID'>Paid</option>
+                  <option value='FAILED'>Failed</option>
+                </select>
+
                 <select
                   value={year}
                   onChange={(e) => {
@@ -282,20 +326,7 @@ const MonthlyBiling = () => {
                 <Table>
                   <TableHead>
                     <tr className='bg-slate-50 text-[#637588]  text-xs font-semibold uppercase tracking-wider'>
-                      <th className='pl-6 pr-2 py-3 w-10'>
-                        <input
-                          className='rounded border-slate-300 text-primary focus:ring-primary w-4 h-4 bg-transparent'
-                          type='checkbox'
-                          checked={isAllSelected}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedInvoiceIds(selectableIds);
-                            } else {
-                              setSelectedInvoiceIds([]);
-                            }
-                          }}
-                        />
-                      </th>
+                      <th className='px-6 py-4'>Invoice</th>
                       <th className='px-6 py-4'>Billing Month</th>
                       <th className='px-6 py-4'>Total Qty</th>
                       <th className='px-6 py-4'>Amount</th>
@@ -328,8 +359,6 @@ const MonthlyBiling = () => {
                           bill={bill}
                           onOpenPanel={() => setOpenPanel(true)}
                           onPaymentMethodChange={handlePaymentMethodChange}
-                          selected={selectedInvoiceIds.includes(bill.invoiceId)}
-                          onSelectChange={handleSelectChange}
                           onPayStripe={handleStripePay}
                           isPaying={payingInvoiceId === bill.invoiceId}
                         />

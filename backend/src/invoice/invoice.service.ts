@@ -137,6 +137,7 @@ export class InvoiceService {
     params: {
       page: number;
       limit: number;
+      status: string;
       year: string;
     },
   ) {
