@@ -1,15 +1,18 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { pdf } from '@react-pdf/renderer';
 
 import ContentLayout from '../../../components/layout';
-import BillPdfDocument from '../../../components/pdf/BillPdfDocument';
+import CustomerInvoicePdfDocument from '../../../components/pdf/CustomerInvoicePdfDocument';
 import Button from '../../../components/ui/button';
 import { Table, TableBody, TableHead } from '../../../components/ui/table';
 
-import { ownerCustomers } from '../../../constants';
-import type { BillPdfDailyRecord } from '../../../types';
+import type { BillPdfDailyRecord, OwnerCustomerProfile } from '../../../types';
+import { UserContext } from '../../context/user-context';
+import { getCustomerProfile } from '../../../lib/customerSettings';
+import { getCustomerMonthlyCalendar } from '../../../lib/daily-milk';
+import { toast } from 'react-toastify';
 
 const MONTH_OPTIONS = [
   'January',
@@ -26,47 +29,32 @@ const MONTH_OPTIONS = [
   'December',
 ];
 
-const buildMonthlyRecords = (
-  year: number,
-  monthIndex: number,
-  customer: (typeof ownerCustomers)[number],
-) => {
-  const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
-
-  return Array.from({ length: daysInMonth }, (_, i) => {
-    const day = i + 1;
-    const weekDay = new Date(year, monthIndex, day).getDay();
-    const isSunday = weekDay === 0;
-
-    const morningCow = customer.morningCowQty;
-    const morningBuffalo = customer.morningBuffaloQty;
-    const eveningCow = isSunday ? 0 : customer.eveningCowQty;
-    const eveningBuffalo = isSunday ? 0 : customer.eveningBuffaloQty;
-
-    return {
-      day,
-      morningCow,
-      morningBuffalo,
-      eveningCow,
-      eveningBuffalo,
-    };
-  });
+const buildYearOptions = (count = 6) => {
+  const currentYear = new Date().getFullYear();
+  return Array.from({ length: count }, (_, index) => String(currentYear - index));
 };
 
 const formatMonthYear = (monthIndex: number, year: number) =>
   `${MONTH_OPTIONS[monthIndex]} ${year}`;
 
 const GenerateBillPage = () => {
-  const [customerIdInput, setCustomerIdInput] = useState('');
+  const { user } = useContext(UserContext);
+  const [customerOwnerIdInput, setCustomerOwnerIdInput] = useState('');
   const [monthInput, setMonthInput] = useState(String(new Date().getMonth()));
   const [yearInput, setYearInput] = useState(String(new Date().getFullYear()));
-  const [selectedCustomer, setSelectedCustomer] = useState<
-    (typeof ownerCustomers)[number] | null
-  >(null);
+  const [selectedCustomer, setSelectedCustomer] =
+    useState<OwnerCustomerProfile | null>(null);
   const [records, setRecords] = useState<BillPdfDailyRecord[]>([]);
-  const [message, setMessage] = useState('');
   const [cowRate, setCowRate] = useState('62');
   const [buffaloRate, setBuffaloRate] = useState('78');
+  const [loading, setLoading] = useState(false);
+  const yearOptions = useMemo(() => buildYearOptions(), []);
+
+  useEffect(() => {
+    if (!user?.ownerSettings) return;
+    setCowRate(String(user.ownerSettings.cowPrice ?? ''));
+    setBuffaloRate(String(user.ownerSettings.buffaloPrice ?? ''));
+  }, [user?.ownerSettings]);
 
   const displayRecords = useMemo(() => {
     if (records.length > 0) return records;
@@ -111,17 +99,20 @@ const GenerateBillPage = () => {
 
   const totalCowLtrs = useMemo(
     () =>
-      records.reduce((sum, item) => sum + item.morningCow + item.eveningCow, 0),
-    [records],
+      displayRecords.reduce(
+        (sum, item) => sum + item.morningCow + item.eveningCow,
+        0,
+      ),
+    [displayRecords],
   );
 
   const totalBuffaloLtrs = useMemo(
     () =>
-      records.reduce(
+      displayRecords.reduce(
         (sum, item) => sum + item.morningBuffalo + item.eveningBuffalo,
         0,
       ),
-    [records],
+    [displayRecords],
   );
 
   const grandTotal = useMemo(() => {
@@ -130,52 +121,55 @@ const GenerateBillPage = () => {
     return totalCowLtrs * cow + totalBuffaloLtrs * buffalo;
   }, [cowRate, buffaloRate, totalCowLtrs, totalBuffaloLtrs]);
 
-  const onFind = () => {
-    const customerId = Number(customerIdInput);
+  const onFind = async () => {
+    const customerId = Number(customerOwnerIdInput);
     const monthIndex = Number(monthInput);
     const year = Number(yearInput);
 
     if (!customerId || Number.isNaN(monthIndex) || Number.isNaN(year)) {
-      setMessage('Please enter valid Customer ID, Month and Year.');
+      toast.error('Please enter valid Customer ID, Month and Year.');
       setSelectedCustomer(null);
       setRecords([]);
       return;
     }
 
-    const customer = ownerCustomers.find((item) => item.id === customerId);
-    if (!customer) {
-      setMessage('No customer found for this Customer ID.');
+    try {
+      setLoading(true);
+      const profile = await getCustomerProfile(customerId);
+      const month = `${year}-${String(monthIndex + 1).padStart(2, '0')}-01`;
+      const calendar = await getCustomerMonthlyCalendar(customerId, { month });
+
+      setSelectedCustomer(profile);
+      setRecords(calendar.records ?? []);
+    } catch (error: unknown) {
+      const messageText =
+        error instanceof Error
+          ? error.message
+          : 'Failed to fetch customer data.';
+      toast.error(messageText);
       setSelectedCustomer(null);
       setRecords([]);
-      return;
+    } finally {
+      setLoading(false);
     }
-
-    setSelectedCustomer(customer);
-    setRecords(buildMonthlyRecords(year, monthIndex, customer));
-    setMessage('');
   };
 
   const onPreviewPdf = async () => {
     const monthYear = formatMonthYear(Number(monthInput), Number(yearInput));
 
     const pdfDoc = (
-      <BillPdfDocument
+      <CustomerInvoicePdfDocument
+        dairyName={user?.ownerSettings?.dairyName ?? 'Dairy'}
         customerName={selectedCustomer?.name ?? '-'}
         customerPhone={selectedCustomer?.phone ?? '-'}
-        customerId={
-          selectedCustomer
-            ? `CID-${String(selectedCustomer.id).padStart(3, '0')}`
-            : '-'
-        }
+        customerAddress={selectedCustomer?.address ?? '-'}
+        customerId={String(selectedCustomer?.id ?? '-')}
+        invoiceId='INV-DRAFT'
+        billYear={Number(yearInput)}
+        billMonth={Number(monthInput) + 1}
         monthYear={monthYear}
+        totalPaid={grandTotal}
         records={displayRecords}
-        cowRate={Number(cowRate) || 0}
-        buffaloRate={Number(buffaloRate) || 0}
-        totalMorningCow={totalMorningCowLtrs}
-        totalMorningBuffalo={totalMorningBuffaloLtrs}
-        totalEveningCow={totalEveningCowLtrs}
-        totalEveningBuffalo={totalEveningBuffaloLtrs}
-        grandTotal={grandTotal}
       />
     );
 
@@ -191,11 +185,11 @@ const GenerateBillPage = () => {
         <div className='grid grid-cols-1 md:grid-cols-4 gap-3'>
           <div>
             <label className='block text-xs font-bold text-slate-500 uppercase mb-1'>
-              Customer ID
+              Customer Owner Id
             </label>
             <input
-              value={customerIdInput}
-              onChange={(e) => setCustomerIdInput(e.target.value)}
+              value={customerOwnerIdInput}
+              onChange={(e) => setCustomerOwnerIdInput(e.target.value)}
               placeholder='e.g. 1'
               className='w-full h-10 bg-slate-50 border border-slate-200 rounded-lg px-3 text-sm focus:ring-primary focus:border-primary'
             />
@@ -220,29 +214,29 @@ const GenerateBillPage = () => {
             <label className='block text-xs font-bold text-slate-500 uppercase mb-1'>
               Year
             </label>
-            <input
+            <select
               value={yearInput}
               onChange={(e) => setYearInput(e.target.value)}
-              placeholder='2026'
               className='w-full h-10 bg-slate-50 border border-slate-200 rounded-lg px-3 text-sm focus:ring-primary focus:border-primary'
-            />
+            >
+              {yearOptions.map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
+            </select>
           </div>
           <div className='flex items-end'>
             <Button
               onClick={onFind}
               variant='primary'
               className='h-10 w-full rounded-lg font-bold text-sm hover:opacity-90 transition-opacity'
+              disabled={loading}
             >
-              Find
+              {loading ? 'Loading...' : 'Find'}
             </Button>
           </div>
         </div>
-
-        {message && (
-          <div className='text-sm text-rose-600 bg-rose-50 border border-rose-100 rounded-lg px-3 py-2'>
-            {message}
-          </div>
-        )}
 
         <div className='rounded-lg border border-slate-200'>
           <div className='p-4 border-b border-slate-200 bg-slate-50/60'>

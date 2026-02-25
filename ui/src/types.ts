@@ -454,6 +454,7 @@ export type GetCustomerBillingParams = {
 
 export type OwnerSettingsFormData = {
   fullName: string;
+  dairyName: string;
   email: string;
   mobileNumber: string;
   address: string;
