@@ -1,5 +1,6 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
+import Stripe from 'stripe';
 
 import { DailyMilkRepository } from '../daily-milk/daily-milk.repository.js';
 import { InvoiceRepository } from './invoice.repository.js';
@@ -11,11 +12,20 @@ const CRON_OPTIONS = TIME_ZONE ? { timeZone: TIME_ZONE } : undefined;
 @Injectable()
 export class InvoiceService {
   private readonly logger = new Logger('Invoice');
+  private readonly stripe: Stripe;
 
   constructor(
     private dailyMilkRepository: DailyMilkRepository,
     private invoiceRepository: InvoiceRepository,
-  ) {}
+  ) {
+    const stripeSecret = process.env.STRIPE_SECRET_KEY;
+    if (!stripeSecret) {
+      this.logger.warn('STRIPE_SECRET_KEY is not set. Stripe is disabled.');
+      return;
+    }
+
+    this.stripe = new Stripe(stripeSecret);
+  }
 
   /**
    * Runs every day at 23:59 (11:59 PM)
@@ -131,6 +141,117 @@ export class InvoiceService {
     },
   ) {
     return this.invoiceRepository.getCustomerBilling(customerOwnerId, params);
+  }
+
+  async createStripeCheckoutSession(
+    customerOwnerId: number,
+    invoiceId: number,
+  ) {
+    const stripeSecret = process.env.STRIPE_SECRET_KEY;
+    if (!stripeSecret) {
+      throw new BadRequestException('Stripe is not configured');
+    }
+
+    const successUrl = process.env.STRIPE_CHECKOUT_SUCCESS_URL;
+    const cancelUrl = process.env.STRIPE_CHECKOUT_CANCEL_URL;
+    if (!successUrl || !cancelUrl) {
+      throw new BadRequestException('Stripe redirect URLs are not configured');
+    }
+
+    const invoice = await this.invoiceRepository.getInvoiceForCustomer(
+      customerOwnerId,
+      invoiceId,
+    );
+
+    if (!invoice) {
+      throw new BadRequestException('Invoice not found');
+    }
+    if (invoice.status === 'PAID') {
+      throw new BadRequestException('Invoice is already paid');
+    }
+
+    const totalAmount = Number(invoice.totalAmount);
+    if (!Number.isFinite(totalAmount) || totalAmount <= 0) {
+      throw new BadRequestException('Invalid invoice amount');
+    }
+
+    const unitAmount = Math.round(totalAmount * 100);
+    const monthLabel = new Intl.DateTimeFormat('en-US', {
+      month: 'long',
+      year: 'numeric',
+    }).format(new Date(Date.UTC(invoice.billYear, invoice.billMonth - 1, 1)));
+
+    const session = await this.stripe.checkout.sessions.create({
+      mode: 'payment',
+      payment_method_types: ['card'],
+      success_url: successUrl,
+      cancel_url: cancelUrl,
+      line_items: [
+        {
+          quantity: 1,
+          price_data: {
+            currency: 'inr',
+            unit_amount: unitAmount,
+            product_data: {
+              name: `Milk Invoice - ${monthLabel}`,
+            },
+          },
+        },
+      ],
+      metadata: {
+        invoiceId: String(invoice.id),
+        customerOwnerId: String(customerOwnerId),
+      },
+    });
+
+    await this.invoiceRepository.setStripeSessionId(invoice.id, session.id);
+
+    return {
+      sessionId: session.id,
+      url: session.url,
+    };
+  }
+
+  async handleStripeWebhook(signature: string | string[], payload: Buffer) {
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+    if (!webhookSecret) {
+      throw new BadRequestException('Stripe webhook secret not configured');
+    }
+
+    const sigHeader = Array.isArray(signature) ? signature[0] : signature;
+    if (!sigHeader) {
+      throw new BadRequestException('Missing Stripe signature');
+    }
+
+    let event: Stripe.Event;
+    try {
+      event = this.stripe.webhooks.constructEvent(
+        payload,
+        sigHeader,
+        webhookSecret,
+      );
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Invalid Stripe signature';
+      throw new BadRequestException(message);
+    }
+
+    if (event.type === 'checkout.session.completed') {
+      const session = event.data.object;
+      const invoiceId = session.metadata?.invoiceId;
+      if (invoiceId) {
+        await this.invoiceRepository.markInvoicePaidFromStripe({
+          invoiceId: Number(invoiceId),
+          stripeSessionId: session.id,
+          stripePaymentIntentId:
+            typeof session.payment_intent === 'string'
+              ? session.payment_intent
+              : (session.payment_intent?.id ?? null),
+        });
+      }
+    }
+
+    return { received: true };
   }
 
   async updateInvoice(

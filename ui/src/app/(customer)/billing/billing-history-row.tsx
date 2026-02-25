@@ -14,6 +14,8 @@ type BillingHistoryRowProps = {
   ) => void;
   selected: boolean;
   onSelectChange: (bill: CustomerBillingRecord, checked: boolean) => void;
+  onPayStripe: (bill: CustomerBillingRecord) => void;
+  isPaying: boolean;
 };
 
 export const BillingHistoryRow = ({
@@ -22,6 +24,8 @@ export const BillingHistoryRow = ({
   onPaymentMethodChange,
   selected,
   onSelectChange,
+  onPayStripe,
+  isPaying,
 }: BillingHistoryRowProps) => {
   const [selectPaymentMethod, setSelectedPaymentMethod] = useState<
     'STRIPE' | 'COD'
@@ -89,10 +93,12 @@ export const BillingHistoryRow = ({
 
           {bill.status !== 'PAID' && selectPaymentMethod === 'STRIPE' && (
             <Button
+              onClick={() => onPayStripe(bill)}
               variant='primary'
-              className='flex-1 md:flex-none min-w-30 font-bold py-2.5 px-6 rounded-lg transition shadow-lg shadow-primary/20'
+              className='flex-1 md:flex-none min-w-30 font-bold py-2.5 px-6 rounded-lg transition shadow-lg shadow-primary/20 disabled:opacity-60'
+              disabled={isPaying}
             >
-              Pay Now
+              {isPaying ? 'Processing...' : 'Pay Now'}
             </Button>
           )}
 

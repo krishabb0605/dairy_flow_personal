@@ -261,6 +261,58 @@ export class InvoiceRepository {
     };
   }
 
+  async getInvoiceForCustomer(customerOwnerId: number, invoiceId: number) {
+    return this.prisma.invoice.findFirst({
+      where: {
+        id: invoiceId,
+        customerOwnerId,
+      },
+      select: {
+        id: true,
+        status: true,
+        totalAmount: true,
+        billYear: true,
+        billMonth: true,
+        paymentMethod: true,
+      },
+    });
+  }
+
+  async setStripeSessionId(invoiceId: number, stripeSessionId: string) {
+    return this.prisma.invoice.update({
+      where: { id: invoiceId },
+      data: {
+        stripeSessionId,
+      },
+      select: {
+        id: true,
+        stripeSessionId: true,
+      },
+    });
+  }
+
+  async markInvoicePaidFromStripe(params: {
+    invoiceId: number;
+    stripeSessionId?: string | null;
+    stripePaymentIntentId?: string | null;
+  }) {
+    return this.prisma.invoice.update({
+      where: { id: params.invoiceId },
+      data: {
+        status: 'PAID',
+        paymentMethod: 'STRIPE',
+        stripeSessionId: params.stripeSessionId ?? undefined,
+        stripePaymentIntentId: params.stripePaymentIntentId ?? undefined,
+        paidAt: new Date(),
+      },
+      select: {
+        id: true,
+        status: true,
+        paymentMethod: true,
+      },
+    });
+  }
+
   async findByCustomerOwnerIdsAndMonth(params: {
     customerOwnerIds: number[];
     billYear: number;

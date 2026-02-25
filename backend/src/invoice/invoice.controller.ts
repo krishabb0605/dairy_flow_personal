@@ -5,8 +5,12 @@ import {
   Param,
   ParseIntPipe,
   Patch,
+  Post,
   Query,
+  Req,
+  Res,
 } from '@nestjs/common';
+import type { Request, Response } from 'express';
 
 import { ResponseHandler } from '../common/response.handler.js';
 
@@ -68,5 +72,38 @@ export class InvoiceController {
     return this.responseHandler.sendResponse(
       this.invoiceService.updateInvoice(invoiceId, body),
     );
+  }
+
+  @Post('customer/:customerOwnerId/checkout')
+  createCustomerCheckoutSession(
+    @Param('customerOwnerId') customerOwnerId: number,
+    @Body('invoiceId') invoiceId: number,
+  ) {
+    return this.responseHandler.sendResponse(
+      this.invoiceService.createStripeCheckoutSession(
+        Number(customerOwnerId),
+        Number(invoiceId),
+      ),
+    );
+  }
+
+  @Post('stripe/webhook')
+  async handleStripeWebhook(@Req() req: Request, @Res() res: Response) {
+    try {
+      const signature = req.headers['stripe-signature'];
+      if (!signature) {
+        return res.status(400).json({ message: 'Stripe webhook error' });
+      }
+
+      const response = await this.invoiceService.handleStripeWebhook(
+        signature,
+        req.body,
+      );
+      return res.status(200).json(response);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Stripe webhook error';
+      return res.status(400).json({ message });
+    }
   }
 }

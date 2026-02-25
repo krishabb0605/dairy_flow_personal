@@ -13,7 +13,11 @@ import BillingDetailsAside from './billing-details-aside';
 
 import { BillingHistoryRow } from './billing-history-row';
 import { UserContext } from '../../context/user-context';
-import { getCustomerBilling, updateInvoice } from '../../../lib/invoice';
+import {
+  createCustomerCheckoutSession,
+  getCustomerBilling,
+  updateInvoice,
+} from '../../../lib/invoice';
 import type {
   CustomerBillingRecord,
   CustomerBillingResponse,
@@ -32,6 +36,7 @@ const MonthlyBiling = () => {
   const [years, setYears] = useState<string[]>([]);
   const [year, setYear] = useState('all');
   const [selectedInvoiceIds, setSelectedInvoiceIds] = useState<number[]>([]);
+  const [payingInvoiceId, setPayingInvoiceId] = useState<number | null>(null);
 
   const fetchBillingRef = useRef(false);
 
@@ -128,6 +133,30 @@ const MonthlyBiling = () => {
           ? error.message
           : 'Failed to update payment method.';
       toast.error(message);
+    }
+  };
+
+  const handleStripePay = async (bill: CustomerBillingRecord) => {
+    if (!customerOwnerId || payingInvoiceId === bill.invoiceId) return;
+    try {
+      setPayingInvoiceId(bill.invoiceId);
+      const session = await createCustomerCheckoutSession({
+        customerOwnerId,
+        invoiceId: bill.invoiceId,
+      });
+      if (session.url) {
+        window.location.href = session.url;
+      } else {
+        toast.error('Stripe session URL not found.');
+      }
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Failed to start Stripe checkout.';
+      toast.error(message);
+    } finally {
+      setPayingInvoiceId(null);
     }
   };
 
@@ -301,6 +330,8 @@ const MonthlyBiling = () => {
                           onPaymentMethodChange={handlePaymentMethodChange}
                           selected={selectedInvoiceIds.includes(bill.invoiceId)}
                           onSelectChange={handleSelectChange}
+                          onPayStripe={handleStripePay}
+                          isPaying={payingInvoiceId === bill.invoiceId}
                         />
                       ))
                     )}

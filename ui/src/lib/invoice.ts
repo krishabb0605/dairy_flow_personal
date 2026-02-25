@@ -59,3 +59,18 @@ export const getCustomerBilling = async (
     throw error;
   }
 };
+
+export const createCustomerCheckoutSession = async (params: {
+  customerOwnerId: number;
+  invoiceId: number;
+}): Promise<{ sessionId: string; url?: string | null }> => {
+  try {
+    return await api(`/invoice/customer/${params.customerOwnerId}/checkout`, {
+      method: 'POST',
+      body: { invoiceId: params.invoiceId },
+    });
+  } catch (error) {
+    console.error('Error while creating checkout session:', error);
+    throw error;
+  }
+};
