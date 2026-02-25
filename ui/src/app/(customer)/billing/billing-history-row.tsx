@@ -13,7 +13,9 @@ type BillingHistoryRowProps = {
     method: 'STRIPE' | 'COD',
   ) => void;
   onPayStripe: (bill: CustomerBillingRecord) => void;
+  onDownloadInvoice: (bill: CustomerBillingRecord) => void;
   isPaying: boolean;
+  isDownloading: boolean;
 };
 
 export const BillingHistoryRow = ({
@@ -21,7 +23,9 @@ export const BillingHistoryRow = ({
   onOpenPanel: _onOpenPanel,
   onPaymentMethodChange,
   onPayStripe,
+  onDownloadInvoice,
   isPaying,
+  isDownloading,
 }: BillingHistoryRowProps) => {
   const [selectPaymentMethod, setSelectedPaymentMethod] = useState<
     'STRIPE' | 'COD'
@@ -53,8 +57,10 @@ export const BillingHistoryRow = ({
           {bill.status === 'PAID' ? (
             <Button
               variant='ghost-muted'
-              className='p-2 rounded-lg transition'
+              className='p-2 rounded-lg transition disabled:opacity-60'
               title='Invoice Download'
+              onClick={() => onDownloadInvoice(bill)}
+              disabled={isDownloading}
             >
               <span className='material-symbols-outlined' data-icon='download'>
                 download

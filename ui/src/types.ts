@@ -425,6 +425,8 @@ export type OwnerBillingRecord = {
 export type CustomerBillingRecord = {
   invoiceId: number;
   id: string;
+  billYear: number;
+  billMonth: number;
   month: string;
   range: string;
   qty: number;
@@ -538,6 +540,20 @@ export type BillPdfProps = {
   totalEveningCow: number;
   totalEveningBuffalo: number;
   grandTotal: number;
+};
+
+export type CustomerInvoicePdfProps = {
+  dairyName: string;
+  customerName: string;
+  customerPhone: string;
+  customerAddress?: string;
+  invoiceId: string;
+  customerId: string;
+  billYear: number;
+  billMonth: number;
+  monthYear: string;
+  totalPaid: number;
+  records: BillPdfDailyRecord[];
 };
 
 export type ScheduleVacationProps = {

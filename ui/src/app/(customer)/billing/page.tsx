@@ -2,11 +2,13 @@
 
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
+import { pdf } from '@react-pdf/renderer';
 
 import ContentLayout from '../../../components/layout';
 import Pagination from '../../../components/pagination';
 import Loader from '../../../components/loader';
 import { Table, TableBody, TableHead } from '../../../components/ui/table';
+import CustomerInvoicePdfDocument from '../../../components/pdf/CustomerInvoicePdfDocument';
 
 import { dailyDeliveriesHistory } from '../../../constants';
 import BillingDetailsAside from './billing-details-aside';
@@ -18,6 +20,7 @@ import {
   getCustomerBilling,
   updateInvoice,
 } from '../../../lib/invoice';
+import { getCustomerMonthlyCalendar } from '../../../lib/daily-milk';
 import type {
   CustomerBillingRecord,
   CustomerBillingResponse,
@@ -41,6 +44,9 @@ const MonthlyBiling = () => {
   const [year, setYear] = useState('all');
   const [status, setStatus] = useState<'all' | OwnerBillingApiStatus>('all');
   const [payingInvoiceId, setPayingInvoiceId] = useState<number | null>(null);
+  const [downloadingInvoiceId, setDownloadingInvoiceId] = useState<
+    number | null
+  >(null);
 
   const fetchBillingRef = useRef(false);
 
@@ -74,6 +80,8 @@ const MonthlyBiling = () => {
   ) => ({
     invoiceId: invoice.id,
     id: `INV-${invoice.id}`,
+    billYear: invoice.billYear,
+    billMonth: invoice.billMonth,
     month: formatMonthLabel(invoice.billYear, invoice.billMonth),
     range: formatMonthRange(invoice.billYear, invoice.billMonth),
     qty: invoice.cowMilkQtyTotal + invoice.buffaloMilkQtyTotal,
@@ -180,6 +188,56 @@ const MonthlyBiling = () => {
       await handleStripePay(bill);
     } catch {
       // Errors are surfaced in the called handlers.
+    }
+  };
+
+  const handleDownloadInvoice = async (bill: CustomerBillingRecord) => {
+    if (!customerOwnerId || !user || bill.status !== 'PAID') return;
+    if (downloadingInvoiceId === bill.invoiceId) return;
+
+    try {
+      setDownloadingInvoiceId(bill.invoiceId);
+      const month = `${bill.billYear}-${String(bill.billMonth).padStart(
+        2,
+        '0',
+      )}-01`;
+      const calendar = await getCustomerMonthlyCalendar(customerOwnerId, {
+        month,
+      });
+
+      const pdfDoc = (
+        <CustomerInvoicePdfDocument
+          dairyName={user.currentActiveOwner?.dairyName ?? 'Dairy'}
+          customerName={user.fullName}
+          customerPhone={user.mobileNumber}
+          customerAddress={user.address}
+          invoiceId={bill.id}
+          customerId={String(user.customerSettings?.id ?? '—')}
+          billYear={bill.billYear}
+          billMonth={bill.billMonth}
+          monthYear={bill.month}
+          totalPaid={bill.amount}
+          records={calendar.records}
+        />
+      );
+
+      const blob = await pdf(pdfDoc).toBlob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${bill.id}-${bill.month.replace(/\s+/g, '-')}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Failed to download invoice.';
+      toast.error(message);
+    } finally {
+      setDownloadingInvoiceId(null);
     }
   };
 
@@ -360,7 +418,9 @@ const MonthlyBiling = () => {
                           onOpenPanel={() => setOpenPanel(true)}
                           onPaymentMethodChange={handlePaymentMethodChange}
                           onPayStripe={handleStripePay}
+                          onDownloadInvoice={handleDownloadInvoice}
                           isPaying={payingInvoiceId === bill.invoiceId}
+                          isDownloading={downloadingInvoiceId === bill.invoiceId}
                         />
                       ))
                     )}
