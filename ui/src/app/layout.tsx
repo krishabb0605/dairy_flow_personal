@@ -2,7 +2,6 @@
 'use client';
 
 import './globals.css';
-import { ThemeProvider } from 'next-themes';
 import { ToastContainer } from 'react-toastify';
 
 import { UserProvider } from './context/user-context';
@@ -29,10 +28,8 @@ export default function RootLayout({
         />
       </head>
       <body>
-        {/* <ThemeProvider attribute='class' defaultTheme='light'> */}
         <ToastContainer />
         <UserProvider>{children}</UserProvider>
-        {/* </ThemeProvider> */}
       </body>
     </html>
   );

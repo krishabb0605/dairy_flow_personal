@@ -222,7 +222,7 @@ const CustomerDeliveryHistory = ({
       <div className='overflow-x-auto'>
         <Table>
           <TableHead className=''>
-            <tr className='bg-slate-50 border-y border-slate-200'>
+            <tr className='border-y border-slate-200'>
               <th className='px-6 py-4 text-left text-xs font-bold uppercase tracking-widest text-slate-500'>
                 Date
               </th>

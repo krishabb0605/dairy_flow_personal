@@ -9,6 +9,8 @@ import Loader from '../../components/loader';
 import Button from '../../components/ui/button';
 
 import { FALLBACK_CUSTOMER_PROFILE_IMAGE } from '../../utils/constants';
+import logo from '../../assets/logo/logo.png'
+import Image from 'next/image';
 
 const CustomerPending = () => {
   const { user, loading, handleLogout } = useContext(UserContext);
@@ -58,21 +60,18 @@ const CustomerPending = () => {
           {/* <!-- Top Navigation Bar --> */}
           <header className='flex items-center justify-between whitespace-nowrap border-b border-solid border-primary/10 bg-white px-6 md:px-10 py-3 sticky top-0 z-50'>
             <div className='flex items-center gap-3 text-[#102213]'>
-              <div className='flex items-center justify-center size-10 rounded-lg bg-primary/10 text-primary'>
-                <span className='material-symbols-outlined text-3xl'>
-                  water_drop
-                </span>
-              </div>
+              <Image src={logo} alt='logo' height={50} width={50} />
+
               <h2 className='text-[#102213] text-xl font-bold leading-tight tracking-tight'>
                 DairyFlow
               </h2>
             </div>
             <div className='flex flex-1 justify-end gap-4 items-center'>
-              <div className='h-8 w-px bg-primary/10 mx-2'></div>
+              <div className='h-8 w-px bg-primary/5 mx-2'></div>
               <div className='flex items-center gap-3'>
                 <div className='hidden md:block text-right'>
                   <p className='text-sm font-semibold text-[#102213] leading-none'>
-                    {user.fullName}
+                    {user?.fullName}
                   </p>
                   <p className='text-xs text-[#102213]/60/60 mt-1'>Customer</p>
                 </div>
@@ -127,7 +126,7 @@ const CustomerPending = () => {
                     Your Registered Number
                   </p>
                   <p className='text-lg font-bold text-[#102213] tracking-wide'>
-                    +91 {user.mobileNumber}
+                    +91 {user?.mobileNumber}
                   </p>
                 </div>
               </div>
@@ -143,7 +142,7 @@ const CustomerPending = () => {
                 </Button>
                 <Button
                   variant='outline'
-                  className='flex flex-1 min-w-50 w-full sm:w-auto cursor-pointer items-center justify-center overflow-hidden rounded-xl h-14 px-6 py-3.5 bg-background-light text-[#102213] hover:bg-primary/10 transition-all gap-2 text-base font-bold'
+                  className='flex flex-1 min-w-50 w-full sm:w-auto cursor-pointer items-center justify-center overflow-hidden rounded-xl h-14 px-6 py-3.5 bg-background-light text-[#102213] hover:bg-primary/5 transition-all gap-2 text-base font-bold'
                   onClick={handleLogout}
                 >
                   <span className='material-symbols-outlined text-lg'>

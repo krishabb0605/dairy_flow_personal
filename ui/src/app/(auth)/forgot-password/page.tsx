@@ -12,6 +12,9 @@ import Button from '../../../components/ui/button';
 
 import { auth } from '../../../config/firebase-config';
 
+import logo from '../../../assets/logo/logo.png'
+import Image from 'next/image';
+
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');
   const [submitLoading, setSubmitLoading] = useState(false);
@@ -41,12 +44,11 @@ const ForgotPasswordPage = () => {
     <div className='flex-1 flex flex-col justify-center items-center px-6 py-12 sm:px-12 lg:px-24 bg-[#f6f7f8]'>
       <div className='w-full max-w-md space-y-8'>
         <div className='text-center lg:text-left'>
-          <div className='lg:hidden flex justify-center mb-6'>
-            <div className='flex items-center gap-2 text-primary'>
-              <span className='material-symbols-outlined text-4xl'>
-                water_drop
-              </span>
-              <span className='text-2xl font-bold text-slate-90'>
+          <div className='lg:hidden flex justify-center mb-6 fixed left-0 top-6 w-screen items-center'>
+            <div className='flex items-center gap-2 text-primary flex-col'>
+              <Image src={logo} alt='logo' height={60} width={60} />
+
+              <span className='text-2xl font-bold text-primary'>
                 DairyFlow
               </span>
             </div>

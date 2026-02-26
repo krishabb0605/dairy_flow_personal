@@ -27,7 +27,7 @@ export const TableHead = React.forwardRef<
 >(({ className = '', ...props }, ref) => (
   <thead
     ref={ref}
-    className={cx('bg-slate-50 border-b border-slate-200', className)}
+    className={cx('bg-slate-50/60 border-b border-slate-200', className)}
     {...props}
   />
 ));

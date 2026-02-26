@@ -179,7 +179,7 @@ const Dashboard = () => {
           </div>
           <div className='bg-white p-6 rounded-xl border border-slate-200 shadow-sm'>
             <div className='flex items-center justify-between mb-4'>
-              <div className='size-10 rounded-lg bg-primary/10 flex items-center justify-center'>
+              <div className='size-10 rounded-lg bg-primary/5 flex items-center justify-center'>
                 <span className='material-symbols-outlined text-primary'>
                   analytics
                 </span>
