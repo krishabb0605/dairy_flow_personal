@@ -262,7 +262,7 @@ const Deliveries = () => {
           <div className='overflow-x-auto'>
             <Table>
               <TableHead className=''>
-                <tr className='bg-slate-50 border-b border-slate-200'>
+                <tr className='border-b border-slate-200'>
                   <th className='px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider'>
                     Date
                   </th>

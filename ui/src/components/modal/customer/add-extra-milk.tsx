@@ -249,7 +249,7 @@ const AddExtraMilkModal = ({
           {/* <!-- Cow Milk Row --> */}
           <div className='flex items-center justify-between p-3 bg-white border border-[#e7f3e9] rounded-xl'>
             <div className='flex items-center gap-3'>
-              <div className='size-10 flex items-center justify-center rounded-lg bg-primary/10 text-primary'>
+              <div className='size-10 flex items-center justify-center rounded-lg bg-primary/5 text-primary'>
                 <span className='material-symbols-outlined'>pets</span>
               </div>
               <div>
@@ -284,7 +284,7 @@ const AddExtraMilkModal = ({
           {/* <!-- Buffalo Milk Row --> */}
           <div className='flex items-center justify-between p-3 bg-white border border-[#e7f3e9] rounded-xl'>
             <div className='flex items-center gap-3'>
-              <div className='size-10 flex items-center justify-center rounded-lg bg-primary/10 text-primary'>
+              <div className='size-10 flex items-center justify-center rounded-lg bg-primary/5 text-primary'>
                 <span className='material-symbols-outlined'>grass</span>
               </div>
               <div>

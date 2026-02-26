@@ -375,7 +375,7 @@ const MonthlyBiling = () => {
               <div className='overflow-x-auto'>
                 <Table>
                   <TableHead>
-                    <tr className='bg-slate-50 text-[#637588]  text-xs font-semibold uppercase tracking-wider'>
+                    <tr className='text-[#637588]  text-xs font-semibold uppercase tracking-wider'>
                       <th className='px-6 py-4'>Invoice</th>
                       <th className='px-6 py-4'>Billing Month</th>
                       <th className='px-6 py-4'>Total Qty</th>

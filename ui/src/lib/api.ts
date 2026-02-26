@@ -1,5 +1,6 @@
 import { API_URL } from '../utils/constants';
 import { ApiOptions } from '../utils/types';
+import { auth } from '../config/firebase-config';
 
 export const api = async (
   url: string,
@@ -7,11 +8,17 @@ export const api = async (
 ): Promise<any> => {
   const { method = 'GET', body, token } = options;
 
+  const idToken =
+    token ??
+    (typeof window !== 'undefined'
+      ? await auth.currentUser?.getIdToken()
+      : undefined);
+
   const res = await fetch(`${API_URL}${url}`, {
     method,
     headers: {
       'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(idToken ? { Authorization: `Bearer ${idToken}` } : {}),
     },
     ...(body ? { body: JSON.stringify(body) } : {}),
   });

@@ -10,6 +10,8 @@ import Loader from '../../components/loader';
 import Button from '../../components/ui/button';
 
 import { FALLBACK_OWNER_PROFILE_IMAGE } from '../../utils/constants';
+import logo from '../../assets/logo/logo.png';
+import Image from 'next/image';
 
 const ownerMenu = [
   {
@@ -82,7 +84,7 @@ const OwnerLayout = ({ children }: { children: React.ReactNode }) => {
     return <Loader variant='screen' />;
   }
 
-  const active = 'bg-primary/10 text-primary';
+  const active = 'bg-primary/5 text-primary';
 
   return (
     <div className='flex h-screen relative'>
@@ -107,12 +109,8 @@ const OwnerLayout = ({ children }: { children: React.ReactNode }) => {
         `}
       >
         <div className='text-2xl font-semibold mb-6 hidden md:block'>
-          <div className='flex items-center gap-3 bg-primary/10 p-3 rounded-2xl'>
-            <div className='bg-primary/20 p-2 rounded-lg'>
-              <span className='material-symbols-outlined text-primary font-bold'>
-                water_drop
-              </span>
-            </div>
+          <div className='flex items-center gap-3 bg-primary/5 px-3 py-2 rounded-2xl'>
+            <Image src={logo} alt='logo' height={60} width={60} />
             <div className='flex flex-col'>
               <h1 className='text-slate-900 text-base font-bold leading-none'>
                 DairyFlow
@@ -126,7 +124,7 @@ const OwnerLayout = ({ children }: { children: React.ReactNode }) => {
           <Link
             key={item.href}
             href={item.href}
-            className={`flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-primary/10 hover:text-primary transition-colors ${
+            className={`flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-primary/5 hover:text-primary transition-colors ${
               pathName === item.href ? active : 'text-slate-600'
             }`}
           >
@@ -136,7 +134,7 @@ const OwnerLayout = ({ children }: { children: React.ReactNode }) => {
         ))}
 
         <div className='mt-auto pt-8'>
-          <div className='bg-primary/10 rounded-2xl p-5 border border-primary/20 flex flex-col gap-3'>
+          <div className='bg-primary/5 rounded-2xl p-5 border border-primary/20 flex flex-col gap-3'>
             <div className='flex items-center gap-4'>
               <div className='flex items-center gap-3'>
                 <div

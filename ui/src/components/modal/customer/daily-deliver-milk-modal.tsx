@@ -4,7 +4,7 @@ import type { DeliveryDayModalProps } from '../../../utils/types';
 
 import Modal from '../../modal';
 
-const DeliveryDayModal = ({
+const DailyDeliverMilkModal = ({
   open,
   onClose,
   selectedDate,
@@ -98,4 +98,4 @@ const DeliveryDayModal = ({
   );
 };
 
-export default DeliveryDayModal;
+export default DailyDeliverMilkModal;

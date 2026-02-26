@@ -8,10 +8,4 @@ export class AppService {
   getHello(): string {
     return 'Hello World!';
   }
-
-  async testDatabase(): Promise<string> {
-    const testData = await this.userRepository.listAll();
-
-    return `Database test completed successfully! ${JSON.stringify(testData)}`;
-  }
 }

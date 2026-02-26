@@ -8,7 +8,7 @@ import type { BillPdfDailyRecord, DeliveryCalendarProps } from '../../utils/type
 
 import { getCustomerMonthlyCalendar } from '../../lib/daily-milk';
 
-import DeliveryDayModal from '../modal/customer/DeliveryDayModal';
+import DailyDeliverMilkModal from '../modal/customer/daily-deliver-milk-modal';
 import Loader from '../loader';
 
 const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -252,7 +252,7 @@ export default function DeliveryCalendar({
                       ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
                       : 'bg-white hover:bg-slate-100'
                 }
-                ${isToday && 'border-2 border-primary bg-primary/10'}`}
+                ${isToday && 'border-2 border-primary bg-primary/5'}`}
               >
                 <span className='text-sm font-bold'>{d.day}</span>
 
@@ -292,7 +292,7 @@ export default function DeliveryCalendar({
         </div>
       </div>
 
-      <DeliveryDayModal
+      <DailyDeliverMilkModal
         open={Boolean(selectedDate)}
         onClose={() => setSelectedDate(null)}
         selectedDate={selectedDate}

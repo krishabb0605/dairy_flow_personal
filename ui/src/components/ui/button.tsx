@@ -41,9 +41,9 @@ const variantClasses: Record<ButtonVariant, string> = {
   secondary: 'bg-slate-100 text-slate-700 hover:bg-slate-200',
   outline:
     'bg-white border border-primary/20 text-slate-700 hover:bg-primary/5',
-  ghost: 'bg-transparent text-slate-700 hover:bg-primary/10',
+  ghost: 'bg-transparent text-slate-700 hover:bg-primary/5',
   soft: 'bg-primary/20 text-slate-700 hover:bg-primary/30',
-  'soft-primary': 'bg-primary/10 text-primary hover:bg-primary/20',
+  'soft-primary': 'bg-primary/5 text-primary hover:bg-primary/20',
   neutral:
     'bg-gray-100 text-[#111418] border border-transparent hover:border-gray-300',
   'outline-muted':
@@ -62,9 +62,9 @@ const variantClasses: Record<ButtonVariant, string> = {
   'link-gray': 'bg-transparent text-gray-500 hover:text-gray-700',
   'ghost-muted': 'bg-transparent text-[#637588] hover:bg-gray-100',
   'ghost-primary':
-    'bg-transparent text-slate-700 hover:bg-primary/10 hover:text-primary',
+    'bg-transparent text-slate-700 hover:bg-primary/5 hover:text-primary',
   'ghost-list': 'bg-transparent text-slate-700 hover:bg-slate-50',
-  'soft-muted': 'bg-primary/10 text-slate-700 hover:bg-primary/20',
+  'soft-muted': 'bg-primary/5 text-slate-700 hover:bg-primary/20',
   danger: 'bg-red-600 text-white hover:bg-red-700',
   warning: 'bg-orange-600 text-white hover:bg-orange-700',
   success: 'bg-green-600 text-white hover:bg-green-700',

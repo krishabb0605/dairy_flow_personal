@@ -304,7 +304,7 @@ const Dashboard = () => {
                     <div className='space-y-2'>
                       {upcoming.extras.map((item) => (
                         <div className='flex items-center gap-3' key={item.id}>
-                          <div className='size-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary'>
+                          <div className='size-8 rounded-lg bg-primary/5 flex items-center justify-center text-primary'>
                             <span className='material-symbols-outlined text-lg'>
                               add_circle
                             </span>
