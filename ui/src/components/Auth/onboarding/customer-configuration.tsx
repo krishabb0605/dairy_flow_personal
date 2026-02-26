@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { UserContext } from '../../../app/context/user-context';
 import { Mandatory } from '../../../app/page';
 
-import { OnboardingStepProps } from '../../../types';
+import { OnboardingStepProps } from '../../../utils/types';
 
 import { addCustomerConfigInfo } from '../../../lib/users';
 

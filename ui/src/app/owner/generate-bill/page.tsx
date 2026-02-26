@@ -9,7 +9,7 @@ import CustomerInvoicePdfDocument from '../../../components/pdf/CustomerInvoiceP
 import Button from '../../../components/ui/button';
 import { Table, TableBody, TableHead } from '../../../components/ui/table';
 
-import type { BillPdfDailyRecord, OwnerCustomerProfile } from '../../../types';
+import type { BillPdfDailyRecord, OwnerCustomerProfile } from '../../../utils/types';
 import { UserContext } from '../../context/user-context';
 import { getCustomerProfile } from '../../../lib/customerSettings';
 import { getCustomerMonthlyCalendar } from '../../../lib/daily-milk';

@@ -3,7 +3,7 @@ import { toast } from 'react-toastify';
 
 import { UserContext } from '../../../app/context/user-context';
 
-import { OnboardingStepProps } from '../../../types';
+import { OnboardingStepProps } from '../../../utils/types';
 
 import { addRole } from '../../../lib/users';
 

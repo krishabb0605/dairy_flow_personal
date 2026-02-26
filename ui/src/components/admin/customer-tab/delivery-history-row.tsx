@@ -6,7 +6,7 @@ import type {
   OwnerCustomerDeliveryHistoryItem,
   OwnerCustomerDeliveryStatus,
   OwnerDelivery,
-} from '../../../types';
+} from '../../../utils/types';
 
 import { updateDailyMilk } from '../../../lib/daily-milk';
 

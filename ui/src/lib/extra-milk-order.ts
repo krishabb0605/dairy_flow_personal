@@ -1,4 +1,4 @@
-import type { CreateExtraMilkOrderParams } from '../types';
+import type { CreateExtraMilkOrderParams } from '../utils/types';
 
 import { api } from './api';
 

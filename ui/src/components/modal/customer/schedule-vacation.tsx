@@ -7,7 +7,7 @@ import { UserContext } from '../../../app/context/user-context';
 
 import Modal from '../../../components/modal';
 
-import type { ScheduleVacationProps, Slot } from '../../../types';
+import type { ScheduleVacationProps, Slot } from '../../../utils/types';
 
 import { createVacationSchedule } from '../../../lib/schedule-vacation';
 

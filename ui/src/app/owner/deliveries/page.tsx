@@ -10,12 +10,12 @@ import Pagination from '../../../components/pagination';
 import Button from '../../../components/ui/button';
 import Loader from '../../../components/loader';
 import { Table, TableBody, TableHead } from '../../../components/ui/table';
-import OwnerDeliveryRow from '../../../components/admin/owner-delivery-row';
+import OwnerDeliveryRow from './owner-delivery-row';
 
 import type {
   OwnerDeliveryHistoryItem,
   OwnerDeliveryHistoryResponse,
-} from '../../../types';
+} from '../../../utils/types';
 
 import { getOwnerDeliveryHistory } from '../../../lib/daily-milk';
 

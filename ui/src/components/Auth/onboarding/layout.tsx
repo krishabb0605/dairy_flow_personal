@@ -8,7 +8,7 @@ import Loader from '../../../components/loader';
 import Modal from '../../../components/modal';
 import Button from '../../../components/ui/button';
 
-import { OnboardingLayoutProps } from './../../../types';
+import { OnboardingLayoutProps } from '../../../utils/types';
 
 const OnboardingLayout = ({
   currentStep,

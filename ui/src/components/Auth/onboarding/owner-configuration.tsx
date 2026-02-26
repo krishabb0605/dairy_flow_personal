@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { UserContext } from '../../../app/context/user-context';
 import { Mandatory } from '../../../app/page';
 
-import { MilkConfig, OnboardingStepProps } from '../../../types';
+import { MilkConfig, OnboardingStepProps } from '../../../utils/types';
 
 import { addOwnerConfigInfo } from '../../../lib/users';
 

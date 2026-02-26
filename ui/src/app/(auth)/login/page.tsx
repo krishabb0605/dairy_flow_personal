@@ -136,6 +136,31 @@ const LoginPage = () => {
               </div>
             </div>
 
+            <div className='flex items-center justify-between'>
+              <div className='flex items-center'>
+                <input
+                  className='h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary'
+                  id='remember-me'
+                  name='remember-me'
+                  type='checkbox'
+                />
+                <label
+                  className='ml-2 block text-sm text-slate-700 select-none'
+                  htmlFor='remember-me'
+                >
+                  Remember me
+                </label>
+              </div>
+              <div className='text-sm'>
+                <a
+                  className='font-semibold text-primary hover:underline'
+                  href='/forgot-password'
+                >
+                  Forgot password?
+                </a>
+              </div>
+            </div>
+
             <Button
               type='submit'
               variant='primary'

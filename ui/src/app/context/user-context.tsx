@@ -10,7 +10,7 @@ import {
   User,
   UserContextType,
   UserRoleType,
-} from '../../types';
+} from '../../utils/types';
 
 import { getUser } from '../../lib/users';
 

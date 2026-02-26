@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 
-import type { OwnerBillingApiStatus, OwnerBillingRecord } from '../../../types';
+import type { OwnerBillingApiStatus, OwnerBillingRecord } from '../../../utils/types';
 import Badge from '../../../components/ui/badge';
-import { getBillingStatusVariant } from '../../../constants';
+import { getBillingStatusVariant } from '../../../utils/constants';
 
 type BillingTableRowProps = {
   row: OwnerBillingRecord;

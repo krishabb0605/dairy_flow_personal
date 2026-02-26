@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { toast } from 'react-toastify';
 
@@ -12,7 +12,7 @@ import type {
   BillingStatusFilter,
   CustomerBillingResponse,
   OwnerBillingApiStatus,
-} from '../../../types';
+} from '../../../utils/types';
 import { getCustomerBilling } from '../../../lib/invoice';
 import CustomerBillingHistoryRow from './billing-history-row';
 
@@ -39,7 +39,6 @@ const CustomerBillingHistory = () => {
   const [years, setYears] = useState<string[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
-  const fetchBillingRef = useRef(false);
 
   const availableYears = useMemo(
     () => [...years].sort((a, b) => Number(b) - Number(a)),
@@ -91,9 +90,6 @@ const CustomerBillingHistory = () => {
       return;
     }
 
-    if (fetchBillingRef.current) return;
-    fetchBillingRef.current = true;
-
     try {
       setLoading(true);
       const data = await getCustomerBilling({
@@ -116,7 +112,6 @@ const CustomerBillingHistory = () => {
       setTotalPages(1);
     } finally {
       setLoading(false);
-      fetchBillingRef.current = false;
     }
   }, [page, params.id, search, statusFilter, yearFilter]);
 
@@ -195,12 +190,10 @@ const CustomerBillingHistory = () => {
                 </label>
                 <select
                   value={statusFilter}
-                  onChange={(e) =>
-                    {
-                      setStatusFilter(e.target.value as BillingStatusFilter);
-                      setPage(1);
-                    }
-                  }
+                  onChange={(e) => {
+                    setStatusFilter(e.target.value as BillingStatusFilter);
+                    setPage(1);
+                  }}
                   className='w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none text-slate-700'
                 >
                   <option value='all'>All Statuses</option>

@@ -1,4 +1,4 @@
-import type { CreateVacationScheduleParams } from '../types';
+import type { CreateVacationScheduleParams } from '../utils/types';
 
 import { api } from './api';
 

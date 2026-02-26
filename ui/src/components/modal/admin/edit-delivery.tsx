@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 
-import type { EditDeliveryModalProps, OwnerDelivery } from '../../../types';
+import type { EditDeliveryModalProps, OwnerDelivery } from '../../../utils/types';
 
 import { updateDailyMilk } from '../../../lib/daily-milk';
 

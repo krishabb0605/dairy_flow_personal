@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 
 import { UserContext } from '../../../app/context/user-context';
 
@@ -12,7 +12,7 @@ import DeActivateOwnerModal from '../../../components/modal/customer/deactivate-
 import Loader from '../../../components/loader';
 import Button from '../../../components/ui/button';
 
-import type { UpcomingCustomerActivity } from '../../../types';
+import type { UpcomingCustomerActivity } from '../../../utils/types';
 
 import { getUpcomingCustomerActivity } from '../../../lib/customerOwner';
 import { getCustomerMonthlySummary } from '../../../lib/daily-milk';
@@ -44,7 +44,6 @@ const Dashboard = () => {
     useState<boolean>(false);
 
   const [customerOwnerId, setCustomerOwnerId] = useState<number | null>(null);
-  const lastAutoFetchedOwnerIdRef = useRef<number | null>(null);
 
   const fetchUpcoming = useCallback(async () => {
     if (!user?.currentActiveOwner?.id) {
@@ -102,18 +101,12 @@ const Dashboard = () => {
     const ownerId = user?.currentActiveOwner?.id ?? null;
 
     if (!ownerId) {
-      lastAutoFetchedOwnerIdRef.current = null;
       setUpcoming({ extras: [], vacations: [] });
       setDailyMilkSummary(defaultMilkSummary);
 
       return;
     }
 
-    if (lastAutoFetchedOwnerIdRef.current === ownerId) {
-      return;
-    }
-
-    lastAutoFetchedOwnerIdRef.current = ownerId;
     fetchUpcoming();
     fetchMonthlySummary();
   }, [fetchMonthlySummary, fetchUpcoming, user?.currentActiveOwner?.id]);

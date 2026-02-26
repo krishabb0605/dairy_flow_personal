@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
 import CustomerBillingHistory from '../../../../components/admin/customer-tab/billing-history';
@@ -12,8 +12,8 @@ import ContentLayout from '../../../../components/layout';
 import Button from '../../../../components/ui/button';
 import Loader from '../../../../components/loader';
 
-import { FALLBACK_CUSTOMER_PROFILE_IMAGE } from '../../../../constants';
-import type { OwnerCustomerProfile, OwnerCustomerTab } from '../../../../types';
+import { FALLBACK_CUSTOMER_PROFILE_IMAGE } from '../../../../utils/constants';
+import type { OwnerCustomerProfile, OwnerCustomerTab } from '../../../../utils/types';
 
 import { getCustomerProfile } from '../../../../lib/customerSettings';
 
@@ -24,14 +24,10 @@ const OwnerCustomerProfilePage = () => {
   const [customer, setCustomer] = useState<OwnerCustomerProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const fetcheCustomerdRef = useRef(false);
 
   useEffect(() => {
     const loadCustomer = async () => {
       const customerOwnerId = Number(params.id);
-
-      if (fetcheCustomerdRef.current) return;
-      fetcheCustomerdRef.current = true;
 
       if (!Number.isFinite(customerOwnerId)) {
         setLoadError('Invalid customer id.');
@@ -53,7 +49,6 @@ const OwnerCustomerProfilePage = () => {
         setCustomer(null);
       } finally {
         setLoading(false);
-        fetcheCustomerdRef.current = false;
       }
     };
 

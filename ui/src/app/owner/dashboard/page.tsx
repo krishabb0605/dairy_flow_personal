@@ -1,18 +1,18 @@
 'use client';
 
-import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
 import { UserContext } from '../../context/user-context';
 
 import ContentLayout from '../../../components/layout';
-import DashboardCustomer from '../../../components/admin/dashboard-customer';
+import DashboardDeliveryRow from './dashboard-delivery-row';
 import Pagination from '../../../components/pagination';
 import Button from '../../../components/ui/button';
 import Loader from '../../../components/loader';
 import { Table, TableBody, TableHead } from '../../../components/ui/table';
 
-import { OwnerDelivery, Slot } from '../../../types';
+import { OwnerDelivery, Slot } from '../../../utils/types';
 
 import { getOwnerDashboard } from '../../../lib/daily-milk';
 
@@ -31,7 +31,6 @@ const Dashboard = () => {
 
   const [searchInput, setSearchInput] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
-  const fetchedApiRef = useRef(false);
 
   const handleSearch = () => {
     setPage(1);
@@ -48,8 +47,6 @@ const Dashboard = () => {
 
   const fetchDashboard = useCallback(async () => {
     const ownerId = user?.ownerSettings?.id;
-    if (fetchedApiRef.current) return;
-    fetchedApiRef.current = true;
 
     if (!ownerId) {
       setDeliveries([]);
@@ -88,7 +85,6 @@ const Dashboard = () => {
       setTotalPages(1);
     } finally {
       setDashboardLoading(false);
-      fetchedApiRef.current = false;
     }
   }, [page, searchQuery, selectedSlot, user?.ownerSettings?.id]);
 
@@ -270,7 +266,7 @@ const Dashboard = () => {
                       </tr>
                     ) : (
                       deliveries.map((slotDeliverie, index) => (
-                        <DashboardCustomer
+                        <DashboardDeliveryRow
                           key={index}
                           slotDeliverie={slotDeliverie}
                           setDeliveries={setDeliveries}

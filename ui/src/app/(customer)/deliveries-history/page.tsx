@@ -1,21 +1,21 @@
 'use client';
 
-import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 
 import { UserContext } from '../../../app/context/user-context';
 
 import Pagination from '../../../components/pagination';
 import ContentLayout from '../../../components/layout';
-import DeliveryHistoryRow from '../../../components/Customer/DeliveryHistoryRow';
+import DeliveryHistoryRow from './delivery-history-row';
 import Loader from '../../../components/loader';
 import Button from '../../../components/ui/button';
 import { Table, TableBody, TableHead } from '../../../components/ui/table';
 
-import { deliveryFilters } from '../../../constants';
+import { deliveryFilters } from '../../../utils/constants';
 import {
   deliveryFilter,
   OwnerCustomerDeliveryHistoryItem,
-} from '../../../types';
+} from '../../../utils/types';
 
 import { getCustomerDeliveryHistory } from '../../../lib/customerSettings';
 
@@ -33,7 +33,6 @@ const DeliveriesHistory = () => {
     pending: 0,
     cancelled: 0,
   });
-  const fetchDeliveriesRef = useRef(false);
   const [selectedMonth, setSelectedMonth] = useState(() => {
     const now = new Date();
     const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -89,8 +88,6 @@ const DeliveriesHistory = () => {
         return;
       }
 
-      if (fetchDeliveriesRef.current) return;
-      fetchDeliveriesRef.current = true;
       setLoading(true);
       try {
         const data = await getCustomerDeliveryHistory(customerOwnerId, {
@@ -114,7 +111,6 @@ const DeliveriesHistory = () => {
         setStatusCounts({ delivered: 0, pending: 0, cancelled: 0 });
       } finally {
         setLoading(false);
-        fetchDeliveriesRef.current = false;
       }
     };
 

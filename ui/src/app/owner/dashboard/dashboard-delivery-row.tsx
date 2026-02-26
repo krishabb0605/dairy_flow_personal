@@ -3,16 +3,16 @@
 import { useState } from 'react';
 import Image from 'next/image';
 
-import Button from '../../components/ui/button';
+import Button from '../../../components/ui/button';
 
-import { FALLBACK_CUSTOMER_PROFILE_IMAGE } from '../../constants';
+import { FALLBACK_CUSTOMER_PROFILE_IMAGE } from '../../../utils/constants';
 
-import { updateDailyMilk } from '../../lib/daily-milk';
+import { updateDailyMilk } from '../../../lib/daily-milk';
 
-import EditDeliveryModal from '../modal/admin/edit-delivery';
-import Badge from '../ui/badge';
+import EditDeliveryModal from '../../../components/modal/admin/edit-delivery';
+import Badge from '../../../components/ui/badge';
 
-const DashboardCustomer = ({ slotDeliverie, setDeliveries }: any) => {
+const DashboardDeliveryRow = ({ slotDeliverie, setDeliveries }: any) => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [statusUpdating, setStatusUpdating] = useState(false);
 
@@ -127,4 +127,4 @@ const DashboardCustomer = ({ slotDeliverie, setDeliveries }: any) => {
   );
 };
 
-export default DashboardCustomer;
+export default DashboardDeliveryRow;

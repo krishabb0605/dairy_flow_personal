@@ -3,7 +3,7 @@ import type {
   GetCustomerBillingParams,
   GetOwnerBillingParams,
   OwnerBillingResponse,
-} from '../types';
+} from '../utils/types';
 
 import { api } from '../lib/api';
 

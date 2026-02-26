@@ -13,7 +13,7 @@ import type {
   UpdateCustomerSettingsParams,
   UpdateOwnerSettingsParams,
   UserRoleType,
-} from '../types';
+} from '../utils/types';
 
 import { api } from '../lib/api';
 import { auth } from '../config/firebase-config';

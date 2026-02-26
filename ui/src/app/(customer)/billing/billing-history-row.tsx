@@ -2,8 +2,8 @@
 import { useEffect, useState } from 'react';
 import Badge from '../../../components/ui/badge';
 import Button from '../../../components/ui/button';
-import { getBillingStatusVariant } from '../../../constants';
-import type { CustomerBillingRecord } from '../../../types';
+import { getBillingStatusVariant } from '../../../utils/constants';
+import type { CustomerBillingRecord } from '../../../utils/types';
 
 type BillingHistoryRowProps = {
   bill: CustomerBillingRecord;

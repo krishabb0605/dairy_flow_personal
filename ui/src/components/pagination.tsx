@@ -1,6 +1,6 @@
 import Button from '../components/ui/button';
 
-import { PaginationProps } from '../types';
+import { PaginationProps } from '../utils/types';
 
 const Pagination = ({ page, totalPages, setPage }: PaginationProps) => {
   return (

@@ -1,5 +1,5 @@
-import { API_URL } from '../constants';
-import { ApiOptions } from '../types';
+import { API_URL } from '../utils/constants';
+import { ApiOptions } from '../utils/types';
 
 export const api = async (
   url: string,
