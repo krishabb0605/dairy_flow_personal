@@ -1,6 +1,6 @@
 'use client';
 
-import { StepperProps } from '../../types';
+import { StepperProps } from '../../utils/types';
 
 export const Stepper = ({ steps, currentStep }: StepperProps) => {
   return (

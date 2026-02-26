@@ -12,7 +12,7 @@ import DeActivateOwnerModal from '../../../components/modal/customer/deactivate-
 import Loader from '../../../components/loader';
 import Button from '../../../components/ui/button';
 
-import type { UpcomingCustomerActivity } from '../../../types';
+import type { UpcomingCustomerActivity } from '../../../utils/types';
 
 import { getUpcomingCustomerActivity } from '../../../lib/customerOwner';
 import { getCustomerMonthlySummary } from '../../../lib/daily-milk';

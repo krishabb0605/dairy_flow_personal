@@ -10,7 +10,7 @@ import Loader from '../../../components/loader';
 import { Table, TableBody, TableHead } from '../../../components/ui/table';
 import CustomerInvoicePdfDocument from '../../../components/pdf/CustomerInvoicePdfDocument';
 
-import { dailyDeliveriesHistory } from '../../../constants';
+import { dailyDeliveriesHistory } from '../../../utils/constants';
 import BillingDetailsAside from './billing-details-aside';
 
 import { BillingHistoryRow } from './billing-history-row';
@@ -25,7 +25,7 @@ import type {
   CustomerBillingRecord,
   CustomerBillingResponse,
   OwnerBillingApiStatus,
-} from '../../../types';
+} from '../../../utils/types';
 
 const ITEMS_PER_PAGE = 3;
 

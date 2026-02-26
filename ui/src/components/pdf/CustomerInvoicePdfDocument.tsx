@@ -1,6 +1,6 @@
 import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 
-import type { CustomerInvoicePdfProps } from '../../types';
+import type { CustomerInvoicePdfProps } from '../../utils/types';
 
 const pdfStyles = StyleSheet.create({
   page: {

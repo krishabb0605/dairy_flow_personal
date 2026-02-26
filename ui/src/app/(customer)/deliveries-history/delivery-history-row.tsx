@@ -1,7 +1,7 @@
 'use client';
 
-import type { OwnerCustomerDeliveryHistoryItem } from '../../types';
-import Badge from '../ui/badge';
+import type { OwnerCustomerDeliveryHistoryItem } from '../../../utils/types';
+import Badge from '../../../components/ui/badge';
 
 const DeliveryHistoryRow = ({
   row,

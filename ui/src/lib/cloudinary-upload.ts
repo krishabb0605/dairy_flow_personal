@@ -1,4 +1,4 @@
-import type { UploadImageConfig, ValidateImageFileOptions } from '../types';
+import type { UploadImageConfig, ValidateImageFileOptions } from '../utils/types';
 
 export const DEFAULT_ALLOWED_IMAGE_TYPES = [
   'image/png',

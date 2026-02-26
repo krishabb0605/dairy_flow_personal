@@ -14,7 +14,7 @@ import type {
   CustomerOwner,
   MilkType,
   Slot,
-} from '../../../types';
+} from '../../../utils/types';
 
 import { createExtraMilkOrder } from '../../../lib/extra-milk-order';
 

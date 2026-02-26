@@ -12,8 +12,8 @@ import ContentLayout from '../../../../components/layout';
 import Button from '../../../../components/ui/button';
 import Loader from '../../../../components/loader';
 
-import { FALLBACK_CUSTOMER_PROFILE_IMAGE } from '../../../../constants';
-import type { OwnerCustomerProfile, OwnerCustomerTab } from '../../../../types';
+import { FALLBACK_CUSTOMER_PROFILE_IMAGE } from '../../../../utils/constants';
+import type { OwnerCustomerProfile, OwnerCustomerTab } from '../../../../utils/types';
 
 import { getCustomerProfile } from '../../../../lib/customerSettings';
 

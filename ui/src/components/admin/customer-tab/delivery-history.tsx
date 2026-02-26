@@ -11,7 +11,7 @@ import type {
   DeliveryShiftFilter,
   DeliveryStatusFilter,
   OwnerCustomerDeliveryHistoryItem,
-} from '../../../types';
+} from '../../../utils/types';
 
 import { getCustomerDeliveryHistory } from '../../../lib/customerSettings';
 

@@ -1,7 +1,7 @@
 import type {
   CustomerDeliveryHistoryResponse,
   OwnerCustomerProfile,
-} from '../types';
+} from '../utils/types';
 
 import { api } from '../lib/api';
 

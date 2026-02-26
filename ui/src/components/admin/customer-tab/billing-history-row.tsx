@@ -1,6 +1,6 @@
-import Badge from '@/components/ui/badge';
-import { getBillingStatusVariant } from '@/constants';
-import type { OwnerBillingApiStatus } from '@/types';
+import Badge from '../../../components/ui/badge';
+import { getBillingStatusVariant } from '../../../utils/constants';
+import type { OwnerBillingApiStatus } from '../../../utils/types';
 
 type CustomerBillingHistoryRowProps = {
   item: {
@@ -16,7 +16,9 @@ type CustomerBillingHistoryRowProps = {
 const formatStatusLabel = (status: OwnerBillingApiStatus) =>
   status.replace('_', ' ');
 
-const CustomerBillingHistoryRow = ({ item }: CustomerBillingHistoryRowProps) => {
+const CustomerBillingHistoryRow = ({
+  item,
+}: CustomerBillingHistoryRowProps) => {
   return (
     <tr className='group hover:bg-primary/5 transition-colors' key={item.id}>
       <td className='whitespace-nowrap px-6 py-4 font-medium'>{item.month}</td>

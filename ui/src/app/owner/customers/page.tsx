@@ -12,8 +12,8 @@ import Loader from '../../../components/loader';
 import Button from '../../../components/ui/button';
 import { Table, TableBody, TableHead } from '../../../components/ui/table';
 
-import { FALLBACK_CUSTOMER_PROFILE_IMAGE } from '../../../constants';
-import type { OwnerCustomer, OwnerCustomerStatusFilter } from '../../../types';
+import { FALLBACK_CUSTOMER_PROFILE_IMAGE } from '../../../utils/constants';
+import type { OwnerCustomer, OwnerCustomerStatusFilter } from '../../../utils/types';
 
 import {
   createCustomerOwner,

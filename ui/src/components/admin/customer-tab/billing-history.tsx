@@ -12,7 +12,7 @@ import type {
   BillingStatusFilter,
   CustomerBillingResponse,
   OwnerBillingApiStatus,
-} from '../../../types';
+} from '../../../utils/types';
 import { getCustomerBilling } from '../../../lib/invoice';
 import CustomerBillingHistoryRow from './billing-history-row';
 

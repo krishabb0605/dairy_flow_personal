@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import type {
   OwnerCustomerProfile,
   UpcomingCustomerActivity,
-} from '../../../types';
+} from '../../../utils/types';
 
 import { getUpcomingCustomerActivity } from '../../../lib/customerOwner';
 

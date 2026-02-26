@@ -14,8 +14,8 @@ import type {
   CustomerSettingsFormData,
   CustomerSettingsFormErrors,
   User,
-} from '../../../types';
-import { FALLBACK_CUSTOMER_PROFILE_IMAGE } from '../../../constants';
+} from '../../../utils/types';
+import { FALLBACK_CUSTOMER_PROFILE_IMAGE } from '../../../utils/constants';
 import { updateCustomerSettings } from '../../../lib/users';
 import { useCloudinaryImageUpload } from '../../../hooks/use-cloudinary-image-upload';
 

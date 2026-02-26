@@ -9,7 +9,7 @@ import { UserContext } from '../context/user-context';
 import Loader from '../../components/loader';
 import Button from '../../components/ui/button';
 
-import { FALLBACK_OWNER_PROFILE_IMAGE } from '../../constants';
+import { FALLBACK_OWNER_PROFILE_IMAGE } from '../../utils/constants';
 
 const ownerMenu = [
   {

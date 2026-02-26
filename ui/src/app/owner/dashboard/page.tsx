@@ -6,13 +6,13 @@ import { toast } from 'react-toastify';
 import { UserContext } from '../../context/user-context';
 
 import ContentLayout from '../../../components/layout';
-import DashboardCustomer from '../../../components/admin/dashboard-customer';
+import DashboardDeliveryRow from './dashboard-delivery-row';
 import Pagination from '../../../components/pagination';
 import Button from '../../../components/ui/button';
 import Loader from '../../../components/loader';
 import { Table, TableBody, TableHead } from '../../../components/ui/table';
 
-import { OwnerDelivery, Slot } from '../../../types';
+import { OwnerDelivery, Slot } from '../../../utils/types';
 
 import { getOwnerDashboard } from '../../../lib/daily-milk';
 
@@ -266,7 +266,7 @@ const Dashboard = () => {
                       </tr>
                     ) : (
                       deliveries.map((slotDeliverie, index) => (
-                        <DashboardCustomer
+                        <DashboardDeliveryRow
                           key={index}
                           slotDeliverie={slotDeliverie}
                           setDeliveries={setDeliveries}

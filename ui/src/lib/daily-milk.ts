@@ -4,7 +4,7 @@ import type {
   OwnerDashboardResponse,
   OwnerDelivery,
   OwnerDeliveryHistoryResponse,
-} from '../types';
+} from '../utils/types';
 
 import { api } from '../lib/api';
 

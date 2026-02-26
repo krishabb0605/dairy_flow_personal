@@ -16,7 +16,7 @@ import type {
   OwnerBillingApiStatus,
   OwnerBillingRecord,
   OwnerBillingResponse,
-} from '../../../types';
+} from '../../../utils/types';
 
 import { getOwnerBilling, updateInvoice } from '../../../lib/invoice';
 

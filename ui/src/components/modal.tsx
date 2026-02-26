@@ -2,7 +2,7 @@
 
 import Button from '../components/ui/button';
 
-import { ModalProps } from '../types';
+import { ModalProps } from '../utils/types';
 
 import Loader from './loader';
 

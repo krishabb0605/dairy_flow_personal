@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import Button from '../../components/ui/button';
 
-import type { BillPdfDailyRecord, DeliveryCalendarProps } from '../../types';
+import type { BillPdfDailyRecord, DeliveryCalendarProps } from '../../utils/types';
 
 import { getCustomerMonthlyCalendar } from '../../lib/daily-milk';
 

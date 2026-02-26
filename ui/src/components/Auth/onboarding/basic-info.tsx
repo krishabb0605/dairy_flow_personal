@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import { UserContext } from '../../../app/context/user-context';
 import { Mandatory } from '../../../app/page';
 
-import { OnboardingStepProps } from '../../../types';
+import { OnboardingStepProps } from '../../../utils/types';
 
 import { createUser } from '../../../lib/users';
 

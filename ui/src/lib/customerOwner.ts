@@ -3,7 +3,7 @@ import type {
   GetOwnerCustomersParams,
   OwnerCustomersResponse,
   UpcomingCustomerActivity,
-} from '../types';
+} from '../utils/types';
 
 import { api } from '../lib/api';
 

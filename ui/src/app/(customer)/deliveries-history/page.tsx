@@ -6,16 +6,16 @@ import { UserContext } from '../../../app/context/user-context';
 
 import Pagination from '../../../components/pagination';
 import ContentLayout from '../../../components/layout';
-import DeliveryHistoryRow from '../../../components/Customer/DeliveryHistoryRow';
+import DeliveryHistoryRow from './delivery-history-row';
 import Loader from '../../../components/loader';
 import Button from '../../../components/ui/button';
 import { Table, TableBody, TableHead } from '../../../components/ui/table';
 
-import { deliveryFilters } from '../../../constants';
+import { deliveryFilters } from '../../../utils/constants';
 import {
   deliveryFilter,
   OwnerCustomerDeliveryHistoryItem,
-} from '../../../types';
+} from '../../../utils/types';
 
 import { getCustomerDeliveryHistory } from '../../../lib/customerSettings';
 

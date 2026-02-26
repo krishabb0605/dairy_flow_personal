@@ -8,7 +8,7 @@ import { UserContext } from '../context/user-context';
 import Loader from '../../components/loader';
 import Button from '../../components/ui/button';
 
-import { FALLBACK_CUSTOMER_PROFILE_IMAGE } from '../../constants';
+import { FALLBACK_CUSTOMER_PROFILE_IMAGE } from '../../utils/constants';
 
 const CustomerPending = () => {
   const { user, loading, handleLogout } = useContext(UserContext);

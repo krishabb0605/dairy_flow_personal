@@ -1,6 +1,6 @@
 import { type ChangeEvent, useEffect, useRef, useState } from 'react';
 
-import type { UseCloudinaryImageUploadOptions } from '../types';
+import type { UseCloudinaryImageUploadOptions } from '../utils/types';
 
 import {
   uploadImageToCloudinary,

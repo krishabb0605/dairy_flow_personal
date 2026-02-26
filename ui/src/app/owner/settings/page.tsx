@@ -15,8 +15,8 @@ import type {
   OwnerSettingsFormErrors,
   OwnerSettingsMilkConfigState,
   User,
-} from '../../../types';
-import { FALLBACK_OWNER_PROFILE_IMAGE } from '../../../constants';
+} from '../../../utils/types';
+import { FALLBACK_OWNER_PROFILE_IMAGE } from '../../../utils/constants';
 
 import { updateOwnerSettings } from '../../../lib/users';
 

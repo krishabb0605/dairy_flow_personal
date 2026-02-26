@@ -4,13 +4,13 @@ import { useState } from 'react';
 import { toast } from 'react-toastify';
 import Image from 'next/image';
 
-import type { OwnerDeliveryHistoryItem } from '../../types';
+import type { OwnerDeliveryHistoryItem } from '../../../utils/types';
 
-import { updateDailyMilk } from '../../lib/daily-milk';
+import { updateDailyMilk } from '../../../lib/daily-milk';
 
-import Button from '../ui/button';
-import EditDeliveryModal from '../modal/admin/edit-delivery';
-import Badge from '../ui/badge';
+import Button from '../../../components/ui/button';
+import EditDeliveryModal from '../../../components/modal/admin/edit-delivery';
+import Badge from '../../../components/ui/badge';
 
 const OwnerDeliveryRow = ({
   delivery,
