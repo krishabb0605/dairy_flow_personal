@@ -1,8 +1,8 @@
 'use client';
 
-import type { DeliveryDayModalProps } from '../../types';
+import type { DeliveryDayModalProps } from '../../../types';
 
-import Modal from '../modal';
+import Modal from '../../modal';
 
 const DeliveryDayModal = ({
   open,

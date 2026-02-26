@@ -8,7 +8,7 @@ import type { BillPdfDailyRecord, DeliveryCalendarProps } from '../../types';
 
 import { getCustomerMonthlyCalendar } from '../../lib/daily-milk';
 
-import DeliveryDayModal from './DeliveryDayModal';
+import DeliveryDayModal from '../modal/customer/DeliveryDayModal';
 import Loader from '../loader';
 
 const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
