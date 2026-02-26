@@ -1,6 +1,6 @@
 'use client';
 
-import type { DeliveryDayModalProps } from '../../types';
+import type { DeliveryDayModalProps } from '../../utils/types';
 
 import Modal from '../modal';
 
