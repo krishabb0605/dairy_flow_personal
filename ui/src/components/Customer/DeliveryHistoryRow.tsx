@@ -1,32 +1,13 @@
 'use client';
 
 import type { OwnerCustomerDeliveryHistoryItem } from '../../types';
+import Badge from '../ui/badge';
 
 const DeliveryHistoryRow = ({
   row,
 }: {
   row: OwnerCustomerDeliveryHistoryItem;
 }) => {
-  const statusBadge =
-    row.status === 'delivered' ? (
-      <span className='inline-flex items-center gap-1.5 py-1 px-3 rounded-full bg-primary/10 text-primary text-xs font-bold'>
-        <span className='material-symbols-outlined text-[14px]'>
-          check_circle
-        </span>
-        Confirmed
-      </span>
-    ) : row.status === 'pending' ? (
-      <span className='inline-flex items-center gap-1.5 py-1 px-3 rounded-full bg-amber-100 text-amber-600 text-xs font-bold'>
-        <span className='material-symbols-outlined text-[14px]'>schedule</span>
-        Pending
-      </span>
-    ) : (
-      <span className='inline-flex items-center gap-1.5 py-1 px-3 rounded-full bg-red-100 text-red-600 text-xs font-bold'>
-        <span className='material-symbols-outlined text-[14px]'>cancel</span>
-        Cancelled
-      </span>
-    );
-
   const totalQty = row.cowQty + row.buffaloQty;
 
   const dayLabel = new Date(`${row.date}T00:00:00`).toLocaleDateString(
@@ -73,7 +54,21 @@ const DeliveryHistoryRow = ({
       <td className='px-6 py-4 text-sm text-center font-bold text-[#111418]'>
         ₹ {row.totalAmount}
       </td>
-      <td className='px-6 py-4 text-center'>{statusBadge}</td>
+      <td className='px-6 py-4 text-center'>
+        <Badge
+          variant={
+            row.status === 'delivered'
+              ? 'primary'
+              : row.status === 'cancelled'
+                ? 'danger'
+                : 'warning'
+          }
+          className='capitalize'
+          icon
+        >
+          {row.status}
+        </Badge>
+      </td>
     </tr>
   );
 };

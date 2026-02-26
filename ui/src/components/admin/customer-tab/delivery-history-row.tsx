@@ -11,12 +11,7 @@ import type {
 import { updateDailyMilk } from '../../../lib/daily-milk';
 
 import EditDeliveryModal from '../../modal/admin/edit-delivery';
-
-const statusClasses: Record<OwnerCustomerDeliveryStatus, string> = {
-  delivered: 'bg-emerald-100 text-emerald-700',
-  pending: 'bg-amber-100 text-amber-700',
-  cancelled: 'bg-rose-100 text-rose-700',
-};
+import Badge from '../../../components/ui/badge';
 
 const formatDate = (dateValue: string) => {
   const date = new Date(dateValue);
@@ -108,12 +103,19 @@ const DeliveryHistoryRow = ({
           {row.buffaloQty > 0 ? `${row.buffaloQty.toFixed(1)} L` : '-'}
         </td>
         <td className='px-6 py-5'>
-          <span
-            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold capitalize ${statusClasses[row.status]}`}
+          <Badge
+            variant={
+              row.status === 'delivered'
+                ? 'success'
+                : row.status === 'cancelled'
+                  ? 'danger'
+                  : 'warning'
+            }
+            className='capitalize'
+            icon
           >
-            <span className='size-1.5 rounded-full bg-current'></span>
             {row.status}
-          </span>
+          </Badge>
         </td>
         <td className='px-6 py-4 text-center'>
           {row.notes ? (

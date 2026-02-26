@@ -1,11 +1,11 @@
 'use client';
 
-import { useContext } from 'react';
-import { useRouter } from 'next/navigation';
+import { useContext, useState } from 'react';
 
 import { UserContext } from '../../../app/context/user-context';
 
 import Loader from '../../../components/loader';
+import Modal from '../../../components/modal';
 import Button from '../../../components/ui/button';
 
 import { OnboardingLayoutProps } from './../../../types';
@@ -19,7 +19,15 @@ const OnboardingLayout = ({
   submitLoading,
 }: OnboardingLayoutProps) => {
   const { loading, handleLogout } = useContext(UserContext);
-  const router = useRouter();
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [logoutLoading, setLogoutLoading] = useState(false);
+
+  const handleConfirmLogout = async () => {
+    setLogoutLoading(true);
+    await handleLogout();
+    setLogoutLoading(false);
+    setShowLogoutConfirm(false);
+  };
 
   if (loading) {
     return <Loader variant='screen' />;
@@ -84,8 +92,7 @@ const OnboardingLayout = ({
                 variant='link'
                 className='font-bold'
                 onClick={() => {
-                  handleLogout();
-                  router.replace('/login');
+                  setShowLogoutConfirm(true);
                 }}
               >
                 Log in
@@ -94,6 +101,23 @@ const OnboardingLayout = ({
           </div>
         </div>
       </main>
+
+      <Modal
+        open={showLogoutConfirm}
+        title='Log out?'
+        description='You will be signed out and taken to the login page.'
+        submitText='Log out'
+        cancelText='Stay here'
+        loading={logoutLoading}
+        variant='warning'
+        icon='warning'
+        onSubmit={handleConfirmLogout}
+        onClose={() => setShowLogoutConfirm(false)}
+      >
+        <p className='text-sm text-gray-600'>
+          If you still need to finish onboarding, click “Stay here.”
+        </p>
+      </Modal>
       {/* <!-- Footer Footer (Minimal) --> */}
       <footer className='pt-8 text-center'>
         <p className='text-blue-placeholder text-xs'>

@@ -24,6 +24,7 @@ import { useCloudinaryImageUpload } from '../../../hooks/use-cloudinary-image-up
 
 const buildInitialFormData = (user: User | null): OwnerSettingsFormData => ({
   fullName: user?.fullName ?? '',
+  dairyName: user?.ownerSettings?.dairyName ?? '',
   email: user?.email ?? '',
   mobileNumber: user?.mobileNumber ?? '',
   address: user?.address ?? '',
@@ -105,6 +106,10 @@ const validateForm = (data: OwnerSettingsFormData): OwnerSettingsFormErrors => {
 
   if (!data.fullName.trim() || data.fullName.trim().length < 2) {
     errors.fullName = 'Full name must have at least 2 characters.';
+  }
+
+  if (!data.dairyName.trim() || data.dairyName.trim().length < 2) {
+    errors.dairyName = 'Dairy name must have at least 2 characters.';
   }
 
   if (!data.address.trim() || data.address.trim().length < 5) {
@@ -199,8 +204,7 @@ const Settings = () => {
         fullName: formData.fullName.trim(),
         address: formData.address.trim(),
         profileImageUrl: finalProfileImageUrl,
-        dairyName:
-          user.ownerSettings?.dairyName ?? `${formData.fullName} dairy`,
+        dairyName: formData.dairyName.trim(),
         cowEnabled: milkConfig.cow.enabled,
         cowPrice: milkConfig.cow.enabled ? Number(milkConfig.cow.price) : 0,
         buffaloEnabled: milkConfig.buffalo.enabled,
@@ -313,27 +317,51 @@ const Settings = () => {
           </div>
 
           <div className='p-6 space-y-4'>
-            <div>
-              <label className='block text-sm font-medium text-slate-700 mb-2'>
-                Full Name <Mandatory />
-              </label>
-              <input
-                className={`w-full px-4 py-3 bg-slate-50 border rounded-lg focus:ring-2 outline-none transition-all ${
-                  errors.fullName
-                    ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500'
-                    : 'border-slate-200 focus:ring-primary/20 focus:border-primary'
-                }`}
-                type='text'
-                value={formData.fullName}
-                onChange={(event) =>
-                  handleChange('fullName', event.target.value)
-                }
-              />
-              {errors.fullName && (
-                <p className='mt-1 text-xs text-red-600'>{errors.fullName}</p>
-              )}
-            </div>
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+              <div>
+                <label className='block text-sm font-medium text-slate-700 mb-2'>
+                  Full Name <Mandatory />
+                </label>
+                <input
+                  className={`w-full px-4 py-3 bg-slate-50 border rounded-lg focus:ring-2 outline-none transition-all ${
+                    errors.fullName
+                      ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500'
+                      : 'border-slate-200 focus:ring-primary/20 focus:border-primary'
+                  }`}
+                  type='text'
+                  value={formData.fullName}
+                  onChange={(event) =>
+                    handleChange('fullName', event.target.value)
+                  }
+                />
+                {errors.fullName && (
+                  <p className='mt-1 text-xs text-red-600'>{errors.fullName}</p>
+                )}
+              </div>
+
+              <div>
+                <label className='block text-sm font-medium text-slate-700 mb-2'>
+                  Dairy Name <Mandatory />
+                </label>
+                <input
+                  className={`w-full px-4 py-3 bg-slate-50 border rounded-lg focus:ring-2 outline-none transition-all ${
+                    errors.dairyName
+                      ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500'
+                      : 'border-slate-200 focus:ring-primary/20 focus:border-primary'
+                  }`}
+                  type='text'
+                  value={formData.dairyName}
+                  onChange={(event) =>
+                    handleChange('dairyName', event.target.value)
+                  }
+                />
+                {errors.dairyName && (
+                  <p className='mt-1 text-xs text-red-600'>
+                    {errors.dairyName}
+                  </p>
+                )}
+              </div>
+
               <div className='space-y-2'>
                 <label className='text-sm font-medium text-[#637588]'>
                   Mobile Number <Mandatory />

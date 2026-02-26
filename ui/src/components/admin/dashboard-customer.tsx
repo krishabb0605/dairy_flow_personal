@@ -10,6 +10,7 @@ import { FALLBACK_CUSTOMER_PROFILE_IMAGE } from '../../constants';
 import { updateDailyMilk } from '../../lib/daily-milk';
 
 import EditDeliveryModal from '../modal/admin/edit-delivery';
+import Badge from '../ui/badge';
 
 const DashboardCustomer = ({ slotDeliverie, setDeliveries }: any) => {
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -58,19 +59,18 @@ const DashboardCustomer = ({ slotDeliverie, setDeliveries }: any) => {
         </td>
 
         <td className='px-6 py-4 capitalize font-medium'>
-          <span
-            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border
-      ${
-        slotDeliverie.status === 'PENDING'
-          ? 'bg-amber-50 text-amber-700 border-amber-100'
-          : slotDeliverie.status === 'DELIVERED'
-            ? 'bg-emerald-100 text-emerald-700 border-emerald-200'
-            : 'bg-red-100 text-red-700 border-red-200'
-      }
-    `}
+          <Badge
+            variant={
+              slotDeliverie.status === 'DELIVERED'
+                ? 'success'
+                : slotDeliverie.status === 'CANCELLED'
+                  ? 'danger'
+                  : 'warning'
+            }
+            className='capitalize'
           >
             {slotDeliverie.status.toLowerCase()}
-          </span>
+          </Badge>
         </td>
 
         <td className='px-6 py-4 text-sm text-slate-600'>
@@ -91,27 +91,27 @@ const DashboardCustomer = ({ slotDeliverie, setDeliveries }: any) => {
               </Button>
             ) : null}
 
-          {isEditOpen ? (
-            <span className='text-xs text-slate-500'>Editing…</span>
-          ) : (
-            <div className='relative'>
-              <select
-                value={slotDeliverie.status}
-                onChange={(e) => handleStatusChange(e.target.value)}
-                className='appearance-none border border-slate-200 bg-white text-slate-700 text-xs font-medium rounded-full pl-3 pr-8 py-1.5 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition disabled:opacity-50'
-                disabled={statusUpdating}
-              >
-                <option value='PENDING'>Pending</option>
-                <option value='DELIVERED'>Delivered</option>
-                <option value='CANCELLED'>Cancelled</option>
-              </select>
-              <span className='pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 text-base leading-none'>
-                ▾
-              </span>
-            </div>
-          )}
-        </div>
-      </td>
+            {isEditOpen ? (
+              <span className='text-xs text-slate-500'>Editing…</span>
+            ) : (
+              <div className='relative'>
+                <select
+                  value={slotDeliverie.status}
+                  onChange={(e) => handleStatusChange(e.target.value)}
+                  className='appearance-none border border-slate-200 bg-white text-slate-700 text-xs font-medium rounded-full pl-3 pr-8 py-1.5 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition disabled:opacity-50'
+                  disabled={statusUpdating}
+                >
+                  <option value='PENDING'>Pending</option>
+                  <option value='DELIVERED'>Delivered</option>
+                  <option value='CANCELLED'>Cancelled</option>
+                </select>
+                <span className='pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 text-base leading-none'>
+                  ▾
+                </span>
+              </div>
+            )}
+          </div>
+        </td>
       </tr>
       <EditDeliveryModal
         open={isEditOpen}

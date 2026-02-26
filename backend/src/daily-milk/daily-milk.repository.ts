@@ -44,6 +44,26 @@ export class DailyMilkRepository {
     });
   }
 
+  async groupMonthlyTotals(params: { startDate: Date; endDate: Date }) {
+    const { startDate, endDate } = params;
+
+    return this.prisma.dailyMilk.groupBy({
+      by: ['customerOwnerId'],
+      where: {
+        deliveryDate: {
+          gte: startDate,
+          lte: endDate,
+        },
+        status: 'DELIVERED',
+      },
+      _sum: {
+        cowQty: true,
+        buffaloQty: true,
+        totalAmount: true,
+      },
+    });
+  }
+
   async upsertDailyMilkEntries(
     entries: Array<{
       customerOwnerId: number;

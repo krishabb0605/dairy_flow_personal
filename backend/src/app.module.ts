@@ -13,6 +13,7 @@ import { CustomerOwnerModule } from './customer-owner/customer-owner.module.js';
 import { ExtraMilkOrderModule } from './extra-milk-order/extra-milk-order.module.js';
 import { ScheduleVacationModule } from './schedule-vacation/schedule-vacation.module.js';
 import { DailyMilkModule } from './daily-milk/daily-milk.module.js';
+import { InvoiceModule } from './invoice/invoice.module.js';
 import { CustomerSettingsModule } from './customer-settings/customer-settings.module.js';
 
 @Module({
@@ -24,6 +25,7 @@ import { CustomerSettingsModule } from './customer-settings/customer-settings.mo
     ExtraMilkOrderModule,
     ScheduleVacationModule,
     DailyMilkModule,
+    InvoiceModule,
     CustomerSettingsModule,
   ],
   controllers: [AppController],

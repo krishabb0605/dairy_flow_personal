@@ -1,64 +1,128 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useParams } from 'next/navigation';
+import { toast } from 'react-toastify';
 
 import Pagination from '../../../components/pagination';
 import Button from '../../../components/ui/button';
+import { Table, TableBody, TableHead } from '../../../components/ui/table';
 
-import { billingHistory } from '../../../constants';
-import type { BillingStatusFilter } from '../../../types';
+import type {
+  BillingStatusFilter,
+  CustomerBillingResponse,
+  OwnerBillingApiStatus,
+} from '../../../types';
+import { getCustomerBilling } from '../../../lib/invoice';
+import CustomerBillingHistoryRow from './billing-history-row';
 
 const ITEMS_PER_PAGE = 4;
 
-const normalizeStatus = (status: string) => status.trim().toLowerCase();
-
-const extractYear = (month: string) => {
-  const parts = month.split(' ');
-  return parts[parts.length - 1];
-};
-
 const CustomerBillingHistory = () => {
+  const params = useParams<{ id: string }>();
   const [page, setPage] = useState(1);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<BillingStatusFilter>('all');
   const [yearFilter, setYearFilter] = useState('all');
+  const [rows, setRows] = useState<
+    {
+      id: string;
+      month: string;
+      range: string;
+      qty: string;
+      amount: string;
+      status: OwnerBillingApiStatus;
+    }[]
+  >([]);
+  const [years, setYears] = useState<string[]>([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const fetchBillingRef = useRef(false);
 
-  const availableYears = useMemo(() => {
-    const years = new Set(
-      billingHistory.map((item) => extractYear(item.month)),
-    );
-    return Array.from(years).sort((a, b) => Number(b) - Number(a));
-  }, []);
-
-  const filteredRows = useMemo(() => {
-    return billingHistory.filter((item) => {
-      const matchesSearch =
-        !search ||
-        item.month.toLowerCase().includes(search) ||
-        item.range.toLowerCase().includes(search);
-
-      if (!matchesSearch) return false;
-      if (yearFilter !== 'all' && extractYear(item.month) !== yearFilter)
-        return false;
-      if (
-        statusFilter !== 'all' &&
-        normalizeStatus(item.status) !== statusFilter
-      ) {
-        return false;
-      }
-
-      return true;
-    });
-  }, [search, statusFilter, yearFilter]);
-
-  const totalPages = Math.max(
-    1,
-    Math.ceil(filteredRows.length / ITEMS_PER_PAGE),
+  const availableYears = useMemo(
+    () => [...years].sort((a, b) => Number(b) - Number(a)),
+    [years],
   );
-  const start = (page - 1) * ITEMS_PER_PAGE;
-  const currentRows = filteredRows.slice(start, start + ITEMS_PER_PAGE);
+
+  const formatMonthLabel = (billYear: number, billMonth: number) =>
+    new Intl.DateTimeFormat('en-US', {
+      month: 'long',
+      year: 'numeric',
+    }).format(new Date(Date.UTC(billYear, billMonth - 1, 1)));
+
+  const formatMonthRange = (billYear: number, billMonth: number) => {
+    const start = new Date(Date.UTC(billYear, billMonth - 1, 1));
+    const end = new Date(Date.UTC(billYear, billMonth, 0));
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      day: '2-digit',
+    });
+    return `${formatter.format(start)} - ${formatter.format(end)}`;
+  };
+
+  const formatCurrency = (amount: number) =>
+    new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 2,
+    }).format(amount);
+
+  const mapInvoice = (
+    invoice: CustomerBillingResponse['invoices'][number],
+  ) => ({
+    id: `INV-${invoice.id}`,
+    month: formatMonthLabel(invoice.billYear, invoice.billMonth),
+    range: formatMonthRange(invoice.billYear, invoice.billMonth),
+    qty: `${invoice.cowMilkQtyTotal + invoice.buffaloMilkQtyTotal} L`,
+    amount: formatCurrency(invoice.totalAmount),
+    status: invoice.status,
+  });
+
+  const fetchBilling = useCallback(async () => {
+    const customerOwnerId = Number(params.id);
+
+    if (!Number.isFinite(customerOwnerId)) {
+      setRows([]);
+      setYears([]);
+      setTotalPages(1);
+      setLoading(false);
+      return;
+    }
+
+    if (fetchBillingRef.current) return;
+    fetchBillingRef.current = true;
+
+    try {
+      setLoading(true);
+      const data = await getCustomerBilling({
+        customerOwnerId,
+        page,
+        limit: ITEMS_PER_PAGE,
+        search,
+        status: statusFilter,
+        year: yearFilter,
+      });
+      setRows(data.invoices.map(mapInvoice));
+      setYears(data.years.map((item) => String(item)));
+      setTotalPages(data.totalPages);
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : 'Failed to fetch billing.';
+      toast.error(message);
+      setRows([]);
+      setYears([]);
+      setTotalPages(1);
+    } finally {
+      setLoading(false);
+      fetchBillingRef.current = false;
+    }
+  }, [page, params.id, search, statusFilter, yearFilter]);
+
+  useEffect(() => {
+    fetchBilling();
+  }, [fetchBilling]);
 
   return (
     <div className='bg-white rounded-xl border border-slate-200 shadow-sm mt-8'>
@@ -96,7 +160,10 @@ const CustomerBillingHistory = () => {
                     placeholder='Search month or range...'
                     type='text'
                     value={search}
-                    onChange={(e) => setSearch(e.target.value)}
+                    onChange={(e) => {
+                      setSearch(e.target.value);
+                      setPage(1);
+                    }}
                   />
                 </div>
               </div>
@@ -107,7 +174,10 @@ const CustomerBillingHistory = () => {
                 </label>
                 <select
                   value={yearFilter}
-                  onChange={(e) => setYearFilter(e.target.value)}
+                  onChange={(e) => {
+                    setYearFilter(e.target.value);
+                    setPage(1);
+                  }}
                   className='w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none text-slate-700'
                 >
                   <option value='all'>All Years</option>
@@ -126,13 +196,18 @@ const CustomerBillingHistory = () => {
                 <select
                   value={statusFilter}
                   onChange={(e) =>
-                    setStatusFilter(e.target.value as BillingStatusFilter)
+                    {
+                      setStatusFilter(e.target.value as BillingStatusFilter);
+                      setPage(1);
+                    }
                   }
                   className='w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none text-slate-700'
                 >
                   <option value='all'>All Statuses</option>
-                  <option value='paid'>Paid</option>
-                  <option value='pending'>Pending</option>
+                  <option value='UNPAID'>Unpaid</option>
+                  <option value='PENDING_COD'>Pending COD</option>
+                  <option value='PAID'>Paid</option>
+                  <option value='FAILED'>Failed</option>
                 </select>
               </div>
 
@@ -155,87 +230,31 @@ const CustomerBillingHistory = () => {
 
       <div className='overflow-hidden rounded-xl bg-white'>
         <div className='overflow-x-auto'>
-          <table className='w-full text-left text-sm'>
-            <thead className='bg-primary/5 text-xs font-bold uppercase tracking-wider text-slate-500 '>
+          <Table className='text-sm'>
+            <TableHead className='bg-primary/5 text-xs font-bold uppercase tracking-wider text-slate-500'>
               <tr className='border-b border-slate-200'>
                 <th className='px-6 py-4'>Month</th>
                 <th className='px-6 py-4'>Range</th>
                 <th className='px-6 py-4'>Qty</th>
                 <th className='px-6 py-4'>Amount</th>
                 <th className='px-6 py-4 text-center'>Status</th>
-                <th className='px-6 py-4 text-right'>Actions</th>
               </tr>
-            </thead>
-            <tbody className='divide-y divide-primary/5'>
-              {currentRows.map((item, index) => (
-                <tr
-                  className='group hover:bg-primary/5 transition-colors'
-                  key={`${item.month}-${index}`}
-                >
-                  <td className='whitespace-nowrap px-6 py-4 font-medium'>
-                    {item.month}
-                  </td>
-                  <td className='px-6 py-4'>{item.range}</td>
-                  <td className='px-6 py-4 font-mono text-xs text-slate-500'>
-                    {item.qty}
-                  </td>
-                  <td className='px-6 py-4 font-bold text-slate-900 '>
-                    {item.amount}
-                  </td>
-                  <td className='px-6 py-4 text-center'>
-                    <span
-                      className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold tracking-wider capitalize ${
-                        normalizeStatus(item.status) === 'paid'
-                          ? 'bg-green-100 text-green-700'
-                          : 'bg-red-100 text-red-600'
-                      }`}
-                    >
-                      <span
-                        className={`h-1.5 w-1.5 rounded-full ${
-                          normalizeStatus(item.status) === 'paid'
-                            ? 'bg-green-500'
-                            : 'bg-rose-500'
-                        }`}
-                      />
-                      {item.status}
-                    </span>
-                  </td>
-                  <td className='px-6 py-4 text-right'>
-                    <div className='flex justify-end items-center gap-2'>
-                      {normalizeStatus(item.status) === 'paid' && (
-                        <Button
-                          variant='ghost-primary'
-                          className='flex items-center justify-center h-8 w-8 rounded-lg text-slate-400 transition-all'
-                          title='Download PDF'
-                        >
-                          <span className='material-symbols-outlined text-[20px]'>
-                            download
-                          </span>
-                        </Button>
-                      )}
-                      {normalizeStatus(item.status) !== 'paid' && (
-                        <Button
-                          variant='success-soft'
-                          className='px-3 py-1 text-xs font-bold rounded transition-all'
-                        >
-                          Mark Paid
-                        </Button>
-                      )}
-
-                      <Button
-                        variant='ghost-primary'
-                        className='flex items-center justify-center h-8 w-8 text-primary p-2 rounded-lg transition cursor-pointer'
-                      >
-                        <span className='material-symbols-outlined'>
-                          visibility
-                        </span>
-                      </Button>
-                    </div>
+            </TableHead>
+            <TableBody>
+              {loading ? (
+                <tr>
+                  <td
+                    colSpan={6}
+                    className='px-6 py-10 text-center text-sm text-slate-500'
+                  >
+                    Loading billing records...
                   </td>
                 </tr>
-              ))}
-
-              {currentRows.length === 0 && (
+              ) : rows.length > 0 ? (
+                rows.map((item) => (
+                  <CustomerBillingHistoryRow item={item} key={item.id} />
+                ))
+              ) : (
                 <tr>
                   <td
                     colSpan={6}
@@ -245,11 +264,11 @@ const CustomerBillingHistory = () => {
                   </td>
                 </tr>
               )}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
 
-        {currentRows.length > 0 && (
+        {rows.length > 0 && (
           <Pagination page={page} totalPages={totalPages} setPage={setPage} />
         )}
       </div>

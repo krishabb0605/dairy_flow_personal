@@ -10,6 +10,7 @@ import ContentLayout from '../../../components/layout';
 import Pagination from '../../../components/pagination';
 import Loader from '../../../components/loader';
 import Button from '../../../components/ui/button';
+import { Table, TableBody, TableHead } from '../../../components/ui/table';
 
 import { FALLBACK_CUSTOMER_PROFILE_IMAGE } from '../../../constants';
 import type { OwnerCustomer, OwnerCustomerStatusFilter } from '../../../types';
@@ -18,6 +19,7 @@ import {
   createCustomerOwner,
   getOwnerCustomers,
 } from '../../../lib/customerOwner';
+import Badge from '../../../components/ui/badge';
 
 const ITEMS_PER_PAGE = 3;
 
@@ -290,8 +292,8 @@ const OwnerCustomersPage = () => {
         ) : (
           <div className='bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden'>
             <div className='overflow-x-auto'>
-              <table className='w-full text-left border-collapse'>
-                <thead>
+              <Table>
+                <TableHead>
                   <tr className='border-b border-slate-200 bg-slate-50'>
                     <th className='px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider'>
                       Name
@@ -322,8 +324,8 @@ const OwnerCustomersPage = () => {
                       Actions
                     </th>
                   </tr>
-                </thead>
-                <tbody className='divide-y divide-primary/5'>
+                </TableHead>
+                <TableBody>
                   {!customersLoading &&
                     customers.map((customer) => (
                       <tr
@@ -365,15 +367,16 @@ const OwnerCustomersPage = () => {
                         </td>
 
                         <td className='px-6 py-4'>
-                          <span
-                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                          <Badge
+                            variant={
                               customer.status === 'active'
-                                ? 'bg-primary/20 text-primary'
-                                : 'bg-orange-100 text-orange-600'
-                            }`}
+                                ? 'primary'
+                                : 'warning'
+                            }
+                            className='capitalize'
                           >
                             {customer.status}
-                          </span>
+                          </Badge>
                         </td>
                         <td className='px-6 py-4 text-right'>
                           <Link
@@ -398,8 +401,8 @@ const OwnerCustomersPage = () => {
                       </td>
                     </tr>
                   )}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
 
             {customers.length > 0 && (

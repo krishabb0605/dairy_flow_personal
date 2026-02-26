@@ -358,20 +358,104 @@ export type OwnerCustomerTab =
   | 'delivery-history'
   | 'billing-history';
 
-export type OwnerBillingStatus = 'paid' | 'pending';
+export type OwnerBillingApiStatus =
+  | 'UNPAID'
+  | 'PENDING_COD'
+  | 'PAID'
+  | 'FAILED';
+
+export type OwnerBillingApiItem = {
+  id: number;
+  billYear: number;
+  billMonth: number;
+  cowMilkQtyTotal: number;
+  buffaloMilkQtyTotal: number;
+  totalAmount: number;
+  status: OwnerBillingApiStatus;
+  customerName: string;
+  customerMobile: string;
+  notes?: string | null;
+};
+
+export type CustomerBillingApiItem = {
+  id: number;
+  billYear: number;
+  billMonth: number;
+  cowMilkQtyTotal: number;
+  buffaloMilkQtyTotal: number;
+  totalAmount: number;
+  status: OwnerBillingApiStatus;
+  paymentMethod: 'STRIPE' | 'COD';
+};
+
+export type OwnerBillingResponse = {
+  invoices: OwnerBillingApiItem[];
+  page: number;
+  limit: number;
+  totalPages: number;
+  totalItems: number;
+  totalPending: number;
+  totalCollected: number;
+  totalLitersDelivered: number;
+  years: number[];
+};
+
+export type CustomerBillingResponse = {
+  invoices: CustomerBillingApiItem[];
+  alertInvoices: CustomerBillingApiItem[];
+  page: number;
+  limit: number;
+  totalPages: number;
+  totalItems: number;
+  years: number[];
+};
 
 export type OwnerBillingRecord = {
+  invoiceId: number;
   id: string;
   customerName: string;
   mobile: string;
   month: string;
   qty: number;
   amount: number;
-  status: OwnerBillingStatus;
+  status: OwnerBillingApiStatus;
+  notes?: string | null;
+};
+
+export type CustomerBillingRecord = {
+  invoiceId: number;
+  id: string;
+  billYear: number;
+  billMonth: number;
+  month: string;
+  range: string;
+  qty: number;
+  amount: number;
+  status: OwnerBillingApiStatus;
+  paymentMethod: 'STRIPE' | 'COD';
+};
+
+export type GetOwnerBillingParams = {
+  ownerId: number;
+  page: number;
+  limit: number;
+  search?: string;
+  status?: 'all' | OwnerBillingApiStatus;
+  year?: string;
+};
+
+export type GetCustomerBillingParams = {
+  customerOwnerId: number;
+  page: number;
+  limit: number;
+  search?: string;
+  status?: 'all' | OwnerBillingApiStatus;
+  year?: string;
 };
 
 export type OwnerSettingsFormData = {
   fullName: string;
+  dairyName: string;
   email: string;
   mobileNumber: string;
   address: string;
@@ -411,7 +495,7 @@ export type CustomerSettingsFormErrors = Partial<
 
 export type DeliveryShiftFilter = 'all' | 'morning' | 'evening';
 export type DeliveryStatusFilter = 'all' | OwnerCustomerDeliveryStatus;
-export type BillingStatusFilter = 'all' | 'paid' | 'pending';
+export type BillingStatusFilter = 'all' | OwnerBillingApiStatus;
 
 export type DeliveryCalendarProps = {
   customerSetting?: CustomerSettingConfig | null;
@@ -458,6 +542,20 @@ export type BillPdfProps = {
   totalEveningCow: number;
   totalEveningBuffalo: number;
   grandTotal: number;
+};
+
+export type CustomerInvoicePdfProps = {
+  dairyName: string;
+  customerName: string;
+  customerPhone: string;
+  customerAddress?: string;
+  invoiceId: string;
+  customerId: string;
+  billYear: number;
+  billMonth: number;
+  monthYear: string;
+  totalPaid: number;
+  records: BillPdfDailyRecord[];
 };
 
 export type ScheduleVacationProps = {
