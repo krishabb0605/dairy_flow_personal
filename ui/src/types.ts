@@ -448,6 +448,7 @@ export type GetCustomerBillingParams = {
   customerOwnerId: number;
   page: number;
   limit: number;
+  search?: string;
   status?: 'all' | OwnerBillingApiStatus;
   year?: string;
 };
@@ -494,7 +495,7 @@ export type CustomerSettingsFormErrors = Partial<
 
 export type DeliveryShiftFilter = 'all' | 'morning' | 'evening';
 export type DeliveryStatusFilter = 'all' | OwnerCustomerDeliveryStatus;
-export type BillingStatusFilter = 'all' | 'paid' | 'pending';
+export type BillingStatusFilter = 'all' | OwnerBillingApiStatus;
 
 export type DeliveryCalendarProps = {
   customerSetting?: CustomerSettingConfig | null;

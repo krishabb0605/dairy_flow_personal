@@ -48,8 +48,8 @@ export const dailyDeliveriesHistory = [
 ];
 
 export const billingHistory = [
-  
   {
+    id: 1,
     month: 'August 2023',
     range: 'Aug 01 - Aug 31',
     qty: '45.5 Liters',
@@ -57,6 +57,7 @@ export const billingHistory = [
     status: 'PAID',
   },
   {
+    id: 2,
     month: 'July 2023',
     range: 'Jul 01 - Jul 31',
     qty: '38.0 Liters',
@@ -64,6 +65,7 @@ export const billingHistory = [
     status: 'UNPAID',
   },
   {
+    id: 3,
     month: 'June 2023',
     range: 'June 01 - June 30',
     qty: '22.0 Liters',
@@ -71,6 +73,7 @@ export const billingHistory = [
     status: 'UNPAID',
   },
   {
+    id: 4,
     month: 'May 2023',
     range: 'May 01 - May 31',
     qty: '15.5 Liters',

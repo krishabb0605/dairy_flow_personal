@@ -48,6 +48,7 @@ export class InvoiceController {
     @Param('customerOwnerId', ParseIntPipe) customerOwnerId: number,
     @Query('page') page = '1',
     @Query('limit') limit = '10',
+    @Query('search') search = '',
     @Query('status') status = 'all',
     @Query('year') year = 'all',
   ) {
@@ -55,6 +56,7 @@ export class InvoiceController {
       this.invoiceService.getCustomerBilling(customerOwnerId, {
         page: Number(page),
         limit: Number(limit),
+        search,
         status,
         year,
       }),

@@ -197,6 +197,7 @@ export class InvoiceRepository {
     params: {
       page: number;
       limit: number;
+      search: string;
       status: string;
       year: string;
     },
@@ -207,6 +208,7 @@ export class InvoiceRepository {
     const safeLimit = Number.isFinite(params.limit)
       ? Math.max(1, params.limit)
       : 10;
+    const normalizedSearch = params.search.trim().toLowerCase();
     const normalizedStatus = params.status.trim().toUpperCase();
     const normalizedYear = params.year.trim();
     const allowedStatuses = new Set([
@@ -252,7 +254,34 @@ export class InvoiceRepository {
       new Set(mappedInvoices.map((invoice) => invoice.billYear)),
     ).sort((a, b) => b - a);
 
+    const formatMonthLabel = (billYear: number, billMonth: number) =>
+      new Intl.DateTimeFormat('en-US', {
+        month: 'long',
+        year: 'numeric',
+      }).format(new Date(Date.UTC(billYear, billMonth - 1, 1)));
+
+    const formatMonthRange = (billYear: number, billMonth: number) => {
+      const start = new Date(Date.UTC(billYear, billMonth - 1, 1));
+      const end = new Date(Date.UTC(billYear, billMonth, 0));
+      const formatter = new Intl.DateTimeFormat('en-US', {
+        month: 'short',
+        day: '2-digit',
+      });
+      return `${formatter.format(start)} - ${formatter.format(end)}`;
+    };
+
     const baseFiltered = mappedInvoices.filter((invoice) => {
+      const matchesSearch =
+        !normalizedSearch ||
+        formatMonthLabel(invoice.billYear, invoice.billMonth)
+          .toLowerCase()
+          .includes(normalizedSearch) ||
+        formatMonthRange(invoice.billYear, invoice.billMonth)
+          .toLowerCase()
+          .includes(normalizedSearch) ||
+        String(invoice.id).includes(normalizedSearch);
+
+      if (!matchesSearch) return false;
       if (statusFilter !== 'all' && invoice.status !== statusFilter) {
         return false;
       }

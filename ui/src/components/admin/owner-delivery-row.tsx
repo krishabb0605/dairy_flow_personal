@@ -124,7 +124,7 @@ const OwnerDeliveryRow = ({
 
         <td className='px-6 py-4 text-center'>
           <div
-            className={`flex ${delivery.status === 'PENDING' ? 'justify-center' : 'justify-end'} items-center gap-2`}
+            className={`flex justify-end items-center gap-2`}
           >
             {delivery.status === 'PENDING' && (
               <Button
