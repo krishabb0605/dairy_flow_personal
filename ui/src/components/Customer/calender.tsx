@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import Button from '../../components/ui/button';
 
@@ -20,7 +20,6 @@ export default function DeliveryCalendar({
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [records, setRecords] = useState<BillPdfDailyRecord[]>([]);
   const [calendarLoading, setCalendarLoading] = useState(true);
-  const fetchCalendarRef = useRef(false);
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -69,9 +68,6 @@ export default function DeliveryCalendar({
         return;
       }
 
-      if (fetchCalendarRef.current) return;
-      fetchCalendarRef.current = true;
-
       setCalendarLoading(true);
       try {
         const monthValue = new Date(Date.UTC(year, month, 1))
@@ -93,7 +89,6 @@ export default function DeliveryCalendar({
         setRecords(fallback);
       } finally {
         setCalendarLoading(false);
-        fetchCalendarRef.current = false;
       }
     };
 

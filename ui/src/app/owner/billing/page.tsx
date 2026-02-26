@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
 import { UserContext } from '../../context/user-context';
@@ -42,8 +42,6 @@ const OwnerBillingPage = () => {
   const [status, setStatus] = useState<'all' | OwnerBillingApiStatus>('all');
   const [year, setYear] = useState('all');
 
-  const fetchBillingRef = useRef(false);
-
   const handleSearch = () => {
     setPage(1);
     setSearchQuery(searchInput.trim());
@@ -68,9 +66,6 @@ const OwnerBillingPage = () => {
       setLoading(false);
       return;
     }
-
-    if (fetchBillingRef.current) return;
-    fetchBillingRef.current = true;
 
     try {
       setLoading(true);
@@ -113,7 +108,6 @@ const OwnerBillingPage = () => {
       setYears([]);
     } finally {
       setLoading(false);
-      fetchBillingRef.current = false;
     }
   }, [ownerId, page, searchQuery, status, year]);
 
@@ -268,9 +262,9 @@ const OwnerBillingPage = () => {
 
         <div className='bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden'>
           <div className='overflow-x-auto'>
-                <Table>
-                  <TableHead>
-                    <tr className='bg-slate-50 border-b border-slate-200'>
+            <Table>
+              <TableHead>
+                <tr className='bg-slate-50 border-b border-slate-200'>
                   <th className='px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider'>
                     Invoice
                   </th>
@@ -296,8 +290,8 @@ const OwnerBillingPage = () => {
                     Actions
                   </th>
                 </tr>
-                  </TableHead>
-                  <TableBody>
+              </TableHead>
+              <TableBody>
                 {loading ? (
                   <tr>
                     <td
@@ -329,8 +323,8 @@ const OwnerBillingPage = () => {
                     />
                   ))
                 )}
-                  </TableBody>
-                </Table>
+              </TableBody>
+            </Table>
           </div>
 
           {rows.length > 0 && (

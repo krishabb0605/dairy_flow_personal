@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import type {
   OwnerCustomerProfile,
@@ -38,7 +38,6 @@ const CustomerOverView = ({
   });
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const fetchUpcomingRef = useRef(false);
 
   useEffect(() => {
     const loadActivity = async () => {
@@ -47,9 +46,6 @@ const CustomerOverView = ({
         setLoading(false);
         return;
       }
-
-      if (fetchUpcomingRef.current) return;
-      fetchUpcomingRef.current = true;
 
       try {
         setLoading(true);
@@ -68,7 +64,6 @@ const CustomerOverView = ({
         setActivity({ extras: [], vacations: [] });
       } finally {
         setLoading(false);
-        fetchUpcomingRef.current = false;
       }
     };
 

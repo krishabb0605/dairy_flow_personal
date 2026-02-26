@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { pdf } from '@react-pdf/renderer';
 
@@ -47,8 +47,6 @@ const MonthlyBiling = () => {
   const [downloadingInvoiceId, setDownloadingInvoiceId] = useState<
     number | null
   >(null);
-
-  const fetchBillingRef = useRef(false);
 
   const customerOwnerId = user?.currentActiveOwner?.id;
 
@@ -100,9 +98,6 @@ const MonthlyBiling = () => {
       return;
     }
 
-    if (fetchBillingRef.current) return;
-    fetchBillingRef.current = true;
-
     try {
       setLoading(true);
       const data: CustomerBillingResponse = await getCustomerBilling({
@@ -127,7 +122,6 @@ const MonthlyBiling = () => {
       setYears([]);
     } finally {
       setLoading(false);
-      fetchBillingRef.current = false;
     }
   }, [customerOwnerId, page, status, year]);
 
@@ -232,9 +226,7 @@ const MonthlyBiling = () => {
       URL.revokeObjectURL(url);
     } catch (error: unknown) {
       const message =
-        error instanceof Error
-          ? error.message
-          : 'Failed to download invoice.';
+        error instanceof Error ? error.message : 'Failed to download invoice.';
       toast.error(message);
     } finally {
       setDownloadingInvoiceId(null);
@@ -420,7 +412,9 @@ const MonthlyBiling = () => {
                           onPayStripe={handleStripePay}
                           onDownloadInvoice={handleDownloadInvoice}
                           isPaying={payingInvoiceId === bill.invoiceId}
-                          isDownloading={downloadingInvoiceId === bill.invoiceId}
+                          isDownloading={
+                            downloadingInvoiceId === bill.invoiceId
+                          }
                         />
                       ))
                     )}

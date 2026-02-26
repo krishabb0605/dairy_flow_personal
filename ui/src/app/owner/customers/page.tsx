@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
 import { UserContext } from '../../context/user-context';
@@ -41,7 +41,6 @@ const OwnerCustomersPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] =
     useState<OwnerCustomerStatusFilter>('all');
-  const fetcheCustomersdRef = useRef(false);
 
   const handleSearch = () => {
     setPage(1);
@@ -50,8 +49,6 @@ const OwnerCustomersPage = () => {
 
   const fetchCustomers = useCallback(async () => {
     const ownerId = user?.ownerSettings?.id;
-    if (fetcheCustomersdRef.current) return;
-    fetcheCustomersdRef.current = true;
 
     if (!ownerId) {
       setCustomers([]);
@@ -93,7 +90,6 @@ const OwnerCustomersPage = () => {
       setTotalEveningLiters(0);
     } finally {
       setCustomersLoading(false);
-      fetcheCustomersdRef.current = false;
     }
   }, [page, searchQuery, statusFilter, user?.ownerSettings?.id]);
 

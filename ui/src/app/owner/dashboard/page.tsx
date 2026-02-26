@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
 import { UserContext } from '../../context/user-context';
@@ -31,7 +31,6 @@ const Dashboard = () => {
 
   const [searchInput, setSearchInput] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
-  const fetchedApiRef = useRef(false);
 
   const handleSearch = () => {
     setPage(1);
@@ -48,8 +47,6 @@ const Dashboard = () => {
 
   const fetchDashboard = useCallback(async () => {
     const ownerId = user?.ownerSettings?.id;
-    if (fetchedApiRef.current) return;
-    fetchedApiRef.current = true;
 
     if (!ownerId) {
       setDeliveries([]);
@@ -88,7 +85,6 @@ const Dashboard = () => {
       setTotalPages(1);
     } finally {
       setDashboardLoading(false);
-      fetchedApiRef.current = false;
     }
   }, [page, searchQuery, selectedSlot, user?.ownerSettings?.id]);
 
