@@ -13,6 +13,7 @@ import {
 import type { Request, Response } from 'express';
 
 import { ResponseHandler } from '../common/response.handler.js';
+import { Public } from '../common/decorators/public.decorator.js';
 
 import { InvoiceService } from './invoice.service.js';
 
@@ -92,6 +93,7 @@ export class InvoiceController {
   }
 
   @Post('stripe/webhook')
+  @Public()
   async handleStripeWebhook(@Req() req: Request, @Res() res: Response) {
     try {
       const signature = req.headers['stripe-signature'];

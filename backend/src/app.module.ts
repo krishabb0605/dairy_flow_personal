@@ -15,6 +15,7 @@ import { ScheduleVacationModule } from './schedule-vacation/schedule-vacation.mo
 import { DailyMilkModule } from './daily-milk/daily-milk.module.js';
 import { InvoiceModule } from './invoice/invoice.module.js';
 import { CustomerSettingsModule } from './customer-settings/customer-settings.module.js';
+import { FirebaseAuthGuard } from './common/guards/firebase-auth.guard.js';
 
 @Module({
   imports: [
@@ -29,6 +30,6 @@ import { CustomerSettingsModule } from './customer-settings/customer-settings.mo
     CustomerSettingsModule,
   ],
   controllers: [AppController],
-  providers: [AppService, UserRepository],
+  providers: [AppService, UserRepository, FirebaseAuthGuard],
 })
 export class AppModule {}
