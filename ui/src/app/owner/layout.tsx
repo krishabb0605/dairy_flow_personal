@@ -140,7 +140,7 @@ const OwnerLayout = ({ children }: { children: React.ReactNode }) => {
                 <div
                   className='bg-center bg-no-repeat aspect-square bg-cover rounded-full size-12 border border-[#dce0e5]'
                   style={{
-                    backgroundImage: `url(${FALLBACK_OWNER_PROFILE_IMAGE})`,
+                    backgroundImage: `url(${user?.profileImageUrl ?? FALLBACK_OWNER_PROFILE_IMAGE})`,
                   }}
                 ></div>
 

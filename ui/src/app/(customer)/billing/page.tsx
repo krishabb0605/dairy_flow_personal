@@ -197,7 +197,7 @@ const MonthlyBiling = () => {
       )}-01`;
       const calendar = await getCustomerMonthlyCalendar(customerOwnerId, {
         month,
-        status: 'DELIVERED'
+        status: 'DELIVERED',
       });
 
       const pdfDoc = (
@@ -432,11 +432,13 @@ const MonthlyBiling = () => {
                 onToggleShowAllDays={() => setShowAllDays((prev) => !prev)}
               />
 
-              <Pagination
-                page={page}
-                totalPages={totalPages}
-                setPage={setPage}
-              />
+              {rows.length > 0 && (
+                <Pagination
+                  page={page}
+                  totalPages={totalPages}
+                  setPage={setPage}
+                />
+              )}
             </div>
           </div>
         </div>

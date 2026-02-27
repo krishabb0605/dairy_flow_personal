@@ -1,6 +1,7 @@
 import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 
 import type { CustomerInvoicePdfProps } from '../../utils/types';
+import { formatCurrency } from '@/utils/constants';
 
 const pdfStyles = StyleSheet.create({
   page: {
@@ -256,7 +257,7 @@ const CustomerInvoicePdfDocument = ({
   totalPaid,
 }: CustomerInvoicePdfProps) => {
   const daysInMonth = new Date(Date.UTC(billYear, billMonth, 0)).getUTCDate();
-  const normalizedRecords = Array.from({ length: 31 }, (_, index) => {
+  const normalizedRecords = Array.from({ length: daysInMonth }, (_, index) => {
     const day = index + 1;
     return (
       records.find((record) => record.day === day) ?? {
@@ -336,9 +337,7 @@ const CustomerInvoicePdfDocument = ({
                 </Text>
               </View>
               <View style={pdfStyles.metaBox}>
-                <Text style={pdfStyles.metaValue}>
-                  Phone: {customerPhone}
-                </Text>
+                <Text style={pdfStyles.metaValue}>Phone: {customerPhone}</Text>
               </View>
             </View>
           </View>
@@ -426,7 +425,7 @@ const CustomerInvoicePdfDocument = ({
               <View style={pdfStyles.summaryRow}>
                 <Text style={{ color: '#64748b' }}>Monthly Subtotal</Text>
                 <Text style={{ fontWeight: 'bold' }}>
-                  ₹ {totalPaid.toFixed(2)}
+                  {formatCurrency(totalPaid)}
                 </Text>
               </View>
               <View style={pdfStyles.summaryRow}>
@@ -440,7 +439,7 @@ const CustomerInvoicePdfDocument = ({
                   AMOUNT DUE
                 </Text>
                 <Text style={pdfStyles.amountDueValue}>
-                  ₹ {totalPaid.toFixed(2)}
+                  {formatCurrency(totalPaid)}
                 </Text>
               </View>
               <View style={pdfStyles.paymentButton}>
