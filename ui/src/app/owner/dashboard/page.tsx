@@ -45,7 +45,7 @@ const Dashboard = () => {
       year: 'numeric',
     });
 
-  const isDayBeforeMonthEnd = (value?: string) => {
+  const isLastDayOfMonth = (value?: string) => {
     const baseDate = value ? new Date(`${value}T00:00:00`) : new Date();
 
     if (Number.isNaN(baseDate.getTime())) return false;
@@ -59,11 +59,11 @@ const Dashboard = () => {
     return (
       baseDate.getFullYear() === lastDay.getFullYear() &&
       baseDate.getMonth() === lastDay.getMonth() &&
-      baseDate.getDate() === lastDay.getDate() - 1
+      baseDate.getDate() === lastDay.getDate()
     );
   };
 
-  const isStatusChangeLocked = isDayBeforeMonthEnd(dashboardDate);
+  const isStatusChangeLocked = isLastDayOfMonth(dashboardDate);
 
   const fetchDashboard = useCallback(async () => {
     const ownerId = user?.ownerSettings?.id;

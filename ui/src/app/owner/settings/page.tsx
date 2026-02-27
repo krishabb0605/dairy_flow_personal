@@ -176,6 +176,8 @@ const Settings = () => {
     const validationErrors = validateForm(formData);
 
     if (Object.keys(validationErrors).length > 0) {
+      const firstErrorKey = Object.keys(validationErrors)[0] as keyof OwnerSettingsFormErrors;
+      toast.error(validationErrors[firstErrorKey]); // Show the first error as toast
       setErrors(validationErrors);
       return;
     }

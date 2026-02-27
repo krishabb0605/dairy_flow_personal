@@ -1,6 +1,8 @@
 'use client';
 
 import { useContext, useEffect, useMemo, useState } from 'react';
+import { toast } from 'react-toastify';
+import { pdf } from '@react-pdf/renderer';
 
 import { UserContext } from '../../../app/context/user-context';
 
@@ -10,6 +12,7 @@ import DeliveryHistoryRow from './delivery-history-row';
 import Loader from '../../../components/loader';
 import Button from '../../../components/ui/button';
 import { Table, TableBody, TableHead } from '../../../components/ui/table';
+import CustomerDeliveryHistoryPdfDocument from '../../../components/pdf/CustomerDeliveryHistoryPdfDocument';
 
 import { deliveryFilters } from '../../../utils/constants';
 import {
@@ -28,6 +31,7 @@ const DeliveriesHistory = () => {
   const [loading, setLoading] = useState(false);
   const [totalPages, setTotalPages] = useState(1);
   const [rows, setRows] = useState<OwnerCustomerDeliveryHistoryItem[]>([]);
+  const [downloading, setDownloading] = useState(false);
   const [statusCounts, setStatusCounts] = useState({
     delivered: 0,
     pending: 0,
@@ -181,6 +185,60 @@ const DeliveriesHistory = () => {
       }),
       [statusCounts],
     );
+
+  const handleExportPdf = async () => {
+    if (!customerOwnerId || downloading) return;
+    try {
+      setDownloading(true);
+      const [yearStr, monthStr] = selectedMonth.split('-');
+      const year = Number(yearStr);
+      const monthIndex = Number(monthStr) - 1;
+      const isValidMonth =
+        Number.isFinite(year) && Number.isFinite(monthIndex);
+      const today = new Date();
+      const isCurrentMonth =
+        isValidMonth &&
+        year === today.getFullYear() &&
+        monthIndex === today.getMonth();
+
+      const exportEndDate = isCurrentMonth
+        ? today.toISOString().slice(0, 10)
+        : monthRange.endDate;
+
+      const data = await getCustomerDeliveryHistory(customerOwnerId, {
+        page: 1,
+        limit: 200,
+        status: statusFilter,
+        slot: 'all',
+        startDate: monthRange.startDate,
+        endDate: exportEndDate,
+      });
+
+      const pdfDoc = (
+        <CustomerDeliveryHistoryPdfDocument
+          customerName={user?.fullName ?? 'Customer'}
+          monthLabel={monthLabel}
+          records={data.deliveries ?? []}
+        />
+      );
+
+      const blob = await pdf(pdfDoc).toBlob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `delivery-history-${selectedMonth}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : 'Failed to export PDF.';
+      toast.error(message);
+    } finally {
+      setDownloading(false);
+    }
+  };
   return (
     <ContentLayout title='Delivery History'>
       <main className='flex-1 flex flex-col gap-6'>
@@ -214,11 +272,13 @@ const DeliveriesHistory = () => {
               variant='primary'
               size='md'
               className='flex items-center justify-center rounded-lg font-bold gap-2 shadow-md shadow-primary/20'
+              onClick={handleExportPdf}
+              disabled={downloading}
             >
               <span className='material-symbols-outlined text-[20px]'>
                 download
               </span>
-              <span>Export PDF</span>
+              <span>{downloading ? 'Preparing...' : 'Export PDF'}</span>
             </Button>
           </div>
         </div>
