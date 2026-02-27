@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import Image from 'next/image';
 
 import type { OwnerDeliveryHistoryItem } from '../../../utils/types';
+import { isPastMonth } from '../../../utils/constants';
 
 import { updateDailyMilk } from '../../../lib/daily-milk';
 
@@ -21,6 +22,8 @@ const OwnerDeliveryRow = ({
 }) => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [statusUpdating, setStatusUpdating] = useState(false);
+
+  const isStatusLocked = isPastMonth(delivery.date);
 
   const handleStatusChange = async (nextStatus: string) => {
     if (statusUpdating) return;
@@ -123,14 +126,13 @@ const OwnerDeliveryRow = ({
         </td>
 
         <td className='px-6 py-4 text-center'>
-          <div
-            className={`flex justify-end items-center gap-2`}
-          >
+          <div className={`flex justify-end items-center gap-2`}>
             {delivery.status === 'PENDING' && (
               <Button
                 onClick={() => setIsEditOpen(true)}
                 variant='link-subtle'
                 className='h-8 w-8 p-1.5'
+                disabled={isStatusLocked}
               >
                 <span className='material-symbols-outlined text-[20px]'>
                   edit
@@ -143,7 +145,7 @@ const OwnerDeliveryRow = ({
                 value={delivery.status}
                 onChange={(e) => handleStatusChange(e.target.value)}
                 className='appearance-none border border-slate-200 bg-white text-slate-700 text-xs font-medium rounded-full pl-3 pr-8 py-1.5 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition disabled:opacity-50'
-                disabled={statusUpdating}
+                disabled={statusUpdating || isStatusLocked}
               >
                 <option value='PENDING'>Pending</option>
                 <option value='DELIVERED'>Delivered</option>

@@ -3,6 +3,7 @@
 import type { DeliveryDayModalProps } from '../../../utils/types';
 
 import Modal from '../../modal';
+import Badge from '../../ui/badge';
 
 const DailyDeliverMilkModal = ({
   open,
@@ -21,6 +22,17 @@ const DailyDeliverMilkModal = ({
   const totalMorning = deliveryData.morningCow + deliveryData.morningBuffalo;
   const totalEvening = deliveryData.eveningCow + deliveryData.eveningBuffalo;
   const totalDay = totalMorning + totalEvening;
+  const morningStatus = record?.morningStatus ?? null;
+  const eveningStatus = record?.eveningStatus ?? null;
+
+  const statusLabel = (value: string | null) =>
+    value ? value.toLowerCase() : 'No record';
+  const statusVariant = (value: string | null) => {
+    if (!value) return 'gray';
+    if (value === 'DELIVERED') return 'success';
+    if (value === 'CANCELLED') return 'danger';
+    return 'warning';
+  };
 
   return (
     <Modal
@@ -44,9 +56,17 @@ const DailyDeliverMilkModal = ({
           <p className='text-sm text-slate-500'>Loading delivery data...</p>
         ) : null}
         <div className='rounded-xl border border-slate-200 bg-slate-50 p-4'>
-          <p className='text-xs font-bold uppercase tracking-wider text-primary mb-3'>
-            Morning
-          </p>
+          <div className='mb-3 flex items-center justify-between'>
+            <p className='text-xs font-bold uppercase tracking-wider text-primary'>
+              Morning
+            </p>
+            <Badge
+              variant={statusVariant(morningStatus)}
+              className='capitalize'
+            >
+              {statusLabel(morningStatus)}
+            </Badge>
+          </div>
           <div className='space-y-2 text-sm'>
             <div className='flex justify-between'>
               <span className='text-slate-600'>Cow Milk</span>
@@ -66,9 +86,17 @@ const DailyDeliverMilkModal = ({
         </div>
 
         <div className='rounded-xl border border-slate-200 bg-slate-50 p-4'>
-          <p className='text-xs font-bold uppercase tracking-wider text-primary mb-3'>
-            Evening
-          </p>
+          <div className='mb-3 flex items-center justify-between'>
+            <p className='text-xs font-bold uppercase tracking-wider text-primary'>
+              Evening
+            </p>
+            <Badge
+              variant={statusVariant(eveningStatus)}
+              className='capitalize'
+            >
+              {statusLabel(eveningStatus)}
+            </Badge>
+          </div>
           <div className='space-y-2 text-sm'>
             <div className='flex justify-between'>
               <span className='text-slate-600'>Cow Milk</span>

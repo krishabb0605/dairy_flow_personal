@@ -508,6 +508,8 @@ export type BillPdfDailyRecord = {
   morningBuffalo: number;
   eveningCow: number;
   eveningBuffalo: number;
+  morningStatus?: DeliveryStatus | null;
+  eveningStatus?: DeliveryStatus | null;
 };
 
 export type CustomerCalendarResponse = {

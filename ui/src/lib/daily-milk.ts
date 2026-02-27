@@ -94,11 +94,13 @@ export const getCustomerMonthlyCalendar = async (
   customerOwnerId: number,
   params?: {
     month?: string;
+    status?: string;
   },
 ): Promise<CustomerCalendarResponse> => {
   try {
     const searchParams = new URLSearchParams();
     if (params?.month) searchParams.set('month', params.month);
+    if (params?.status) searchParams.set('status', params.status);
 
     const query = searchParams.toString();
     const suffix = query ? `?${query}` : '';

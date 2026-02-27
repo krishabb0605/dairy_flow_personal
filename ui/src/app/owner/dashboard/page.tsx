@@ -45,6 +45,26 @@ const Dashboard = () => {
       year: 'numeric',
     });
 
+  const isDayBeforeMonthEnd = (value?: string) => {
+    const baseDate = value ? new Date(`${value}T00:00:00`) : new Date();
+
+    if (Number.isNaN(baseDate.getTime())) return false;
+
+    const lastDay = new Date(
+      baseDate.getFullYear(),
+      baseDate.getMonth() + 1,
+      0,
+    );
+
+    return (
+      baseDate.getFullYear() === lastDay.getFullYear() &&
+      baseDate.getMonth() === lastDay.getMonth() &&
+      baseDate.getDate() === lastDay.getDate() - 1
+    );
+  };
+
+  const isStatusChangeLocked = isDayBeforeMonthEnd(dashboardDate);
+
   const fetchDashboard = useCallback(async () => {
     const ownerId = user?.ownerSettings?.id;
 
@@ -111,6 +131,16 @@ const Dashboard = () => {
     >
       <main className='flex-1'>
         {/* <!-- Header --> */}
+        {isStatusChangeLocked && (
+          <div className='mb-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-amber-900'>
+            <p className='text-sm font-semibold'>Month-end reminder</p>
+            <p className='text-sm'>
+              Please mark all deliveries as delivered or cancelled today. Status
+              changes will be disabled after month-end invoice generation.
+            </p>
+          </div>
+        )}
+
         <header className='mb-8'>
           <div className='flex-1 w-full lg:w-auto rounded-full bg-white border border-[#d7e9ff] p-1 flex items-center overflow-hidden shadow-sm'>
             <div className='pl-3 pr-2 text-[#6a97c8] flex items-center justify-center'>
@@ -139,6 +169,7 @@ const Dashboard = () => {
             </Button>
           </div>
         </header>
+
         {/* <!-- Summary Cards --> */}
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8'>
           <div className='bg-white p-6 rounded-xl border border-slate-200 shadow-sm'>
