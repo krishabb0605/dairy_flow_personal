@@ -137,7 +137,7 @@ const GenerateBillPage = () => {
       setLoading(true);
       const profile = await getCustomerProfile(customerId);
       const month = `${year}-${String(monthIndex + 1).padStart(2, '0')}-01`;
-      const calendar = await getCustomerMonthlyCalendar(customerId, { month });
+      const calendar = await getCustomerMonthlyCalendar(customerId, { month, status: 'DELIVERED' });
 
       setSelectedCustomer(profile);
       setRecords(calendar.records ?? []);

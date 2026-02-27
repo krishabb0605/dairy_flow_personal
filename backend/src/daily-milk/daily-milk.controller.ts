@@ -69,10 +69,12 @@ export class DailyMilkController {
   getCustomerCalendar(
     @Param('customerOwnerId', ParseIntPipe) customerOwnerId: number,
     @Query('month') month?: string,
+    @Query('status') status?: string,
   ) {
     return this.responseHandler.sendResponse(
       this.dailyMilkService.getCustomerMonthlyCalendar(customerOwnerId, {
         month,
+        status,
       }),
     );
   }

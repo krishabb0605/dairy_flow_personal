@@ -1,17 +1,18 @@
 import { useState } from 'react';
 
 import Button from '../../../components/ui/button';
+import Badge from '../../../components/ui/badge';
 
 import type {
   OwnerCustomerDeliveryHistoryItem,
   OwnerCustomerDeliveryStatus,
   OwnerDelivery,
 } from '../../../utils/types';
+import { isPastMonth } from '../../../utils/constants';
 
 import { updateDailyMilk } from '../../../lib/daily-milk';
 
 import EditDeliveryModal from '../../modal/admin/edit-delivery';
-import Badge from '../../../components/ui/badge';
 
 const formatDate = (dateValue: string) => {
   const date = new Date(dateValue);
@@ -31,6 +32,8 @@ const DeliveryHistoryRow = ({
 }) => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [statusUpdating, setStatusUpdating] = useState(false);
+
+  const isStatusLocked = isPastMonth(row.date);
 
   const mapUpdated = (
     updated: OwnerDelivery,
@@ -139,6 +142,7 @@ const DeliveryHistoryRow = ({
                 variant='link-subtle'
                 className='h-8 w-8 p-1.5'
                 onClick={() => setIsEditOpen(true)}
+                disabled={isStatusLocked}
               >
                 <span className='material-symbols-outlined text-[20px]'>
                   edit
@@ -158,7 +162,7 @@ const DeliveryHistoryRow = ({
                     )
                   }
                   className='appearance-none border border-slate-200 bg-white text-slate-700 text-xs font-medium rounded-full pl-3 pr-8 py-1.5 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition disabled:opacity-50'
-                  disabled={statusUpdating}
+                  disabled={statusUpdating || isStatusLocked}
                 >
                   <option value='pending'>Pending</option>
                   <option value='delivered'>Delivered</option>

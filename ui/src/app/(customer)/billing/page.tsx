@@ -197,6 +197,7 @@ const MonthlyBiling = () => {
       )}-01`;
       const calendar = await getCustomerMonthlyCalendar(customerOwnerId, {
         month,
+        status: 'DELIVERED'
       });
 
       const pdfDoc = (

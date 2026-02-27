@@ -63,6 +63,8 @@ export default function DeliveryCalendar({
           morningBuffalo: 0,
           eveningCow: 0,
           eveningBuffalo: 0,
+          morningStatus: null,
+          eveningStatus: null,
         }));
         setRecords(fallback);
         return;
@@ -85,6 +87,8 @@ export default function DeliveryCalendar({
           morningBuffalo: 0,
           eveningCow: 0,
           eveningBuffalo: 0,
+          morningStatus: null,
+          eveningStatus: null,
         }));
         setRecords(fallback);
       } finally {

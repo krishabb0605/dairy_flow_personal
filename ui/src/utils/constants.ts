@@ -185,3 +185,14 @@ export const getBillingStatusVariant = (
   }
   return 'success';
 };
+
+export const isPastMonth = (dateValue: string) => {
+  const parsed = new Date(dateValue);
+  if (Number.isNaN(parsed.getTime())) return false;
+  const now = new Date();
+  return (
+    parsed.getFullYear() < now.getFullYear() ||
+    (parsed.getFullYear() === now.getFullYear() &&
+      parsed.getMonth() < now.getMonth())
+  );
+};

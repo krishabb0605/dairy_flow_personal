@@ -355,8 +355,9 @@ export class DailyMilkRepository {
     customerOwnerId: number;
     start: Date;
     end: Date;
+    status?: 'PENDING' | 'DELIVERED' | 'CANCELLED';
   }) {
-    const { customerOwnerId, start, end } = params;
+    const { customerOwnerId, start, end, status } = params;
     return this.prisma.dailyMilk.findMany({
       where: {
         customerOwnerId,
@@ -364,12 +365,14 @@ export class DailyMilkRepository {
           gte: start,
           lte: end,
         },
+        ...(status ? { status } : {}),
       },
       select: {
         deliveryDate: true,
         slot: true,
         cowQty: true,
         buffaloQty: true,
+        status: true,
       },
       orderBy: [{ deliveryDate: 'asc' }, { slot: 'asc' }],
     });

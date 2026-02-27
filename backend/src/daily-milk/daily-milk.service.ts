@@ -346,10 +346,12 @@ export class DailyMilkService {
     customerOwnerId: number,
     params: {
       month?: string;
+      status?: string;
     },
   ) {
-    const { month } = params;
+    const { month, status: rawStatus } = params;
     const baseDate = this.resolveCalendarMonth(month);
+    const status = this.normalizeStatus(rawStatus);
 
     const customerOwner =
       await this.customerOwnerRepository.findCustomerOwnerWithCustomer(
@@ -371,6 +373,7 @@ export class DailyMilkService {
       customerOwnerId,
       start,
       end,
+      status,
     });
 
     const daysInMonth = end.getUTCDate();
@@ -380,6 +383,8 @@ export class DailyMilkService {
       morningBuffalo: 0,
       eveningCow: 0,
       eveningBuffalo: 0,
+      morningStatus: null as 'PENDING' | 'DELIVERED' | 'CANCELLED' | null,
+      eveningStatus: null as 'PENDING' | 'DELIVERED' | 'CANCELLED' | null,
     }));
 
     for (const item of deliveries) {
@@ -390,9 +395,11 @@ export class DailyMilkService {
       if (item.slot === 'MORNING') {
         record.morningCow = Number(item.cowQty);
         record.morningBuffalo = Number(item.buffaloQty);
+        record.morningStatus = item.status;
       } else {
         record.eveningCow = Number(item.cowQty);
         record.eveningBuffalo = Number(item.buffaloQty);
+        record.eveningStatus = item.status;
       }
     }
 
