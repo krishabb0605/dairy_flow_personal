@@ -63,7 +63,6 @@ const LoginPage = () => {
       toast.success('User login successfully');
       setSubmitLoading(false);
     } catch (error: any) {
-      console.log('Error while sign up user', error);
       toast.error(error.message || 'Error while sign up user');
       setSubmitLoading(false);
     }

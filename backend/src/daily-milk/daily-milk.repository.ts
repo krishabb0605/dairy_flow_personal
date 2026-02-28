@@ -382,8 +382,9 @@ export class DailyMilkRepository {
     customerOwnerId: number;
     start: Date;
     end: Date;
+    status?: 'PENDING' | 'DELIVERED' | 'CANCELLED';
   }) {
-    const { customerOwnerId, start, end } = params;
+    const { customerOwnerId, start, end, status } = params;
     return this.prisma.dailyMilk.aggregate({
       where: {
         customerOwnerId,
@@ -391,6 +392,7 @@ export class DailyMilkRepository {
           gte: start,
           lte: end,
         },
+        ...(status ? { status } : {}),
       },
       _sum: {
         cowQty: true,

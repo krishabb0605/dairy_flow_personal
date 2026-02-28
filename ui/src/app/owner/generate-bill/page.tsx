@@ -398,7 +398,7 @@ const GenerateBillPage = () => {
           </div>
 
           <div className='grid grid-cols-1 md:grid-cols-5 border-t border-slate-200'>
-            <div className='bg-slate-100 text-slate-700 font-bold px-4 py-3 text-right'>
+            <div className='bg-slate-100 text-slate-700 font-bold px-4 py-3 text-center md:text-right'>
               Totals:
             </div>
             <div className='bg-slate-50 text-slate-700 font-bold px-4 py-3 text-center border-l border-slate-200'>

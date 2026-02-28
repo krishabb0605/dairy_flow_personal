@@ -74,8 +74,6 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, []);
 
-  console.log('user', auth.currentUser?.uid, user, loading);
-
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
@@ -135,12 +133,15 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
   const handleLogout = async () => {
     try {
+      const firebaseUser = auth.currentUser;
       await signOut(auth);
       setUser(null);
       setBasicInfo(defaultBasicInfo);
       router.push('/login');
       localStorage.removeItem('user');
-      toast.success('User sign out successfully !!');
+      if (firebaseUser) {
+        toast.success('User sign out successfully !!');
+      }
     } catch (error) {
       console.error(error);
       toast.error('Error while log out !!');

@@ -21,6 +21,9 @@ const defaultMilkSummary = {
   totalCowQty: 0,
   totalBuffaloQty: 0,
   totalLiters: 0,
+  deliveredCowQty: 0,
+  deliveredBuffaloQty: 0,
+  deliveredLiters: 0,
   totalAmount: 0,
 };
 
@@ -36,6 +39,9 @@ const Dashboard = () => {
     totalCowQty: number;
     totalBuffaloQty: number;
     totalLiters: number;
+    deliveredCowQty: number;
+    deliveredBuffaloQty: number;
+    deliveredLiters: number;
     totalAmount: number;
   }>(defaultMilkSummary);
 
@@ -88,6 +94,9 @@ const Dashboard = () => {
         totalBuffaloQty: data.totalBuffaloQty ?? 0,
         totalCowQty: data.totalCowQty ?? 0,
         totalLiters: data.totalLiters ?? 0,
+        deliveredCowQty: data.deliveredCowQty ?? 0,
+        deliveredBuffaloQty: data.deliveredBuffaloQty ?? 0,
+        deliveredLiters: data.deliveredLiters ?? 0,
       });
     } catch (error) {
       console.error('Failed to fetch monthly summary:', error);
@@ -139,12 +148,12 @@ const Dashboard = () => {
 
   return (
     <ContentLayout title='Dashboard Overview'>
-      <div className='flex-1 space-y-8 flex flex-col xl:flex-row gap-4'>
+      <div className='flex-1 space-y-6 sm:space-y-8 flex flex-col xl:flex-row gap-4'>
         <div className='flex-1'>
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-6 mb-4'>
-            <div className='bg-white p-6 rounded-2xl border border-slate-200  shadow-sm'>
+          <div className='grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-4'>
+            <div className='bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm'>
               <div className='flex justify-between items-start mb-4'>
-                <span className='text-slate-500 text-sm font-medium uppercase tracking-wider'>
+                <span className='text-slate-500 text-xs sm:text-sm font-medium uppercase tracking-wider'>
                   Liters This Month
                 </span>
                 <div className='p-2 bg-blue-50 text-blue-600 rounded-lg'>
@@ -153,16 +162,16 @@ const Dashboard = () => {
                   </span>
                 </div>
               </div>
-              <div className='flex  justify-between items-center'>
-                <p className='text-4xl font-bold'>
+              <div className='flex justify-between items-center gap-2'>
+                <p className='text-3xl sm:text-4xl font-bold'>
                   {`${formatLiters(dailyMilkSummary.totalLiters)}L`}
                 </p>
                 <div>
-                  <p className='text-sm text-slate-500'>
+                  <p className='text-xs sm:text-sm text-slate-500'>
                     Total cow qty:{' '}
                     {`${formatLiters(dailyMilkSummary.totalCowQty)}L`}
                   </p>
-                  <p className='text-sm text-slate-500'>
+                  <p className='text-xs sm:text-sm text-slate-500'>
                     Total buffalo qty:{' '}
                     {`${formatLiters(dailyMilkSummary.totalBuffaloQty)}L`}
                   </p>
@@ -170,10 +179,10 @@ const Dashboard = () => {
               </div>
             </div>
 
-            <div className='bg-white  p-6 rounded-2xl border border-slate-200  shadow-sm'>
+            <div className='bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm'>
               <div className='flex justify-between items-start mb-4'>
-                <span className='text-slate-500 text-sm font-medium uppercase tracking-wider'>
-                  Current Bill
+                <span className='text-slate-500 text-xs sm:text-sm font-medium uppercase tracking-wider'>
+                  Delivered Bill (This Month)
                 </span>
                 <div className='p-2 bg-green-50  text-green-600 rounded-lg'>
                   <span className='material-symbols-outlined leading-none'>
@@ -181,9 +190,26 @@ const Dashboard = () => {
                   </span>
                 </div>
               </div>
-              <p className='text-4xl font-bold'>
-                {formatCurrency(dailyMilkSummary.totalAmount)}
-              </p>
+              <div className='flex justify-between gap-2'>
+                <div>
+                  <p className='text-3xl sm:text-4xl font-bold'>
+                    {formatCurrency(dailyMilkSummary.totalAmount)}
+                  </p>
+                  <p className='text-[10px] sm:text-xs text-slate-400 mt-2'>
+                    Amount shown only for delivered milk.
+                  </p>
+                </div>
+                <div>
+                  <p className='text-xs sm:text-sm text-slate-500'>
+                    Delivered cow qty:{' '}
+                    {`${formatLiters(dailyMilkSummary.deliveredCowQty)}L`}
+                  </p>
+                  <p className='text-xs sm:text-sm text-slate-500'>
+                    Delivered buffalo qty:{' '}
+                    {`${formatLiters(dailyMilkSummary.deliveredBuffaloQty)}L`}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -193,15 +219,15 @@ const Dashboard = () => {
           />
         </div>
 
-        <aside className='w-full xl:w-90 flex flex-col gap-6 shrink-0'>
-          <div className='bg-white p-6 rounded-2xl border border-slate-200 shadow-sm'>
+        <aside className='w-full xl:w-90 flex flex-col gap-4 sm:gap-6 shrink-0'>
+          <div className='bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm'>
             <h3 className='text-sm font-bold uppercase tracking-wider text-slate-500 mb-4'>
               Quick Actions
             </h3>
             <div className='space-y-3'>
               <Button
                 variant='ghost-primary'
-                className='w-full flex items-center justify-between p-3 rounded-xl transition-all group'
+                className='w-full flex items-center justify-between p-3 sm:p-4 rounded-xl transition-all group'
                 onClick={() => setOpenExtraMilkModal(true)}
               >
                 <div className='flex items-center gap-3'>
@@ -219,7 +245,7 @@ const Dashboard = () => {
 
               <Button
                 variant='ghost-primary'
-                className='w-full flex items-center justify-between p-3 rounded-xl transition-all group'
+                className='w-full flex items-center justify-between p-3 sm:p-4 rounded-xl transition-all group'
                 onClick={() => setOpenScheduleVacation(true)}
               >
                 <div className='flex items-center gap-3'>
@@ -236,13 +262,13 @@ const Dashboard = () => {
               </Button>
             </div>
           </div>
-          <div className='bg-white p-6 rounded-2xl border border-slate-200 shadow-sm'>
+          <div className='bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm'>
             <div className='space-y-6'>
               <h3 className='text-sm font-bold uppercase tracking-wider text-slate-500 mb-4'>
                 Your Milkman
               </h3>
 
-              <div className='flex items-center justify-between'>
+              <div className='flex items-center justify-between gap-3'>
                 <div className='flex items-center gap-3'>
                   <div className='size-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400'>
                     <span className='material-symbols-outlined'>person</span>
@@ -280,7 +306,7 @@ const Dashboard = () => {
               </Button>
             </div>
           </div>
-          <div className='bg-white p-6 rounded-2xl border border-slate-200 shadow-sm'>
+          <div className='bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm'>
             <h3 className='text-sm font-bold uppercase tracking-wider text-slate-500 mb-4'>
               Upcoming Plans
             </h3>

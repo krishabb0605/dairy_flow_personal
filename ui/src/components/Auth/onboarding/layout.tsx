@@ -35,9 +35,9 @@ const OnboardingLayout = ({
 
   return (
     <div className='layout-container flex grow flex-col'>
-      <main className='flex flex-1 justify-center px-4'>
+      <main className='flex flex-1 justify-center'>
         <div
-          className='layout-content-container flex flex-col w-full bg-white  rounded-xl shadow-sm border border-[#cfdbe7] p-8 pb-1 max-h-[calc(100vh-144px)] overflow-y-auto'
+          className='layout-content-container flex flex-col w-full bg-white  rounded-xl shadow-sm border border-[#cfdbe7] p-8 pb-1  lg:max-h-[calc(100vh-170px)] overflow-y-auto'
           style={{ scrollbarWidth: 'none' }}
         >
           {/* <!-- Page Heading --> */}
