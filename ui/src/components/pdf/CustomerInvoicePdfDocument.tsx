@@ -1,7 +1,8 @@
-import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
+import { Document, Image, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 
 import type { CustomerInvoicePdfProps } from '../../utils/types';
 import { formatCurrency } from '@/utils/constants';
+import logo from '../../assets/logo/logo.png';
 
 const pdfStyles = StyleSheet.create({
   page: {
@@ -30,8 +31,8 @@ const pdfStyles = StyleSheet.create({
   logoIcon: {
     width: 35,
     height: 35,
-    backgroundColor: '#0ea5e9',
     borderRadius: 10,
+    objectFit: 'cover',
   },
   brandName: {
     fontSize: 22,
@@ -305,7 +306,7 @@ const CustomerInvoicePdfDocument = ({
           {/* Header */}
           <View style={pdfStyles.headerRow}>
             <View style={pdfStyles.brandGroup}>
-              <View style={pdfStyles.logoIcon} />
+              <Image src={logo.src} style={pdfStyles.logoIcon} />
               <View>
                 <Text style={pdfStyles.brandName}>{dairyName}</Text>
                 <Text style={pdfStyles.brandTagline}>
