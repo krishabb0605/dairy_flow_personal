@@ -62,7 +62,7 @@ const Modal = ({
             )}
           </div>
 
-          <Button onClick={onClose} variant='link-gray'>
+          <Button onClick={onClose} variant='link-gray' className='size-10'>
             <span className='material-symbols-outlined'>close</span>
           </Button>
         </div>

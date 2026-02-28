@@ -127,7 +127,7 @@ const CustomerOverView = ({
                 </span>
               </div>
               <div className='flex items-center gap-3 mb-4'>
-                <div className='p-2 bg-orange-50 text-orange-600 rounded-lg'>
+                <div className='p-2 bg-orange-50 text-orange-600 rounded-lg size-10'>
                   <span className='material-symbols-outlined'>wb_sunny</span>
                 </div>
                 <p className='font-bold text-slate-900'>
@@ -167,7 +167,7 @@ const CustomerOverView = ({
                 </span>
               </div>
               <div className='flex items-center gap-3 mb-4'>
-                <div className='p-2 bg-indigo-50  text-indigo-600 rounded-lg'>
+                <div className='p-2 bg-indigo-50  text-indigo-600 rounded-lg size-10'>
                   <span className='material-symbols-outlined'>dark_mode</span>
                 </div>
                 <p className='font-bold text-slate-900'>

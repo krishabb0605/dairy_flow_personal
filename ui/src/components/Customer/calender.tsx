@@ -146,7 +146,7 @@ export default function DeliveryCalendar({
               Track and manage your daily milk supply
             </p>
           </div>
-          <div className='flex items-stretch sm:items-center gap-2 p-2 rounded-xl border border-slate-200 bg-slate-50/80'>
+          <div className='flex items-stretch sm:items-center gap-2 p-2'>
             <div className='relative flex-1'>
               <select
                 className='appearance-none h-10 w-full sm:min-w-36 rounded-lg border border-slate-200 bg-white pl-3 pr-10 text-sm font-semibold text-slate-700 shadow-sm outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20'
@@ -190,11 +190,11 @@ export default function DeliveryCalendar({
           </div>
         </div>
 
-        <div className='flex items-center justify-between sm:justify-start gap-2 bg-slate-100 p-1 rounded-xl'>
+        <div className='flex items-center justify-between sm:justify-start gap-2 bg-white border border-slate-200 p-1 rounded-xl'>
           <Button
             onClick={() => changeMonth(-1)}
             variant='ghost-list'
-            className='p-2 rounded-lg'
+            className='p-2 rounded-lg size-10'
           >
             <span className='material-symbols-outlined'>chevron_left</span>
           </Button>
@@ -207,7 +207,7 @@ export default function DeliveryCalendar({
             disabled={!canGoNextMonth}
             onClick={() => changeMonth(1)}
             variant='ghost-list'
-            className={`p-2 rounded-lg ${
+            className={`p-2 rounded-lg size-10 ${
               canGoNextMonth
                 ? ''
                 : 'opacity-40 cursor-not-allowed pointer-events-none'

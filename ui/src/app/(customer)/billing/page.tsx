@@ -283,7 +283,7 @@ const MonthlyBiling = () => {
                       key={bill.invoiceId}
                       className='bg-white p-5 rounded-xl border-l-4 border-l-red-500 border-y border-r border-slate-200 shadow-sm flex items-start gap-4'
                     >
-                      <div className='bg-red-50 p-2.5 rounded-lg text-red-600'>
+                      <div className='bg-red-50 p-2.5 rounded-lg text-red-600 size-10'>
                         <span className='material-symbols-outlined'>
                           priority_high
                         </span>

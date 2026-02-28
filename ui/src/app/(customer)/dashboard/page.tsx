@@ -284,7 +284,7 @@ const Dashboard = () => {
                 </div>
                 <Button
                   variant='soft-primary'
-                  className='p-2 rounded-full transition-colors h-10 w-10'
+                  className='p-2 rounded-full transition-colors size-10'
                 >
                   <span className='material-symbols-outlined text-xl'>
                     call

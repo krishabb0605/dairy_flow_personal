@@ -97,15 +97,15 @@ const Deliveries = () => {
             onClick={() => setIsFiltersOpen((prev) => !prev)}
             aria-expanded={isFiltersOpen}
             aria-controls='delivery-filters-panel'
-            variant='ghost-list'
-            className='w-full p-4 flex items-center justify-between transition-colors border-b border-gray-200'
+            variant='outline-muted'
+            className='w-full rounded-xl px-4 py-3 flex items-center justify-between text-left transition-colors'
           >
-            <div className='flex items-center gap-2'>
-              <span className='material-symbols-outlined text-slate-500'>
+            <span className='flex items-center gap-2 text-slate-700 font-semibold'>
+              <span className='material-symbols-outlined text-[20px]'>
                 tune
               </span>
-              <span className='text-sm font-bold text-slate-700'>Filters</span>
-            </div>
+              Filters
+            </span>
             <span className='material-symbols-outlined text-slate-500'>
               {isFiltersOpen ? 'expand_less' : 'expand_more'}
             </span>
