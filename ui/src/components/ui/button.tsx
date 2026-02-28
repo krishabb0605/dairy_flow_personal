@@ -77,7 +77,7 @@ const sizeClasses: Record<ButtonSize, string> = {
   sm: 'h-9 px-3 text-sm',
   md: 'h-10 px-4 text-sm',
   lg: 'h-11 px-6 text-base',
-  icon: 'h-10 w-10 p-0',
+  icon: 'size-10 p-0',
 };
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
