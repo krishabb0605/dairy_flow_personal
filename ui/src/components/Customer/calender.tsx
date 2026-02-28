@@ -136,18 +136,20 @@ export default function DeliveryCalendar({
   return (
     <div className='bg-white rounded-2xl border border-slate-200 shadow-sm overflow-auto'>
       {/* HEADER */}
-      <div className='px-6 py-5 border-b border-slate-200 flex justify-between items-center gap-4'>
-        <div className='flex flex-wrap items-center gap-4'>
+      <div className='px-4 sm:px-6 py-4 sm:py-5 border-b border-slate-200 flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center'>
+        <div className='flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4'>
           <div>
-            <h2 className='text-lg font-bold'>Delivery Calendar</h2>
-            <p className='text-sm text-slate-500'>
+            <h2 className='text-base sm:text-lg font-bold'>
+              Delivery Calendar
+            </h2>
+            <p className='text-xs sm:text-sm text-slate-500'>
               Track and manage your daily milk supply
             </p>
           </div>
-          <div className='flex items-center gap-2 p-2 rounded-xl border border-slate-200 bg-slate-50/80'>
-            <div className='relative'>
+          <div className='flex items-stretch sm:items-center gap-2 p-2 rounded-xl border border-slate-200 bg-slate-50/80'>
+            <div className='relative flex-1'>
               <select
-                className='appearance-none h-10 min-w-36 rounded-lg border border-slate-200 bg-white pl-3 pr-10 text-sm font-semibold text-slate-700 shadow-sm outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20'
+                className='appearance-none h-10 w-full sm:min-w-36 rounded-lg border border-slate-200 bg-white pl-3 pr-10 text-sm font-semibold text-slate-700 shadow-sm outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20'
                 value={month}
                 onChange={(e) => jumpTo(year, Number(e.target.value))}
               >
@@ -170,9 +172,9 @@ export default function DeliveryCalendar({
               </span>
             </div>
 
-            <div className='relative'>
+            <div className='relative flex-1'>
               <select
-                className='appearance-none h-10 min-w-24 rounded-lg border border-slate-200 bg-white pl-3 pr-10 text-sm font-semibold text-slate-700 shadow-sm outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20'
+                className='appearance-none h-10 w-full sm:min-w-24 rounded-lg border border-slate-200 bg-white pl-3 pr-10 text-sm font-semibold text-slate-700 shadow-sm outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20'
                 value={year}
                 onChange={(e) => jumpTo(Number(e.target.value), month)}
               >
@@ -188,7 +190,7 @@ export default function DeliveryCalendar({
           </div>
         </div>
 
-        <div className='flex items-center gap-2 bg-slate-100 p-1 rounded-xl'>
+        <div className='flex items-center justify-between sm:justify-start gap-2 bg-slate-100 p-1 rounded-xl'>
           <Button
             onClick={() => changeMonth(-1)}
             variant='ghost-list'
@@ -197,7 +199,7 @@ export default function DeliveryCalendar({
             <span className='material-symbols-outlined'>chevron_left</span>
           </Button>
 
-          <span className='px-3 font-bold text-sm'>
+          <span className='px-2 sm:px-3 font-bold text-xs sm:text-sm'>
             {currentDate.toLocaleString('default', { month: 'long' })} {year}
           </span>
 
@@ -217,11 +219,11 @@ export default function DeliveryCalendar({
       </div>
 
       {/* WEEK DAYS */}
-      <div className='grid grid-cols-7 px-6 pt-4'>
+      <div className='grid grid-cols-7 px-4 sm:px-6 pt-3 sm:pt-4'>
         {weekDays.map((d) => (
           <div
             key={d}
-            className='text-center text-md font-bold text-slate-400 py-2'
+            className='text-center text-[10px] sm:text-sm font-bold text-slate-400 py-2'
           >
             {d.toLocaleUpperCase()}
           </div>
@@ -229,7 +231,7 @@ export default function DeliveryCalendar({
       </div>
 
       {/* DAYS */}
-      <div className='p-6 pt-0'>
+      <div className='p-4 sm:p-6 pt-0'>
         <div className='grid grid-cols-7 gap-px bg-slate-200 border border-slate-200 rounded-xl overflow-hidden'>
           {cells.map((d, i) => {
             const isToday =
@@ -248,7 +250,7 @@ export default function DeliveryCalendar({
                   if (!canOpenDay) return;
                   setSelectedDate(cellDate);
                 }}
-                className={`aspect-square p-3 cursor-pointer transition relative
+                className={`aspect-square p-2 sm:p-3 cursor-pointer transition relative
                 ${
                   d.disabled
                     ? 'bg-slate-50 opacity-40'
@@ -258,10 +260,10 @@ export default function DeliveryCalendar({
                 }
                 ${isToday && 'border-2 border-primary bg-primary/5'}`}
               >
-                <span className='text-sm font-bold'>{d.day}</span>
+                <span className='text-xs sm:text-sm font-bold'>{d.day}</span>
 
                 {!d.disabled && !isFuture && (
-                  <div className='flex flex-col items-center justify-center h-full -mt-4'>
+                  <div className='flex flex-col items-center justify-center h-full -mt-3 sm:-mt-4'>
                     {(() => {
                       const record = recordByDay.get(d.day);
                       const morning =
@@ -274,7 +276,7 @@ export default function DeliveryCalendar({
 
                       return (
                         <>
-                          <div className='text-xs font-bold text-slate-400 uppercase'>
+                          <div className='text-[10px] sm:text-xs font-bold text-slate-400 uppercase'>
                             {totalDay}L
                           </div>
 

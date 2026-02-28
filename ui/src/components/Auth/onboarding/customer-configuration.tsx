@@ -50,7 +50,6 @@ const CustomerConfiguration = ({
       setSaveLoading(false);
     } catch (error: any) {
       toast.error(error.message || 'Error while adding customer config !');
-      console.log({ error });
       setSaveLoading(false);
     }
   };
@@ -68,7 +67,7 @@ const CustomerConfiguration = ({
         <h2 className='text-[22px] font-bold leading-tight tracking-[-0.015em]'>
           1. Link to Dairy
         </h2>
-        
+
         {/* <!-- Section: Profile Info --> */}
         <div className='grid grid-cols-1 md:grid-cols-2 gap-4 px-4 pt-4'>
           <label className='flex flex-col'>

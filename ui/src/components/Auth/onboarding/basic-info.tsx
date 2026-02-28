@@ -72,7 +72,6 @@ const BasicInfo = ({ currentStep, setCurrentStep }: OnboardingStepProps) => {
       setCurrentStep((prev) => prev + 1);
       setSaveLoading(false);
     } catch (error: any) {
-      console.log(error.message);
       toast.error(error.message || 'Error while creating user');
       setSaveLoading(false);
     }
@@ -130,7 +129,7 @@ const BasicInfo = ({ currentStep, setCurrentStep }: OnboardingStepProps) => {
           </label>
           <textarea
             className='form-input flex w-full rounded-lg text-[#0d141b] border border-[#cfdbe7] bg-slate-50 placeholder:text-blue-placeholder p-4 text-sm font-normal focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none'
-            rows={1}
+            rows={2}
             name='address'
             value={basicInfo.address}
             placeholder='4522 Oakwood Drive, Maple Heights, Apartment 4B, Seattle, WA 98101'

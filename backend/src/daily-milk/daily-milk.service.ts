@@ -188,7 +188,32 @@ export class DailyMilkService {
 
   private getTodayDateOnly(): Date {
     const now = new Date();
-    return new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+    if (!TIME_ZONE) {
+      return new Date(
+        Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()),
+      );
+    }
+    return this.getDateOnlyInTimeZone(now, TIME_ZONE);
+  }
+
+  private getDateOnlyInTimeZone(date: Date, timeZone: string): Date {
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).formatToParts(date);
+
+    const year = Number(parts.find((part) => part.type === 'year')?.value);
+    const month =
+      Number(parts.find((part) => part.type === 'month')?.value) - 1;
+    const day = Number(parts.find((part) => part.type === 'day')?.value);
+
+    if (Number.isNaN(year) || Number.isNaN(month) || Number.isNaN(day)) {
+      throw new BadRequestException('Invalid timezone date conversion');
+    }
+
+    return new Date(Date.UTC(year, month, day));
   }
 
   async getOwnerDashboard(
@@ -438,21 +463,34 @@ export class DailyMilkService {
     const start = new Date(Date.UTC(year, monthIndex, 1));
     const end = new Date(Date.UTC(year, monthIndex + 1, 0));
 
-    const totals = await this.dailyMilkRepository.aggregateMonthlyTotals({
+    const totalsAll = await this.dailyMilkRepository.aggregateMonthlyTotals({
       customerOwnerId,
       start,
       end,
     });
 
-    const totalCowQty = Number(totals._sum.cowQty ?? 0);
-    const totalBuffaloQty = Number(totals._sum.buffaloQty ?? 0);
-    const totalAmount = Number(totals._sum.totalAmount ?? 0);
+    const totalsDelivered =
+      await this.dailyMilkRepository.aggregateMonthlyTotals({
+        customerOwnerId,
+        start,
+        end,
+        status: 'DELIVERED',
+      });
+
+    const totalCowQty = Number(totalsAll._sum.cowQty ?? 0);
+    const totalBuffaloQty = Number(totalsAll._sum.buffaloQty ?? 0);
+    const deliveredCowQty = Number(totalsDelivered._sum.cowQty ?? 0);
+    const deliveredBuffaloQty = Number(totalsDelivered._sum.buffaloQty ?? 0);
+    const totalAmount = Number(totalsDelivered._sum.totalAmount ?? 0);
 
     return {
       month: start.toISOString().slice(0, 10),
       totalCowQty,
       totalBuffaloQty,
       totalLiters: totalCowQty + totalBuffaloQty,
+      deliveredCowQty,
+      deliveredBuffaloQty,
+      deliveredLiters: deliveredCowQty + deliveredBuffaloQty,
       totalAmount,
     };
   }

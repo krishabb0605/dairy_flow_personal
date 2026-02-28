@@ -89,8 +89,14 @@ const OwnerLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className='flex h-screen relative'>
       {/* Mobile Header */}
-      <div className='md:hidden fixed top-0 left-0 right-0 bg-gray-800 text-white p-4 flex justify-between z-20'>
-        <span className='font-semibold'>My App</span>
+      <div className='md:hidden fixed top-0 left-0 right-0 bg-gray-800 text-white p-4 flex justify-between items-center z-20'>
+        <div className='flex items-center gap-2'>
+          <Image src={logo} alt='DairyFlow logo' height={28} width={28} />
+          <div className='flex flex-col leading-none'>
+            <span className='text-sm font-semibold'>DairyFlow</span>
+            <span className='text-[10px] text-white/70'>Owner Portal</span>
+          </div>
+        </div>
         <Button
           onClick={() => setOpen(!open)}
           variant='ghost'
@@ -124,6 +130,7 @@ const OwnerLayout = ({ children }: { children: React.ReactNode }) => {
           <Link
             key={item.href}
             href={item.href}
+            onClick={() => setOpen(false)}
             className={`flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-primary/5 hover:text-primary transition-colors ${
               pathName === item.href ? active : 'text-slate-600'
             }`}

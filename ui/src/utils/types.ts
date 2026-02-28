@@ -528,6 +528,9 @@ export type CustomerMonthlySummaryResponse = {
   totalCowQty: number;
   totalBuffaloQty: number;
   totalLiters: number;
+  deliveredCowQty: number;
+  deliveredBuffaloQty: number;
+  deliveredLiters: number;
   totalAmount: number;
 };
 

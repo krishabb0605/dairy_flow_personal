@@ -47,11 +47,11 @@ export default function OnboardingPage() {
   if (!mounted) return null;
 
   return (
-    <div className='mx-auto p-6 pb-0 flex-1'>
+    <div className='mx-auto w-full max-w-6xl p-4 sm:p-6 pb-4 sm:pb-6 flex-1'>
       <Stepper steps={steps} currentStep={currentStep} />
 
       {/* Step Content */}
-      <div className='bg-white rounded-lg'>
+      <div className='bg-white rounded-lg sm:rounded-xl'>
         {currentStep === 1 && (
           <BasicInfo
             currentStep={currentStep}
