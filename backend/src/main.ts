@@ -1,5 +1,6 @@
+import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import 'dotenv/config';
 import bodyParser from 'body-parser';
 
@@ -8,7 +9,13 @@ import { FirebaseAuthGuard } from './common/guards/firebase-auth.guard.js';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bodyParser: false });
+  const logger = new Logger('HTTP');
   app.enableCors();
+
+  app.use((req: Request, _res: Response, next: NextFunction) => {
+    logger.log(`${req.method} ${req.originalUrl}`);
+    next();
+  });
 
   app.useGlobalGuards(app.get(FirebaseAuthGuard));
 

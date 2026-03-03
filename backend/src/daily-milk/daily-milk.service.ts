@@ -93,7 +93,7 @@ export class DailyMilkService {
     }> = [];
 
     for (const customerOwner of customerOwners) {
-      this.logger.log('Milk entry for customer ', customerOwner.id);
+      this.logger.log(`>>> Milk entry for customer: ${customerOwner.id} `);
       const baseCowQty =
         slot === 'MORNING'
           ? Number(customerOwner.customer.morningCowQty)

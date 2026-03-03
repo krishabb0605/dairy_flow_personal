@@ -34,16 +34,24 @@ export class InvoiceService {
    * This method checks if tomorrow is the 1st day of a new month.
    * If yes → generate invoices for the current month.
    */
-  @Cron('59 23 * * *', CRON_OPTIONS)
+  @Cron('57 23 * * *', CRON_OPTIONS)
   async handleMonthEndCron(): Promise<void> {
     const now = new Date();
+    this.logger.log(
+      `Month-end cron started at ${now.toISOString()} (tz: ${TIME_ZONE ?? 'server-default'})`,
+    );
 
     // Create tomorrow's date
     const tomorrow = new Date(now);
     tomorrow.setDate(now.getDate() + 1);
 
     // If tomorrow is NOT the 1st day of month → exit
-    if (tomorrow.getDate() !== 1) return;
+    if (tomorrow.getDate() !== 1) {
+      this.logger.log(
+        `Month-end cron skipped: tomorrow is ${tomorrow.toISOString().slice(0, 10)} (not the 1st).`,
+      );
+      return;
+    }
 
     // Current year and month (invoice month)
     const billYear = now.getFullYear();
@@ -75,7 +83,12 @@ export class InvoiceService {
     });
 
     // If no data → nothing to generate
-    if (totals.length === 0) return;
+    if (totals.length === 0) {
+      this.logger.log(
+        `Monthly invoice generation skipped for ${billYear}-${String(billMonth).padStart(2, '0')}: no totals found.`,
+      );
+      return;
+    }
 
     // Extract all customerOwnerIds
     const customerOwnerIds = totals.map((entry) => entry.customerOwnerId);
@@ -109,7 +122,12 @@ export class InvoiceService {
         status: 'UNPAID' as const,
       }));
 
-    if (entries.length === 0) return;
+    if (entries.length === 0) {
+      this.logger.log(
+        `Monthly invoice generation skipped for ${billYear}-${String(billMonth).padStart(2, '0')}: all invoices already paid.`,
+      );
+      return;
+    }
 
     // Upsert invoices (create if not exists, update if exists)
     await this.invoiceRepository.upsertMonthlyInvoices(entries);
