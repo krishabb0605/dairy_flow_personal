@@ -34,17 +34,17 @@ export class DailyMilkService {
     this.logger.log('Milk entry cron placeholder is running at every hour');
   }
 
-  // @Cron(CronExpression.EVERY_DAY_AT_5AM, CRON_OPTIONS)
-  // async handleMorningCron(): Promise<void> {
-  //   this.logger.log('Milk entry cron placeholder is running at 5 am');
-  //   await this.generateDailyMilk('MORNING');
-  // }
+  @Cron(CronExpression.EVERY_DAY_AT_5AM, CRON_OPTIONS)
+  async handleMorningCron(): Promise<void> {
+    this.logger.log('Milk entry cron placeholder is running at 5 am');
+    await this.generateDailyMilk('MORNING');
+  }
 
-  // @Cron(CronExpression.EVERY_DAY_AT_5PM, CRON_OPTIONS)
-  // async handleEveningCron(): Promise<void> {
-  //   this.logger.log('Milk entry cron placeholder is running at 5 pm');
-  //   await this.generateDailyMilk('EVENING');
-  // }
+  @Cron(CronExpression.EVERY_DAY_AT_5PM, CRON_OPTIONS)
+  async handleEveningCron(): Promise<void> {
+    this.logger.log('Milk entry cron placeholder is running at 5 pm');
+    await this.generateDailyMilk('EVENING');
+  }
 
   private async generateDailyMilk(slot: 'MORNING' | 'EVENING'): Promise<void> {
     const deliveryDate = this.getTodayDateOnly();
@@ -93,7 +93,7 @@ export class DailyMilkService {
     }> = [];
 
     for (const customerOwner of customerOwners) {
-      this.logger.log('Milk entry for customer ', customerOwner.id);
+      this.logger.log(`>>> Milk entry for customer: ${customerOwner.id} `);
       const baseCowQty =
         slot === 'MORNING'
           ? Number(customerOwner.customer.morningCowQty)
